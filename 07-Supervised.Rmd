@@ -1,0 +1,731 @@
+# Supervised Methods {#supervised-methods}
+
+Supervised learning methods use this pre-labelled data to recognise patterns. Think of it like a student learning from examples with answers provided by a teacher. Labelled data, also known as the training set, consists of a collection of texts, each of which has a known category or value assigned to it. Examples include movie reviews labelled as 'positive' or 'negative', news articles categorised by topic (e.g. 'sports', 'politics', 'finance'), and survey responses assigned a satisfaction score. A supervised learning algorithm examines the features of these labelled texts — typically, which words appear and how often — and tries to determine the relationship between the words and the labels. For instance, it may recognise that reviews containing words such as 'amazing', 'love' and 'excellent' are often categorised as 'positive'. Once the algorithm has learned these patterns from the training set, it can predict the labels of new, unlabelled texts — usually called the test set.
+
+Supervised methods are effective when manual labelling of a subset of data is feasible, but automatic classification of larger volumes of text is required. Supervised methods differ from dictionary methods, which rely on fixed lists of words, and unsupervised methods, such as topic modelling or clustering, which discover patterns without needing pre-assigned labels.
+
+Several algorithms for supervised text classification are available within the R ecosystem, particularly those integrated with `quanteda`. We will cover two widely used, relatively simple yet effective algorithms: Support Vector Machines (SVM) and Naive Bayes (NB). SVM is a powerful discriminative classifier that identifies an optimal boundary, or hyperplane, to distinguish between different categories in a high-dimensional feature space. Naive Bayes is a probabilistic classifier based on Bayes' theorem, which simplifies the assumption that features are independent of each other.
+
+We will also explore methods for visualising model performance and implementing cross-validation using the `caret` package, which provides a unified interface for many machine-learning algorithms and validation techniques.
+
+## Support Vector Machines (SVM)
+
+SVMs are powerful supervised learning models that are frequently employed for classification tasks. In text classification, for example, they operate by mapping features of documents, such as word counts, from a document-feature matrix (DFM) into a high-dimensional space. In this space, SVMs identify the optimal hyperplane that most effectively separates documents into different categories.
+
+Imagine you have a piece of paper with red and blue dots scattered on it, and you want to draw a straight line that best separates them. An SVM tries to do something similar but in many more dimensions. Each document can be considered a point in a very high-dimensional space. Each dimension corresponds to a unique word in your vocabulary, and the position of the document along that dimension depends on how frequently that word appears in the document or on other measures, such as TF-IDF. An SVM aims to find the optimal hyperplane that best separates documents into different categories, such as "positive review" versus "negative review". 'Best' means the hyperplane with the largest possible margin — the broadest possible gap — between the closest documents of the different classes. Documents closest to this boundary, which defines the margin, are called 'support vectors'. SVMs are known for their effectiveness, especially when dealing with many features, which is common in text data since each word can constitute a feature.
+
+In this example, we will use the `caret` package to train an SVM model for binary polarity classification, use `quanteda` for text preprocessing and the binary polarity label ("neg" or "pos") provided by a sample of the Large Movie Review Dataset (`data_corpus_LMRD`) as the target variable:
+
+```{r svm-polarity-import, results = FALSE, message=FALSE}
+set.seed(42) 
+
+library(quanteda)
+library(quanteda.classifiers)
+library(caret)    # For model training, evaluation, and cross-validation
+library(ggplot2)
+library(pROC)     # For ROC analysis
+
+corpus_reviews <- corpus_sample(data_corpus_LMRD, 2000) # Sample 2000 reviews
+```
+
+We need to split our data into separate training and test sets for supervised learning: we will use the training set to build the model and the test set to evaluate its performance on unseen data later on. We will use the `polarity` variable as our target, ensuring it is a factor as this is the required format for classification tasks in `caret`. Note that we will filter for documents with non-missing polarity labels before splitting. `caret` requires factor levels to be valid R variable names (like "neg" and "pos"):
+
+```{r svm-polarity-split, message=FALSE}
+polarity_labels <- factor(corpus_reviews$polarity)
+
+# Identify documents with valid polarity labels
+
+valid_docs_index <- which(!is.na(polarity_labels))
+corpus_reviews_valid <- corpus_reviews[valid_docs_index]
+polarity_valid <- polarity_labels[valid_docs_index]
+polarity_valid <- factor(polarity_valid, levels = c("neg", "pos"))
+
+# Check the distribution of polarity_valid BEFORE splitting
+print(table(polarity_valid))
+
+# Create stratified split indices to ensure both classes are included in train/test sets
+neg_indices <- which(polarity_valid == "neg")
+pos_indices <- which(polarity_valid == "pos")
+
+# Determine the number of instances for train/test per class (70/30 split)
+set.seed(42)
+train_size_neg <- floor(0.7 * length(neg_indices))
+train_size_pos <- floor(0.7 * length(pos_indices))
+
+# Sample indices for training set from each class
+train_indices_neg <- sample(neg_indices, size = train_size_neg, replace = FALSE)
+train_indices_pos <- sample(pos_indices, size = train_size_pos, replace = FALSE)
+
+# Combine training indices
+train_index <- c(train_indices_neg, train_indices_pos)
+
+# The remaining indices are for the test set
+all_valid_indices <- seq_along(polarity_valid)
+test_index <- all_valid_indices[!all_valid_indices %in% train_index]
+
+# Split the corpus subset and polarity labels into training and testing sets using the determined indices
+corpus_reviews_train <- corpus_reviews_valid[train_index]
+corpus_reviews_test <- corpus_reviews_valid[test_index]
+
+polarity_train <- polarity_valid[train_index]
+polarity_test <- polarity_valid[test_index]
+
+# Check the distribution of the split
+print("Training set class distribution:")
+print(table(polarity_train))
+print("Testing set class distribution:")
+print(table(polarity_test))
+```
+
+Next, we preprocess the training and test corpus subsets to generate the DFMs. Here, it is crucial that the test DFM has the same features and order as the training DFM. The `dfm_match()` function ensures this. We will then apply common text cleaning steps during tokenisation and convert the DFMs to matrices to ensure compatibility with `caret`.
+
+```{r svm-polarity-dfm, message=FALSE}
+
+# Tokenise and preprocess the training corpus
+
+tokens_train <- tokens(
+  corpus_reviews_train,
+  what = "word",
+  remove_punct = TRUE,
+  remove_symbols = TRUE,
+  remove_numbers = TRUE,
+  remove_url = TRUE,
+  remove_separators = TRUE
+) %>%
+  tokens_tolower() %>%
+  tokens_select(stopwords("english"), selection = "remove")
+
+# Tokenise and preprocess the test corpus
+
+tokens_test <- tokens(
+  corpus_reviews_test,
+  what = "word",
+  remove_punct = TRUE,
+  remove_symbols = TRUE,
+  remove_numbers = TRUE,
+  remove_url = TRUE,
+  remove_separators = TRUE
+) %>%
+  tokens_tolower() %>%
+  tokens_select(stopwords("english"), selection = "remove")
+
+# Create DFMs from the processed tokens
+
+dfm_train <- dfm(tokens_train)
+dfm_test <- dfm(tokens_test)
+
+# Ensure the test DFM has the same features as the training DFM
+
+dfm_test_matched <- dfm_match(dfm_test, features = featnames(dfm_train))
+
+# Convert DFMs to matrices for caret
+
+matrix_train <- as.matrix(dfm_train)
+matrix_test <- as.matrix(dfm_test_matched)
+
+# Remove any zero-variance columns from the training matrix, as caret::train can have issues
+# Ensure the test matrix also has these columns removed
+
+nzv_train <- nearZeroVar(matrix_train)
+if(length(nzv_train) > 0) {
+  matrix_train <- matrix_train[, -nzv_train]
+  matrix_test <- matrix_test[, -nzv_train]
+}
+```
+
+Now we train the SVM model using `caret::train()`. `caret::train()` provides a consistent interface for training various models. We specify `method = "svmLinear"` for a linear kernel SVM, which is often a good starting point for text data.
+
+Rather than using a single train/test split, we can use k-fold cross-validation to obtain a more reliable estimate of the model's performance. The `caret::train()` function makes this easy using the `trControl` argument. To demonstrate this, we will define a 10-fold cross-validation set-up. For binary classification, the `twoClassSummary` function calculates metrics such as accuracy, kappa, sensitivity, specificity, and ROC AUC.
+
+What is k-fold cross-validation? Put simply, it involves splitting the training data into equal-sized parts, known as 'folds'. For instance, if k equals 10, the training data would be divided into ten folds, and the model would be trained ten times. During each iteration, one fold is held out as a validation set and the model is trained using the remaining 9 folds. The trained model is then tested on the held-out validation set, and the performance metrics are recorded. After ten iterations, the performance metrics from each fold are averaged to provide a more reliable estimate of how the model will perform on new data.
+
+The 'caret' package makes cross-validation easy. We use the `trainControl()` function to specify the cross-validation settings and the `train()` function to train the model. We select a linear SVM using the argument `method = "svmLinear"`. Linear SVMs are often very effective and computationally less intensive than non-linear ones for text. Setting `metric = "ROC"` instructs caret to optimise the model based on the area under the ROC curve (AUC), a typical and effective metric for binary classification. Setting `classProbs = TRUE` means that we require the model to output class probabilities for ROC analysis and calibration plots, such as the probability that a review is 'positive'. `summaryFunction = twoClassSummary` is used for binary classification problems and calculates useful metrics such as sensitivity, specificity, and ROC AUC during cross-validation.
+
+```{r svm-polarity-train-cv}
+train_control_cv_clf <- trainControl(
+  method = "cv",          # Use cross-validation
+  number = 10,            # Number of folds
+  savePredictions = "final", # Save predictions for the final model
+  classProbs = TRUE,    # Compute class probabilities (needed for ROC/Calibration)
+  summaryFunction = twoClassSummary # Use metrics suitable for binary classification
+)
+
+# Train the SVM model using caret::train with cross-validation
+# We use svmLinear as the method
+# metric = "ROC" tells caret to optimise based on AUC
+# Ensure the factor levels for y (polarity_train) are valid R names ("neg", "pos")
+
+svm_model_caret_cv <- train(
+  x = matrix_train,      # Training feature matrix
+  y = polarity_train,     # Training response vector (factor: "neg", "pos")
+  method = "svmLinear", # Use linear kernel SVM
+  trControl = train_control_cv_clf, # Apply cross-validation control for classification
+  metric = "ROC"         # Optimize based on ROC AUC
+)
+
+print(svm_model_caret_cv)
+```
+
+The output from `print(svm_model_caret_cv)` now includes the average classification performance metrics, like Accuracy, Kappa, and ROC AUC, across the 10 folds. This provides a more accurate prediction of how the model will perform on unseen data than a single split would. We then use the trained `svm_model_caret_cv` to predict the polarity labels and probabilities for the documents in the test set.
+
+```{r svm-polarity-predict-cv}
+# Predict the labels for the test set
+svm_predict_labels_caret_cv <- predict(svm_model_caret_cv, newdata = matrix_test)
+
+# Predict probabilities for the test set (needed for ROC and Calibration)
+svm_predict_probs_caret_cv <- predict(svm_model_caret_cv, newdata = matrix_test, type = "prob")
+
+# Display the head of the predicted labels and probabilities
+head(svm_predict_labels_caret_cv)
+head(svm_predict_probs_caret_cv)
+```
+
+Furthermore, we can examine the classification performance using `caret::confusionMatrix()` to compare the predicted and actual labels for the test set. This Confusion Matrix is a fundamental tool for evaluating classification models. It is a table that summarises performance by showing:
+
+-   **True Positives (TP)**: instances that were correctly predicted as positive
+-   **True Negatives (TN)**: instances that were correctly predicted as negative
+-   **False Positives (FP)**: instances that were incorrectly predicted as positive
+-   **False Negatives (FN)**: instances that were incorrectly predicted as negative
+
+From these counts, various metrics are derived:
+
+-   **Accuracy: (TP + TN) / Total**, representing overall correctness. However, it can be misleading if the classes are imbalanced;
+-   **Sensitivity: TP/(TP+FN)**, indicating how well the model identifies actual positives;
+-   **Specificity: TN/(TN+FP)**, showing how well the model identifies actual negatives;
+-   **Precision: TP/(TP+FP)**, showing the proportion of predicted positives that were actually positive;
+-   **F1-score: 2 \* (Precision \* Recall) / (Precision + Recall)**, the harmonic mean of precision and recall, is useful when both are important.
+
+```{r svm-polarity-table-cv}
+
+# Ensure the reference (polarity_test) has the same valid levels as the predicted data
+
+confusion_matrix_caret_cv <- confusionMatrix(
+  data = svm_predict_labels_caret_cv, # Predicted labels (factor)
+  reference = polarity_test            # Actual labels (reference factor)
+)
+
+# Print the confusion matrix and performance statistics
+print(confusion_matrix_caret_cv)
+```
+
+The confusion matrix for the test set — not used during the cross-validation training process — provides a final evaluation of how well the model performs on data that has never been seen before. It shows the number of true positives, false positives and false negatives, from which various metrics can be derived. Finally, we can visualize all this:
+
+```{r svm-polarity-confusion-graph}
+cm_table <- as.data.frame(confusion_matrix_caret_cv$table)
+
+ggplot(data = cm_table,
+       aes(x = Reference, y = Prediction, fill = Freq)) +
+  geom_tile() +
+  geom_text(aes(label = Freq), vjust = 1, color = "black") + # Add text labels for counts
+  scale_fill_gradient(low = "white", high = "steelblue") + # Colour scale
+  scale_x_discrete(name = "Actual Polarity") +
+  scale_x_discrete(name = "Predicted Polarity") +
+  ggtitle("Confusion Matrix (SVM Test Set)") +
+  theme_minimal() + # Use a minimal theme
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotate x-axis labels if needed
+```
+
+In classification using linear SVMs, variable importance is usually related to the size of the model coefficients, showing which features contribute most to class separation. The `caret::varImp()` function can extract this information:
+
+```{r svm-polarity-variable-importance}
+var_importance_svm <- varImp(svm_model_caret_cv, scale = FALSE)
+
+# Print the variable importance
+print(var_importance_svm)
+
+# Plot the top 20 most important variables
+plot(var_importance_svm, top = 20, main = "Variable Importance (SVM - Top 20 words)")
+```
+
+This graph illustrates the words that greatly influenced the SVM model's polarity classification decisions. Words with high importance may have large positive or negative coefficients, which push documents towards the 'pos' or 'neg' class boundary.
+
+Next, we plot the Receiver Operating Characteristic (ROC) curve using the predicted probabilities from the test set and the actual test labels and calculate the Area Under the Curve (AUC). The ROC curve illustrates the trade-off between sensitivity and specificity as the classification threshold varies.
+
+The ROC curve is another common way to evaluate binary classifiers. It plots the true positive rate (sensitivity) against the false positive rate (1 - specificity) at various classification threshold settings. A model that performs no better than random guessing would have a ROC curve close to the diagonal line (from bottom-left to top-right). A good model will have an ROC curve that bows towards the top-left corner. The area under the curve (AUC) summarises the ROC curve into a single number. An AUC of 1 indicates a perfect classifier; an AUC of 0.5 indicates performance no better than random chance; and an AUC of less than 0.5 suggests performance worse than random chance, indicating something is likely wrong, such as the flipped labels.
+
+```{r svm-polarity-roc, warning=FALSE, message=FALSE}
+# The roc() function needs the actual responses (factor) and the predicted probabilities for the positive class (numeric)
+roc_obj_svm <- roc(
+  response = polarity_test,
+  predictor = svm_predict_probs_caret_cv[, "pos"],
+  levels = levels(polarity_test)
+)
+plot(roc_obj_svm, main = "ROC Curve (SVM Test Set)", legacy.axes = TRUE)
+
+auc_value_svm <- auc(roc_obj_svm) # Add AUC value to the plot
+legend("bottomright",
+       legend = paste("AUC =", round(auc_value_svm, 3)),
+       bty = "n")
+```
+
+The ROC curve and the area under the curve (AUC) provide insight into the model's ability to distinguish between positive and negative classes. An AUC close to 1 indicates excellent discrimination, whereas an AUC close to 0.5 suggests that the model performs no better than by chance.
+
+Finally, we can examine the calibration plot. This shows how well the predicted probabilities match the observed frequencies in the test set. In a well-calibrated model, the points should lie close to the diagonal line. This indicates that a predicted probability of 0.8, for example, corresponds to the positive class occurring in approximately 80% of instances with that predicted probability. A calibration plot helps us to assess whether the model's predicted probabilities are reliable. For example, suppose the model predicts a probability of 0.8 for a set of reviews being 'positive'. In that case, we hope about 80% of those reviews are positive—the plot groups predictions by probability score. For example, it groups all reviews where P(positive) is between 0.7 and 0.8 and plots the proportion of positive reviews observed in each group against the predicted probability. A perfectly calibrated model would have points along the diagonal line (y = x).
+
+```{r svm-polarity-calibration, warning=FALSE, message=FALSE}
+# Create a data frame containing the observed outcomes and the predicted probabilities
+
+calibration_data <- data.frame(obs = polarity_test, prob_pos = svm_predict_probs_caret_cv[, "pos"])
+
+# Compute calibration information
+
+calibration_obj_svm <- calibration(
+  obs ~ prob_pos,
+  # Formula: observed variable ~ predicted probability variable
+  data = calibration_data,
+  # The data frame containing these variables
+  class = "pos",
+  # Specify the positive class name from the 'obs' column
+  cuts = 10,
+  # Number of bins (quantiles) for grouping probabilities
+  method = "quantile" # Method for creating bins
+)
+
+calibration_data_for_plot <- calibration_obj_svm$data
+
+ggplot(data = calibration_data_for_plot, aes(x = midpoint, y = Percent)) +
+  geom_line() + # Plot the calibration line connecting the points
+  geom_point() + # Plot the points for each bin
+  geom_abline(
+    intercept = 0,
+    slope = 1,
+    linetype = "dashed",
+    color = "darkred"
+  ) +
+  scale_x_continuous(name = "Bin Midpoint", limits = c(0, 100)) +
+  scale_y_continuous(name = "Observed Event Percentage", limits = c(0, 100)) +
+  ggtitle("Calibration Plot") +
+  theme_bw() +
+  coord_equal()
+```
+
+The closer the black line representing the model's calibration is to the red dashed line representing perfect calibration, the more reliable the model's probabilities are. Deviations from this indicate either overconfidence, where the line is above the diagonal for low probabilities and below it for high probabilities or underconfidence. Poor calibration means that, while the model may make the correct classification, the stated confidence level (i.e. the probability) may be unreliable.
+
+## Logistic Regression
+
+Logistic Regression is one of the most well-known types of supervised models and is well-suited for classification because `textmodel_lr` is already built-in, it is practical to use in R. In addition, this implementation includes L2 regularisation by default to prevent overfitting in high-dimensional text feature spaces. For consistency, we will reuse the data loading, sampling, splitting, and preprocessing steps from the SVM example.
+
+First, ensure the necessary libraries are loaded:
+
+```{r lr-lmrd-load}
+set.seed(42) # Set seed for reproducibility
+
+library(quanteda)
+library(quanteda.textmodels) # For textmodel_lr
+library(caret)    # For evaluation metrics
+library(pROC)     # For ROC analysis (optional, but good for binary classification)
+library(ggplot2)  # For plotting (optional)
+
+# Load the movie review corpus and sample a subset (matching the SVM example)
+corpus_reviews_lr <- corpus_sample(data_corpus_LMRD, 2000) # Sample 2000 reviews
+```
+
+We will use the same data splitting logic as in the SVM example, ensuring a stratified split based on the `polarity` variable to maintain the proportion of positive and negative reviews in both the training and test sets.
+
+```{r lr-lmrd-split}
+# Extract the polarity label as the target variable and convert it to a factor
+# Assuming the polarity variable is binary ("neg", "pos") in your corpus object
+polarity_labels_lr <- factor(corpus_reviews_lr$polarity)
+
+# Identify documents with valid polarity labels (not NA)
+valid_docs_index_lr <- which(!is.na(polarity_labels_lr))
+
+# Subset the corpus and polarity labels to only include documents with valid polarity
+corpus_reviews_valid_lr <- corpus_reviews_lr[valid_docs_index_lr]
+polarity_valid_lr <- polarity_labels_lr[valid_docs_index_lr]
+
+# Ensure polarity_valid_lr is a factor with levels "neg", "pos" in that specific order
+polarity_valid_lr <- factor(polarity_valid_lr, levels = c("neg", "pos"))
+
+# Check if both levels ("neg", "pos") are present
+if (!all(c("neg", "pos") %in% levels(polarity_valid_lr)) || any(table(polarity_valid_lr) == 0)) {
+  stop("The sampled corpus subset does not contain both 'neg' and 'pos' classes after filtering NA polarity. Please increase the sample size or check data.")
+}
+
+# Manually create stratified split indices (reusing the logic from the SVM example)
+# Get indices for each class
+neg_indices_lr <- which(polarity_valid_lr == "neg")
+pos_indices_lr <- which(polarity_valid_lr == "pos")
+
+# Determine the number of instances for train/test per class (70/30 split)
+set.seed(42) # for reproducibility
+train_size_neg_lr <- floor(0.7 * length(neg_indices_lr))
+train_size_pos_lr <- floor(0.7 * length(pos_indices_lr))
+
+# Sample indices for training set from each class
+train_indices_neg_lr <- sample(neg_indices_lr, size = train_size_neg_lr, replace = FALSE)
+train_indices_pos_lr <- sample(pos_indices_lr, size = train_size_pos_lr, replace = FALSE)
+
+# Combine training indices
+train_index_lr <- c(train_indices_neg_lr, train_indices_pos_lr)
+
+# The remaining indices are for the test set
+all_valid_indices_lr <- seq_along(polarity_valid_lr)
+test_index_lr <- all_valid_indices_lr[!all_valid_indices_lr %in% train_index_lr]
+
+# Split the corpus subset and polarity labels into training and testing sets
+corpus_reviews_train_lr <- corpus_reviews_valid_lr[train_index_lr]
+corpus_reviews_test_lr <- corpus_reviews_valid_lr[test_index_lr]
+
+polarity_train_lr <- polarity_valid_lr[train_index_lr]
+polarity_test_lr <- polarity_valid_lr[test_index_lr]
+
+# Check the distribution of the split
+print("Training set class distribution (LR example):")
+print(table(polarity_train_lr))
+print("Testing set class distribution (LR example):")
+print(table(polarity_test_lr))
+```
+
+Next, we preprocess the training and test corpus subsets to create DFMs, applying similar cleaning steps as before and matching the test DFM features to the training DFM.
+
+```{r lr-lmrd-dfm}
+# Tokenise and preprocess the training corpus
+tokens_train_lr <- tokens(
+  corpus_reviews_train_lr,
+  what = "word", remove_punct = TRUE, remove_symbols = TRUE,
+  remove_numbers = TRUE, remove_url = TRUE, remove_separators = TRUE
+) %>%
+  tokens_tolower() %>%
+  tokens_select(stopwords("english"), selection = "remove")
+
+# Tokenise and preprocess the test corpus
+tokens_test_lr <- tokens(
+  corpus_reviews_test_lr,
+  what = "word", remove_punct = TRUE, remove_symbols = TRUE,
+  remove_numbers = TRUE, remove_url = TRUE, remove_separators = TRUE
+) %>%
+  tokens_tolower() %>%
+  tokens_select(stopwords("english"), selection = "remove")
+
+# Create dfms
+dfm_train_lr <- dfm(tokens_train_lr)
+dfm_test_lr <- dfm(tokens_test_lr)
+
+# Ensure the test dfm has the same features as the training dfm
+dfm_test_matched_lr <- dfm_match(dfm_test_lr, features = featnames(dfm_train_lr))
+
+# Display DFM dimensions
+cat("Dimensions of Training DFM (LR example):", dim(dfm_train_lr), "\n")
+cat("Dimensions of Matched Test DFM (LR example):", dim(dfm_test_matched_lr), "\n")
+```
+
+Now, we train the Regularized Logistic Regression model using `textmodel_lr`.
+
+```{r lr-lmrd-train}
+# Train the textmodel_lr model for binary classification
+# The training labels are the polarity labels from the training corpus
+library(quanteda.textmodels)
+
+model_lr_lmrd <- textmodel_lr(dfm_train_lr, polarity_train_lr)
+
+# Print the model summary
+summary(model_lr_lmrd)
+```
+
+We then use the trained model to predict the polarity labels for the documents in the test set.
+
+```{r lr-lmrd-predict}
+# Predict the classes for the matched test set
+predictions_lr_lmrd <- predict(model_lr_lmrd, newdata = dfm_test_matched_lr)
+
+# Display the first few predictions
+head(predictions_lr_lmrd)
+```
+
+Finally, we evaluate the model's performance on the test set using a confusion matrix. Since this is a binary classification task, we can also compute metrics like ROC AUC, which is similar to the SVM evaluation.
+
+```{r lr-lmrd-evaluate}
+# Get the actual classes from the test corpus
+actual_classes_lmrd <- polarity_test_lr
+
+# Ensure actual and predicted classes are factors with the same levels for comparison
+# The levels should already be consistent ("neg", "pos") from the splitting step
+confusion_matrix_lr_lmrd <- confusionMatrix(predictions_lr_lmrd, actual_classes_lmrd)
+
+# Print the confusion matrix and performance statistics
+print(confusion_matrix_lr_lmrd)
+```
+
+## Naive Bayes (NB)
+
+As with SVM, Naive Bayes is a simple yet efficient text classification model. It belongs to a family of probabilistic classifiers based on applying Bayes' Theorem with a "naive" that every word in a document is conditionally independent of every other word given the class. The classifier calculates this value for each class and assigns the document to the class with the highest resulting probability. Despite its simplifying assumption, Naive Bayes performs remarkably well for many text classification tasks, such as spam detection and document categorization.
+
+For this example, we will use data from the [Manifesto Project](https://manifestoproject.wzb.eu/) (also known as the Comparative Manifesto Project (CMP)). To use this data, ensure you have signed up, downloaded the API key, loaded the package, and set the key.
+
+```{r nb-key-show, message=FALSE, results=FALSE, eval=TRUE, warning=FALSE}
+library(manifestoR)     # Used to download Manifesto Project data
+library(quanteda)       # For text analysis and DFM creation
+library(quanteda.textmodels) # For the Naive Bayes model
+library(ggplot2)        # For plotting
+library(DescTools)      # For Krippendorf's Alpha
+library(caret)          # For confusion matrix and classification metrics
+library(dplyr)          # For data manipulation
+
+# Set your Manifesto Project API key
+# Replace "manifesto_apikey.txt" with the path to your API key file
+mp_setapikey("manifesto_apikey.txt")
+```
+
+As the entire MP corpus is relatively large, here we will only focus on part of it: the manifestos for the 2015 United Kingdom general election. To achieve this, we have created a data frame listing the party and year for the 'mp_corpus' command. Please note that The Manifesto Project uses unique codes for each party, which can be found in its codebook.
+
+```{r nb-corpus-selec}
+# Party codes: CON(51620), LABOUR(51320), LIBDEM(51421), SNP(51901), PLAID CYMRU(51902), GREEN(51110), UKIP(51951)
+manifestos_info <- data.frame(
+  party = c(51320, 51620, 51110, 51421, 51901, 51902, 51951),
+  date = rep(201505, 7)
+)
+
+# Download the specified manifestos as a manifestoR corpus
+manifesto_corpus <- mp_corpus(manifestos_info)
+```
+
+We will create a data frame containing the quasi-sentences (the unit of analysis), their assigned `cmp_code`, and the `party` they belong to. This process extracts the core data needed for our analysis.
+
+```{r nb-data-wrangle}
+# Programmatically create a list of data frames, one for each document
+corpus_list <- lapply(manifesto_corpus, function(doc) {
+  data.frame(
+    texts = content(doc),
+    cmp_code = codes(doc),
+    party = doc$meta$party,
+    stringsAsFactors = FALSE
+  )
+})
+
+# Combine the list of data frames into a single data frame
+manifesto_data <- do.call(rbind, corpus_list)
+```
+
+Next, we clean and transform the data. We convert the `party` codes to factor labels (e.g., "CON", "LABOUR") for clarity, ensure text and code columns are in the correct format, and remove entries with `NA` codes, which typically correspond to un-coded document headers and titles.
+
+```{r nb-data-transform}
+# Transform and clean the data frame
+manifesto_data$party <- factor(manifesto_data$party,
+                               levels = c(51110, 51320, 51421, 51620, 51901, 51902, 51951),
+                               labels = c("GREEN", "LABOUR", "LIBDEM", "CON", "PC", "SNP", "UKIP"))
+manifesto_data$party <- as.character(manifesto_data$party)
+manifesto_data$texts <- as.character(manifesto_data$texts)
+manifesto_data$cmp_code <- as.numeric(as.character(manifesto_data$cmp_code))
+
+# Remove NA values (sentences without a code)
+manifesto_data <- na.omit(manifesto_data)
+
+# Display the structure of the cleaned data
+str(manifesto_data)
+```
+
+We can calculate row percentages to understand how much a party "owns" a specific code. This shows the proportion of a code's total appearances attributed to each party.
+
+```{r nb-corpus-factors}
+# Calculate row percentages of code occurrences by party
+prop_row <- as.data.frame(prop.table(table(manifesto_data$cmp_code, manifesto_data$party), margin = 1) * 100)
+names(prop_row) <- c("Code", "Party", "Percentage")
+
+# Display head of row percentages
+head(prop_row)
+```
+
+Visualizing the `prop_row` object as a stacked bar chart clarifies how parties utilize different codes.
+
+```{r ggplot-nb-codes, message=FALSE}
+# Define party colours for consistent plotting
+party_colors <- c("CON" = "#0087DC", "GREEN" = "#67B437", "LABOUR" = "#DC241F", "LIBDEM" = "#FAA61A", "PC" = "#008142", "SNP" = "#FDF38E", "UKIP" = "#780077")
+
+# Plot the row percentages
+ggplot(data = prop_row, aes(x = factor(Code), y = Percentage, fill = Party)) +
+  scale_fill_manual(values = party_colors) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_y_continuous(expand = c(0, 0)) +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8)) +
+  labs(x = "Manifesto Code", y = "Percentage of Code Occurrences", title = "Party Ownership of Manifesto Codes (Row %)")
+```
+
+This chart shows that some parties dominate specific categories. For example, we can see that UKIP is the only one to use code 406 (Protectionism: Positive). Note that these are percentages; a high percentage might reflect dominance but could be based on a very small number of sentences. Other categories are more evenly distributed across parties. We can also analyze the thematic composition of each party's manifesto by calculating column percentages:
+
+```{r nb-col-percentages}
+# Calculate column percentages (percentage of party manifesto per code)
+prop_col <- as.data.frame(prop.table(table(manifesto_data$cmp_code, manifesto_data$party), margin = 2) * 100)
+names(prop_col) <- c("Code", "Party", "Percentage")
+
+# Display head of column percentages
+head(prop_col)
+```
+
+With 57 possible codes, grouping them into the 7 thematic domains defined by the Manifesto Project is more practical. We create a new `Domain` variable and assign each code to its corresponding domain.
+
+```{r nb-col-sort}
+# Assign codes to their respective domains
+prop_col$Code <- as.numeric(as.character(prop_col$Code))
+prop_col$Domain <- cut(prop_col$Code,
+                       breaks = c(-1, 0, 110, 204, 305, 416, 507, 608, 706),
+                       labels = c("NA", "External Relations", "Freedom and Democracy",
+                                  "Political System", "Economy", "Welfare and Quality of Life",
+                                  "Fabric of Society", "Social Groups"))
+
+# Display head with Domain information
+head(prop_col)
+```
+
+We can now plot the distribution of these domains within each party's manifesto.
+
+```{r ggplot-nb-domains}
+# Plot the column percentages aggregated by domain
+ggplot(data = prop_col, aes(x = Party, y = Percentage, fill = Domain)) +
+  geom_bar(stat = "identity", position = "stack") +
+  scale_y_continuous(expand = c(0, 0)) +
+  theme_classic() +
+  labs(x = "Party", y = "Percentage of Manifesto Text", title = "Thematic Composition of Party Manifestos (Col %)") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+The plot shows that "Welfare and Quality of Life" and "Economy" are dominant themes across most parties. We can also see party-specific focuses, such as UKIP's emphasis on "External Relations".
+
+Now, let us turn to the Naive Bayes. First, she place our data into a corpus object:
+
+```{r nb-toquanteda}
+manifesto_corpus <- corpus(manifesto_data, text_field = "texts")
+summary(manifesto_corpus, 10)
+```
+
+To train and evaluate our model, we must split the data into training and test sets. We'll use 80% for training and 20% for testing. `set.seed` ensures that the random sampling is reproducible.
+
+```{r nb-sample}
+set.seed(42)
+
+# Generate a random sample of document indices for the training set
+id_train <- sample(1:ndoc(manifesto_corpus), size = ndoc(manifesto_corpus) * 0.8, replace = FALSE)
+
+# Create training and test sets by subsetting the corpus
+train_corpus <- corpus_subset(manifesto_corpus, 1:ndoc(manifesto_corpus) %in% id_train)
+test_corpus <- corpus_subset(manifesto_corpus, !1:ndoc(manifesto_corpus) %in% id_train)
+```
+
+Next, we create Document-Feature Matrices (DFMs) from our corpus subsets. A DFM is a table where rows represent documents, columns represent words (features), and cells contain word counts. We perform basic text cleaning during this step: removing punctuation, numbers, and symbols. We also trim the DFM to remove very infrequent terms, which helps reduce noise and improve model performance.
+
+```{r nb-dfm-creation}
+# Create DFM for the training set
+train_dfm <- train_corpus %>%
+  tokens(remove_punct = TRUE, remove_numbers = TRUE, remove_symbols = TRUE) %>%
+  dfm() %>%
+  dfm_trim(min_termfreq = 5)
+
+# Create DFM for the test set
+# We don't trim the test set yet, as we will match its features to the training set
+test_dfm <- test_corpus %>%
+  tokens(remove_punct = TRUE, remove_numbers = TRUE, remove_symbols = TRUE) %>%
+  dfm()
+
+```
+
+We train the Naive Bayes model using the training DFM and the `cmp_code` variable as the target label.
+
+```{r nb-textmodel, results=FALSE}
+manifesto_nb <- textmodel_nb(train_dfm, y = docvars(train_corpus, "cmp_code"))
+summary(manifesto_nb)
+```
+
+The model summary provides estimated feature scores (the probability of a word given a class). We aim to evaluate the model's performance on unseen data from the test set. Keep in mind that the Naive Bayes model can only make predictions based on features it has seen during training. Therefore, we must align the feature set of the test DFM with the training DFM. The `dfm_match()` function ensures that the test DFM has the same features as the training DFM.
+
+```{r nb-dfm-match}
+matched_test_dfm <- dfm_match(test_dfm, features = featnames(train_dfm))
+```
+
+The number of features in the matched test DFM is now identical to the training DFM. We can now predict the classes for the test set.
+
+```{r nb-predict-class}
+# Predict the classes for the matched test set
+predicted_class <- predict(manifesto_nb, newdata = matched_test_dfm)
+
+# Get the actual classes from the test corpus's document variables
+actual_class <- docvars(test_corpus, "cmp_code")
+
+# Create a confusion matrix (table of actual vs. predicted classes)
+table_class <- table(Actual = actual_class, Predicted = predicted_class)
+
+# Display a subset of the confusion matrix due to its large size
+table_class[1:10, 1:10]
+```
+
+A confusion matrix table can be large and difficult to interpret. A heatmap offers a more intuitive visualization, highlighting where the model is accurate (strong diagonal) and where it makes errors (dark cells off the diagonal).
+
+```{r ggplot-nb-heatmap}
+# Convert the table to a data frame for plotting
+table_class_df <- as.data.frame(table_class)
+names(table_class_df) <- c("Actual", "Predicted", "Frequency")
+
+# Plot the confusion matrix as a heatmap
+ggplot(data = table_class_df, aes(x = Predicted, y = Actual)) +
+  geom_tile(aes(fill = Frequency)) +
+  scale_fill_gradient(low = "white", high = "#002366", name = "Frequency") +
+  labs(x = "Predicted Class", y = "Actual Class", title = "Confusion Matrix: Actual vs. Predicted Manifesto Codes") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8),
+        axis.text.y = element_text(size = 8))
+```
+
+To further understand how well NB has done, we can calculate aggregate performance metrics like accuracy, precision, recall, and F1-score. The `caret` package's `confusionMatrix` function is ideal.
+
+```{r nb-caret-metrics}
+# Ensure levels are consistent for the confusion matrix function
+all_levels <- unique(c(as.character(actual_class), as.character(predicted_class)))
+actual_class_factor <- factor(actual_class, levels = all_levels)
+predicted_class_factor <- factor(predicted_class, levels = all_levels)
+
+# Calculate various classification metrics using caret::confusionMatrix
+classification_metrics <- confusionMatrix(predicted_class_factor, actual_class_factor)
+
+# Display macro-averaged F1-score (calculated manually from per-class stats)
+macro_f1 <- mean(classification_metrics$byClass[, "F1"], na.rm = TRUE)
+cat("Macro-Averaged F1-Score:", macro_f1, "\n")
+```
+
+In addition to this, comparing the frequency distribution of predicted classes against the actual classes can reveal if the model is biased towards or against specific categories.
+
+```{r ggplot-class-distribution}
+# Create data frames for actual and predicted class counts and combine them
+actual_counts_df <- as.data.frame(table(actual_class), stringsAsFactors = FALSE) %>%
+  rename(Code = actual_class, Frequency = Freq) %>%
+  mutate(Type = "Actual")
+
+predicted_counts_df <- as.data.frame(table(predicted_class), stringsAsFactors = FALSE) %>%
+  rename(Code = predicted_class, Frequency = Freq) %>%
+  mutate(Type = "Predicted")
+
+class_distribution_df <- bind_rows(actual_counts_df, predicted_counts_df)
+
+# Plot the distribution
+ggplot(class_distribution_df, aes(x = Code, y = Frequency, fill = Type)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  theme_classic() +
+  labs(x = "Manifesto Code", y = "Number of Sentences", title = "Distribution of Actual vs. Predicted Manifesto Codes") +
+  scale_fill_manual(values = c("Actual" = "#0087DC", "Predicted" = "#DC241F")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8))
+```
+
+This plot helps visualize if the model over-predicts (red bar is taller) or under-predicts (blue bar is taller) specific codes compared to their true frequency in the test set.
+
+Finally, we can use Krippendorff's $\alpha$ again to measure the agreement between the model's predictions and the human-assigned codes, accounting for chance agreement.
+
+```{r nb-kripp2}
+reliability_data <- as.matrix(rbind(as.character(actual_class), as.character(predicted_class)))
+
+# Calculate for nominal data
+kripp_alpha <- KrippAlpha(reliability_data, method = "nominal")
+kripp_alpha$value
+```
+
+Interpreting the $\alpha$ value requires context. Research by @Mikhaylov2012a estimates the agreement *among trained human coders* for the Manifesto Project to be between 0.350 and 0.400. Seen this way, our $\alpha = 0.43$ from our simple automated model is therefore quite good!
+
+## Exercises
+
+1.  Modify the `caret` SVM example to use TF-IDF weighting for the DFM rather than raw term frequency. Does this affect the performance of the SVM model when evaluated using cross-validation?
+
+2.  Using the movie review sentiment data, train a logistic regression model with the `glmnet` method using the `caret::train()` function (ensure you have the `glmnet` package installed). Use cross-validation for training. Compare the performance of this model with that of the SVM model using a confusion matrix, an ROC-AUC plot, and a calibration plot.
+
+3.  Investigate the impact of various pre-processing steps (e.g. removing numbers, stemming versus non-stemming and using bigrams) on the performance of the Naive Bayes model with the Manifesto Project data. Evaluate performance using cross-validation and compare confusion matrices.
+
+4.  Investigate how to deal with imbalanced classes in text classification. For a dataset with imbalanced classes, research a relevant technique (e.g. the ROSE package or the sampling options in the `trainControl` function of the `caret` package) and apply it during cross-validated training. Does this improve the performance of the minority class compared to training without addressing the imbalance?
+
+5.  For either the SVM or Naive Bayes model, research how to tune hyperparameters using the `tuneGrid` argument in `caret::train()`. Implement a simple hyperparameter tuning process using cross-validation, then report on the performance of the best-tuned model.

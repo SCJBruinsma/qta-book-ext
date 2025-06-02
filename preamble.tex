@@ -1,0 +1,77 @@
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tikz} % Loads PGF as well
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{spath3}
+\usetikzlibrary{fit,positioning,arrows.meta,calligraphy,shapes.geometric,arrows,calc,intersections,shapes,backgrounds,chains,decorations.pathreplacing,angles,quotes,pagenodes, decorations.pathbrace}
+} % Combine all tikz libraries
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+
+% Define Colors
+\definecolor{sky}{cmyk}{0.59, 0.23, 0, 0.10} % [cite: 1]
+\definecolor{leaf}{cmyk}{0.50, 0, 1.00, 0.10} % [cite: 1]
+\definecolor{energy}{cmyk}{0, 0.20, 0.98, 0} % [cite: 1]
+\definecolor{bricklight}{cmyk}{0, 0.19, 0.26, 0.02} % [cite: 1]
+\definecolor{elektrolight}{cmyk}{0.05, 0.05, 0.05, 0.05} % Assuming this is the intended color for hidden neurons based on original fill [cite: 1]
+\definecolor{goetheblue}{cmyk}{1, 0.2, 0, 0.4} % [cite: 3]
+\definecolor{hellgrau}{cmyk}{0.04, 0.04, 0.05, 0.02} % [cite: 3]
+\definecolor{sandgrau}{cmyk}{0.12, 0.09, 0.13, 0} % [cite: 3]
+\definecolor{dunkelgrau}{cmyk}{0.25, 0.25, 0.30, 0.75} % [cite: 3]
+\definecolor{purple}{cmyk}{0.08, 1, 0.30, 0.36} % [cite: 3]
+\definecolor{emorot}{cmyk}{0.04, 1, 0.80, 0.07} % [cite: 3]
+\definecolor{emorotlight}{cmyk}{0.00, 0.05, 0.11, 0.00} % [cite: 3]
+\definecolor{senfgelb}{cmyk}{0.01, 0.25, 1, 0.05} % [cite: 3]
+\definecolor{grun}{cmyk}{0.62, 0.40, 0.87, 0.09} % [cite: 3]
+\definecolor{magenta}{cmyk}{0.08, 0.86, 0.12, 0.12} % [cite: 3]
+\definecolor{orange}{cmyk}{0, 0.70, 1, 0.04} % [cite: 3]
+\definecolor{sonnengelb}{cmyk}{0, 0.12, 0.95, 0} % [cite: 3]
+\definecolor{hellesgrun}{cmyk}{0.40, 0.17, 0.81, 0.07} % [cite: 3]
+\definecolor{lichtblau}{cmyk}{0.80, 0, 0.06, 0.04} % [cite: 3]
+\definecolor{xdxdff}{rgb}{0.49019607843137253,0.49019607843137253,1.} % [cite: 3]
+\definecolor{qqqqff}{rgb}{0.,0.,1.} % [cite: 3]
+
+% TikZ Styles
+\tikzset{
+    % General Styles
+    connect/.style={arrows=-{Triangle}, black, thick}, % [cite: 1]
+    arrow/.style={->, >=Latex, thick}, % Consolidated arrow style [cite: 2]
+    memory arrow/.style={->,thick, purple, densely dashed}, % [cite: 1]
+
+    % Neuron Styles
+    neuron/.style={circle, draw, thick, minimum size=1cm}, % [cite: 2]
+    neuron_small/.style={neuron, minimum size=0.7cm}, % Smaller neuron style [cite: 2]
+    input neuron/.style={neuron, fill=leaf!40}, % [cite: 1]
+    output neuron/.style={neuron, fill=bricklight}, % [cite: 1]
+    hidden neuron/.style={neuron, fill=elektrolight}, % [cite: 1]
+
+    % Other Node Styles
+    main/.style={circle, minimum size = 10mm, thick, draw =black!80, node distance = 16mm}, % [cite: 1]
+    plate/.style={draw, shape=rectangle,  thick, minimum width=3.1cm, text width=3.1cm, align=right,inner sep=10pt, inner ysep=10pt, append after command={node[above left= 3pt of \tikzlastnode.south east] {#1}}}, % [cite: 1]
+    textnode/.style={rectangle, draw=none, text centered, node distance=0.5cm}, % Consolidated textnode style [cite: 1]
+    input/.style={rectangle, draw, thick, minimum size=0.8cm}, % [cite: 2]
+    annot/.style={text width=3cm, align=center}, % Annotation style [cite: 2]
+    layer_label/.style={font=\small\itshape, align=center}, % Layer label style [cite: 2]
+    word/.style={rectangle, draw, fill=sky!40, minimum width=1.5cm, minimum height=0.8cm, text centered}, % [cite: 1]
+    rnn/.style={circle, draw, fill=leaf!40, minimum size=1.5cm, text centered}, % [cite: 1]
+    output/.style={rectangle, draw, fill=bricklight, minimum width=1.5cm, minimum height=0.8cm, text centered}, % [cite: 1]
+
+    % Block Styles
+    block/.style={rectangle, minimum height=3.5em, minimum width=6.5em}, % [cite: 3]
+    block2/.style={rectangle, minimum height=3.5em, minimum width=6.0em, text width=4.5em,align=center}, % [cite: 3]
+    block3/.style={rectangle, minimum height=3.5em, minimum width=7.0em, text width=5em,align=center}, % [cite: 3]
+    block4/.style={rectangle, minimum height=3.5em, minimum width=6.8em, text width=6.8em,align=center} % [cite: 3]
+}
+
+% Define custom shapes/paths
+\def\sub{(0,0) circle (1.5cm)} % [cite: 3]
+\def\mid{(-60:2cm) circle (1.5cm)} % [cite: 3]
+\def\pred{(0:2cm) circle (1.5cm)} % [cite: 3]

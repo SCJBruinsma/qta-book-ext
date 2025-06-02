@@ -1,0 +1,30 @@
+p.caption {
+  color: #777;
+  margin-top: 10px;
+}
+p code {
+  white-space: inherit;
+}
+pre {
+  word-break: normal;
+  word-wrap: normal;
+}
+pre code {
+  white-space: inherit;
+}
+
+body {
+  text-align: justify;
+}
+
+.figure {
+   margin-top: 100px;
+   margin-bottom: 100px;
+}
+
+table {
+    margin-top: 100px;
+    margin-bottom: 100px !important;
+}
+
+fig_caption: true

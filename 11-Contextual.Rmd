@@ -1,0 +1,287 @@
+# Contextual Word Embeddings: Meaning in Motion {#contextual-embeddings}
+
+```{r, include=FALSE, cache=FALSE}
+# This chunk is for setup and is not displayed in the output.
+# It ensures that reticulate is configured to use a specific Python environment.
+# Replace "~/python-r-env" with the actual path to your desired virtual environment
+# or the name of your conda environment if you are using Conda.
+# This setup is crucial for the Python code chunks later in the chapter to run correctly.
+# library(reticulate)
+# tryCatch({
+#   use_virtualenv("~/python-r-env", required = TRUE)
+#   # Or for Conda: use_condaenv("my_conda_env_name", required = TRUE)
+#   library(tensorflow) # Example: ensure a key Python library is loadable
+#   print("Python environment configured successfully.")
+# }, error = function(e) {
+#   print("Python environment not configured. Please check reticulate setup.")
+#   print(e)
+# })
+```
+
+In the preceding chapters, we explored foundational concepts of text analysis and the significant advance offered by static word embeddings like Word2Vec and GloVe. These embeddings represent words as dense vectors, capturing semantic similarities based on global co-occurrence patterns. However, a critical limitation of static embeddings is their inability to account for polysemy and context; a word like "bank" has the same vector regardless of whether it refers to a financial institution or a riverbank. This chapter transitions to **contextual word embeddings**, a paradigm shift in natural language processing where the representation of a word dynamically changes based on its surrounding text. We will delve into influential models such as ELMo, BERT, and GPT, discuss the principles of transfer learning and fine-tuning, and explore their profound implications and applications for social science research, followed by a practical session using Python.
+
+The plan for our exploration of contextual embeddings will first cover their foundational necessity and introduce key models like ELMo, BERT, and GPT, focusing on their core ideas and architectures. Subsequently, we will examine their application through transfer learning and fine-tuning, discuss the promises and pitfalls including benefits for social science research especially in data-scarce scenarios, and then engage in an exercise implementing BERT for text classification.
+
+## Beyond Static Embeddings: The Need for Context
+
+Static word embeddings, while powerful, assign a single, fixed vector to each word. This approach fails to capture the nuances of word meaning that depend heavily on the context in which a word appears. For instance, the word "model" can refer to a fashion model, a scientific model, or a role model, each with a distinct meaning. Static embeddings conflate these different senses into one representation. Furthermore, they struggle to represent out-of-vocabulary (OOV) words effectively unless subword information is used (as in FastText). To overcome these limitations, contextual embedding models were developed. These models generate a different embedding for a word each time it appears in a different context, leading to richer, more dynamic, and ultimately more accurate representations of word meaning.
+
+## Foundational Contextual Embedding Models
+
+Several groundbreaking models have paved the way for modern contextual embeddings. We will briefly touch upon three influential architectures: ELMo, BERT, and GPT.
+
+### ELMo (Embeddings from Language Models)
+
+ELMo, introduced by Peters et al. (2018), was one of the early successful models to generate deep contextualized word representations. ELMo embeddings are learned from the internal states of a deep bidirectional Long Short-Term Memory (LSTM) network trained as a language model. Instead of using just the top LSTM layer, ELMo combines the hidden states from all layers of the biLSTM, allowing it to capture different levels of linguistic information, from syntax at lower layers to semantics at higher layers. The "bidirectional" aspect means it considers both the leftward (preceding) and rightward (succeeding) context when generating an embedding for a word. This results in rich representations that are sensitive to how a word is used.
+
+A conceptual representation of ELMo's architecture highlights its use of LSTMs to process text in both directions.
+```
+![Conceptual ELMo Architecture (Illustrative Placeholder)](figures/elmo_architecture.png)
+```
+*(Note: The figure `elmo_architecture.png` would typically be a diagram showing stacked LSTMs processing text input.)*
+
+### BERT (Bidirectional Encoder Representations from Transformers)
+
+BERT, developed by Devlin et al. (2018) at Google, revolutionized the field of NLP. Unlike ELMo, which uses LSTMs, BERT is based on the **Transformer** architecture, specifically its encoder component. The Transformer relies heavily on **attention mechanisms**, allowing it to weigh the importance of different words in a sequence when representing a target word, capturing relationships between words regardless of their distance from each other.
+
+BERT is pre-trained on two unsupervised tasks using massive text corpora (like Wikipedia and BooksCorpus):
+
+1.  **Masked Language Model (MLM):** In this task, some percentage of input tokens (words) are randomly masked (e.g., replaced with a `[MASK]` token), and the model's objective is to predict the original masked tokens based on their unmasked context. This allows BERT to learn deep bidirectional representations, as it needs to consider both left and right context to make accurate predictions.
+2.  **Next Sentence Prediction (NSP):** The model receives pairs of sentences (A and B) and is trained to predict whether sentence B is the actual sentence that follows sentence A in the original text, or just a random sentence from the corpus. This task helps BERT understand sentence relationships, which is beneficial for downstream tasks like question answering or natural language inference.
+
+BERT's architecture, as shown in Figure \@ref(fig:bert-architecture-conceptual), typically involves multiple layers of Transformer encoders. The output of BERT provides a contextualized vector for each input token.
+
+```{r bert-architecture-conceptual, echo=FALSE, fig.cap='Conceptual diagram of BERT architecture focusing on the Transformer encoder stack processing input tokens and producing contextualized representations. (Illustrative Placeholder for figures/bert_architecture.png)', out.width='90%'}
+# Placeholder for a diagram of BERT's architecture.
+# In a real book, this would be: knitr::include_graphics("figures/bert_architecture.png")
+cat("Placeholder for image: figures/bert_architecture.png\n(This image would typically show Transformer encoder blocks, input embeddings, and output contextual embeddings.)")
+```
+
+### GPT (Generative Pre-trained Transformer)
+
+The GPT series of models, developed by OpenAI (Radford et al., 2018, 2019; Brown et al., 2020), also utilizes the Transformer architecture, but primarily its **decoder** component. Unlike BERT's bidirectional MLM pre-training, GPT models are traditionally auto-regressive language models, meaning they are trained to predict the next word in a sequence given all previous words. This makes them inherently unidirectional (left-to-right).
+
+GPT models are known for their impressive text generation capabilities and have scaled to enormous sizes (e.g., GPT-3, GPT-4). While their primary strength is generation, their learned representations can also be adapted for various discriminative NLP tasks.
+
+A conceptual diagram for GPT would show Transformer decoder blocks processing input tokens in a left-to-right manner.
+```
+![Conceptual GPT Architecture (Illustrative Placeholder)](figures/gpt_architecture.png)
+```
+*(Note: The figure `gpt_architecture.png` would typically show Transformer decoder blocks.)*
+
+These models (ELMo, BERT, GPT) are typically pre-trained on vast datasets and then made available for researchers and developers to use. This pre-training captures a wealth of linguistic knowledge that can be transferred to other tasks.
+
+## Transfer Learning and Fine-Tuning
+
+A key advantage of pre-trained contextual embedding models is their utility in **transfer learning**. The knowledge learned by these models from massive general-domain text corpora can be transferred to specific downstream tasks, such as sentiment analysis, text classification, or named entity recognition, often with significantly less task-specific labeled data than would be required to train a complex model from scratch.
+
+There are two main ways to use pre-trained models:
+
+1.  **Feature Extraction:** The pre-trained model is used as a fixed feature extractor. Input text is fed into the model, and the resulting contextual embeddings (e.g., the output vectors from BERT's last hidden layer) are then used as input features for a separate, often simpler, task-specific model (e.g., a logistic regression classifier or a shallow neural network). In this approach, the weights of the pre-trained model are not updated during the training of the task-specific model.
+2.  **Fine-Tuning:** The pre-trained model's architecture is augmented with a small task-specific output layer. The entire model (including the pre-trained components) is then trained (or "fine-tuned") on the labeled data for the downstream task. This allows the pre-trained weights to be adapted slightly to better suit the nuances of the target task and dataset. Fine-tuning often yields better performance than feature extraction, especially if sufficient task-specific data is available, but it also requires more computational resources.
+
+Figure \@ref(fig:transfer-learning-diagram-conceptual) illustrates the concept of transfer learning.
+
+```{r transfer-learning-diagram-conceptual, echo=FALSE, fig.cap='Conceptual diagram of transfer learning: a model pre-trained on a large general task is adapted (e.g., by fine-tuning) for a specific downstream task. (Illustrative Placeholder for figures/transfer_learning_diagram.png)', out.width='80%'}
+# Placeholder for a diagram of transfer learning.
+# knitr::include_graphics("figures/transfer_learning_diagram.png")
+cat("Placeholder for image: figures/transfer_learning_diagram.png\n(This image would show a base pre-trained model and how it's adapted with a new layer for a specific task.)")
+```
+
+Transfer learning and fine-tuning are particularly valuable in social science research, where large labeled datasets for specific tasks might be scarce or expensive to create. By leveraging models pre-trained on general language, researchers can achieve strong performance on their specialized tasks with relatively modest amounts of data.
+
+### Promises and Pitfalls
+
+Contextual embeddings and transfer learning offer immense promise for text analysis in the social sciences. They allow for more nuanced understanding of language, improved performance on various NLP tasks, and the ability to work effectively even with limited labeled data. They can help analyze subtle framing differences in news, identify complex stances in debates, or classify nuanced open-ended survey responses.
+
+However, several pitfalls and challenges must be considered:
+* **Computational Cost:** Pre-trained models, especially larger ones, can be computationally intensive to run and particularly to fine-tune, requiring significant GPU resources.
+* **Interpretability:** Like many deep learning models, these models can be "black boxes," making it difficult to understand why they make certain predictions. This is a critical concern in social science research where explaining phenomena is often as important as predicting them.
+* **Bias:** These models are trained on vast amounts of text from the internet and other sources, which inevitably contain societal biases related to gender, race, ethnicity, etc. The models can learn and even amplify these biases, leading to unfair or skewed outcomes if not carefully addressed.
+* **Domain Mismatch:** While transfer learning is powerful, if the target domain's language is vastly different from the pre-training corpus (e.g., historical texts, highly specialized legal documents), performance may suffer. Additional domain adaptation or more extensive fine-tuning might be necessary.
+* **Data Scarcity for Fine-tuning:** While fine-tuning can work with less data than training from scratch, very small datasets can still lead to overfitting, even when starting from a pre-trained model.
+
+## Practical Session: Contextual Embeddings with Transformers in Python
+
+This practical session will focus on using Transformer-based models, particularly BERT-like models, to generate and explore contextual embeddings. We will use the Hugging Face `transformers` library, which provides easy access to thousands of pre-trained models, and `sentence-transformers`, a library built on top of `transformers` that simplifies the derivation of sentence and document embeddings.
+
+The key ideas we will explore are that context matters (the representation of a word changes based on surrounding words), these models are pre-trained on massive data, and we can derive fixed-size embeddings for entire sentences or documents for various downstream tasks.
+
+### 1. Setup: Importing Libraries
+
+We'll start by importing the necessary libraries. `transformers` will be used for loading pre-trained models and tokenizers, and `sentence-transformers` for generating sentence embeddings. We'll also need `torch` (as Hugging Face models often use PyTorch by default, though TensorFlow versions are available) and `numpy`.
+
+```{python setup-libraries-contextual, eval=FALSE}
+# Hugging Face Transformers library
+# Make sure you have these installed: pip install transformers torch sentence-transformers
+import torch
+from transformers import AutoTokenizer, AutoModel
+from sentence_transformers import SentenceTransformer
+
+# Other useful libraries
+import numpy as np
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.cluster import KMeans
+# import matplotlib.pyplot as plt # For plotting if needed
+# import umap # For dimensionality reduction if visualizing
+
+print(f"PyTorch version: {torch.__version__}") #
+# print(f"Transformers version: {transformers.__version__}") # Need to import transformers first
+# print(f"Sentence-Transformers version: {sentence_transformers.__version__}") # Same here
+
+# Helper function to get embeddings (useful for word-level from AutoModel)
+def get_hidden_states(encoded, model, layers=None): #
+    """Extracts hidden states from a Hugging Face model output.""" #
+    with torch.no_grad(): #
+        output = model(**encoded) #
+    # Get all hidden states
+    states = output.hidden_states #
+    # Stack and sum last four layers (a common strategy for word embeddings)
+    if layers is None: #
+        layers = [-4, -3, -2, -1] #
+    output = torch.stack([states[i] for i in layers]).sum(0).squeeze() #
+    return output #
+```
+
+### 2. Generating Sentence Embeddings with `sentence-transformers`
+
+The `sentence-transformers` library simplifies the process of obtaining high-quality sentence embeddings from various pre-trained Transformer models. These embeddings can then be used for tasks like semantic search, clustering, or as features for classification.
+
+We'll load a pre-trained model (e.g., `all-MiniLM-L6-v2` which is efficient and effective for sentence similarity) and then use it to embed a list of sample sentences.
+
+```{python sentence-embeddings, eval=FALSE}
+# Load a pre-trained Sentence Transformer model
+# 'all-MiniLM-L6-v2' is a good starting point: fast and good performance.
+# Other models: 'paraphrase-distilroberta-base-v1', 'stsb-roberta-large', etc.
+model_name_st = 'all-MiniLM-L6-v2' #
+print(f"Loading Sentence Transformer model: {model_name_st}...") #
+sentence_model = SentenceTransformer(model_name_st) #
+print("Sentence Transformer model loaded.") #
+
+# Sample sentences
+sentences = [ #
+    "The financial crisis of 2008 had global repercussions.", #
+    "Social media platforms are transforming political communication.", #
+    "Climate change poses a significant threat to future generations.", #
+    "Access to quality education is crucial for societal development.", #
+    "The bank announced record profits this quarter.", #
+    "Protesters gathered near the river bank." # Example of polysemy for 'bank'
+] #
+
+# Generate embeddings for the sentences
+print("Generating sentence embeddings...") #
+sentence_embeddings = sentence_model.encode(sentences) #
+
+print(f"Shape of sentence embeddings: {sentence_embeddings.shape}") # (num_sentences, embedding_dimension)
+# print(f"Embedding for the first sentence (first 5 dims): {sentence_embeddings[0, :5]}") #
+```
+
+These `sentence_embeddings` are fixed-size vectors, one for each input sentence, ready for downstream tasks.
+
+### 3. Exploring Sentence Embeddings: Semantic Similarity
+
+One common use of sentence embeddings is to calculate semantic similarity between sentences. We can do this by computing the cosine similarity between their embedding vectors.
+
+```{python sentence-similarity, eval=FALSE}
+# Calculate cosine similarity between the first sentence and all other sentences
+# print("\n--- Semantic Similarity (Sentence Embeddings) ---") #
+# query_sentence_embedding = sentence_embeddings[0].reshape(1, -1) # Reshape for cosine_similarity function
+# similarities = cosine_similarity(query_sentence_embedding, sentence_embeddings) #
+
+# print(f"Query sentence: '{sentences[0]}'") #
+# for i in range(len(sentences)): #
+#     print(f"Similarity with '{sentences[i]}': {similarities[0, i]:.4f}") #
+
+# # Example demonstrating context: 'bank' sentences
+# bank_financial_idx = sentences.index("The bank announced record profits this quarter.") #
+# bank_river_idx = sentences.index("Protesters gathered near the river bank.") #
+
+# similarity_banks = cosine_similarity(
+#     sentence_embeddings[bank_financial_idx].reshape(1, -1),
+#     sentence_embeddings[bank_river_idx].reshape(1, -1)
+# ) #
+# print(f"\nSimilarity between financial 'bank' and river 'bank' sentences: {similarity_banks[0,0]:.4f}") #
+# This should be lower than similarity between two thematically similar sentences.
+```
+The results should show that sentences with similar meanings have higher cosine similarity scores. The example with "bank" illustrates how sentence embeddings, derived from contextual models, can differentiate meanings.
+
+### 4. Generating Word-Level Contextual Embeddings with `transformers`
+
+While `sentence-transformers` is great for sentence-level tasks, sometimes we need word-level contextual embeddings. We can use the base `transformers` library for this. We'll load a pre-trained model (like a base BERT model) and its tokenizer.
+
+```{python word-level-embeddings, eval=FALSE}
+# Load a pre-trained model and tokenizer for word-level embeddings
+model_name_hf = 'bert-base-uncased' # A standard BERT model
+# print(f"\n--- Word-Level Contextual Embeddings with {model_name_hf} ---") #
+# print(f"Loading tokenizer and model: {model_name_hf}...") #
+tokenizer_hf = AutoTokenizer.from_pretrained(model_name_hf) #
+model_hf = AutoModel.from_pretrained(model_name_hf, output_hidden_states=True) # Ensure hidden states are output
+# model_hf.eval() # Set model to evaluation mode
+# print("Tokenizer and model loaded.") #
+
+# Example sentence
+text = "The bank on the river bank was closed today." #
+
+# Tokenize the text
+# encoded_input = tokenizer_hf(text, return_tensors='pt') # 'pt' for PyTorch tensors
+# tokens = tokenizer_hf.convert_ids_to_tokens(encoded_input['input_ids'][0]) #
+# print(f"Tokens: {tokens}") #
+
+# Get hidden states (contextual embeddings for each token)
+# These are raw hidden states; often, a strategy like summing/averaging last few layers is used.
+# word_embeddings_bert = get_hidden_states(encoded_input, model_hf) #
+# print(f"Shape of word embeddings output: {word_embeddings_bert.shape}") # (num_tokens, embedding_dim)
+
+# Let's find the indices of the two "bank" tokens
+# bank_indices = [i for i, token in enumerate(tokens) if token == 'bank'] #
+# if len(bank_indices) == 2: #
+#     bank1_embedding = word_embeddings_bert[bank_indices[0]] #
+#     bank2_embedding = word_embeddings_bert[bank_indices[1]] #
+    # Calculate similarity between the two 'bank' embeddings
+    # similarity_word_banks = cosine_similarity(bank1_embedding.reshape(1, -1).detach().numpy(),
+    #                                           bank2_embedding.reshape(1, -1).detach().numpy()) #
+    # print(f"Contextual embeddings for the two 'bank' tokens:") #
+    # print(f"  Token 1 ('bank' in 'The bank'): First 5 dims: {bank1_embedding[:5].detach().numpy()}") #
+    # print(f"  Token 2 ('bank' in 'river bank'): First 5 dims: {bank2_embedding[:5].detach().numpy()}") #
+    # print(f"  Similarity between the two 'bank' word embeddings: {similarity_word_banks[0,0]:.4f}") #
+    # We expect these embeddings to be different, reflecting their different contexts.
+# else: #
+    # print("Could not find two 'bank' tokens for comparison.") #
+```
+This demonstrates that the embedding for "bank" will be different depending on its context in the sentence, a key feature of contextual embedding models.
+
+### 5. Fine-tuning a Pre-trained Model (Conceptual Outline)
+
+Fine-tuning involves taking a pre-trained Transformer model and training it further on a specific downstream task with your own labeled data. For example, you could fine-tune BERT for sentiment classification on social media posts. The `transformers` library provides tools like `Trainer` or integration with Keras for this process.
+
+The general steps for fine-tuning are:
+1.  **Load a pre-trained model** suitable for sequence classification (e.g., `BertForSequenceClassification`).
+2.  **Load the corresponding tokenizer.**
+3.  **Prepare your dataset:** Tokenize your texts and labels. Create PyTorch or TensorFlow datasets.
+4.  **Define training arguments** (e.g., learning rate, batch size, number of epochs).
+5.  **Instantiate the `Trainer`** (or use Keras `model.fit()`) and start training.
+6.  **Evaluate** the fine-tuned model on a test set.
+
+This process allows the model to adapt its learned general language understanding to the specific nuances of your task and data. For example, one might fine-tune a BERT model to classify political texts by ideology, potentially achieving higher accuracy than with static embeddings or simpler models, especially if a moderate amount of labeled domain-specific data is available. One could also explore integrating topic information into the fine-tuning process to adapt base models for specific analytical goals.
+
+*(A full fine-tuning example is code-intensive and beyond a quick demonstration here but is a common next step in applying these models.)*
+
+The reading assignment by Alaparthi & Mishra (2021), "BERT: a sentiment analysis odyssey," provides a good overview of using BERT specifically for sentiment analysis, complementing the practical aspects touched upon here.
+
+## Summary and Discussion
+
+Contextual embeddings represent a significant leap from static word vectors by capturing the dynamic meaning of words as they appear in different contexts. Models like ELMo, BERT, and GPT, leveraging architectures like LSTMs and Transformers, have become central to modern NLP. The ability to use these powerful pre-trained models through transfer learning and fine-tuning allows researchers, including those in the social sciences, to achieve state-of-the-art results on specific tasks even with limited labeled data. This is particularly valuable for analyzing complex social phenomena reflected in text. However, it is crucial to remain mindful of the pitfalls, including computational costs, interpretability challenges, and the potential for perpetuating biases learned from training data.
+
+## Exercises and Further Exploration
+
+1.  **Polysemy in Social Science Texts:** Identify a word commonly used in social science literature that has multiple distinct meanings (polysemy). How would static embeddings struggle with this word? How could contextual embeddings provide a more accurate representation for analysis?
+2.  **Transfer Learning Application:** Imagine you have a dataset of 500 manually coded political manifestos for a specific policy stance (e.g., pro- vs. anti-environmental regulation). Outline the steps you would take to fine-tune a pre-trained BERT model for this classification task. What are the potential benefits and challenges compared to using a dictionary-based method or a classifier trained on TF-IDF features?
+3.  **Bias in Contextual Models:** Read an article or blog post discussing bias in large language models like BERT or GPT. Summarize the types of biases found and discuss one proposed method for mitigating such bias. How might these biases impact a social science research project using these models (e.g., analyzing online hate speech or media representation of minority groups)?
+4.  **ELMo vs. BERT vs. GPT:** Compare and contrast the core architectural ideas or pre-training objectives of ELMo, BERT, and a GPT-style model. For what types of NLP tasks or characteristics might one be preferred over the others based on these differences?
+5.  **Computational Resources:** Investigate the typical computational requirements (e.g., GPU memory, training time) for fine-tuning a standard BERT-base model versus a larger model like BERT-large or a recent GPT variant. How might these requirements constrain research in social science settings with limited computational infrastructure?
+6.  **Practical Similarity Task:** Using the `sentence-transformers` library and a pre-trained model like `all-MiniLM-L6-v2`, create a list of 5-10 sentences from a social science domain of your interest (e.g., excerpts from news articles, tweets, survey responses). Generate sentence embeddings and compute a similarity matrix. Do the similarity scores align with your intuitive understanding of which sentences are semantically closest?
+7.  **Interpreting Contextual Embeddings:** While full interpretability is a challenge, what are some simple ways a researcher might try to "probe" what a contextual embedding model has learned? (e.g., observing how the embedding of a word changes across carefully constructed minimal pair sentences).
+8.  **Beyond Classification:** Besides text classification, what other social science research questions or text analysis tasks could benefit significantly from the application of contextual embeddings? Provide a specific example.
+
+The exploration of contextual embeddings opens up vast possibilities for deeper and more nuanced analysis of textual data in the social sciences, enabling researchers to tackle complex questions with greater precision and insight.

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>10.1 Recapitulation of Text Analysis Fundamentals | Introduction to Quantitative Text Analysis</title>
+  <meta name="description" content="10.1 Recapitulation of Text Analysis Fundamentals | Introduction to Quantitative Text Analysis" />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="10.1 Recapitulation of Text Analysis Fundamentals | Introduction to Quantitative Text Analysis" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="10.1 Recapitulation of Text Analysis Fundamentals | Introduction to Quantitative Text Analysis" />
+  
+  
+  
+
+<meta name="author" content="Kostas Gemenis and Bastiaan Bruinsma" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="day1-intro-fundamentals.html"/>
+<link rel="next" href="transitioning-to-deep-learning-for-text-analysis.html"/>
+<script src="assets/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="assets/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="assets/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="assets/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="assets/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Introduction to Quantitative Text Analysis</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome!</a></li>
+<li class="chapter" data-level="1" data-path="preliminaries.html"><a href="preliminaries.html"><i class="fa fa-check"></i><b>1</b> Preliminaries</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="installing-r.html"><a href="installing-r.html"><i class="fa fa-check"></i><b>1.1</b> Installing R</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="installing-r.html"><a href="installing-r.html#windows"><i class="fa fa-check"></i><b>1.1.1</b> Windows</a></li>
+<li class="chapter" data-level="1.1.2" data-path="installing-r.html"><a href="installing-r.html#linux"><i class="fa fa-check"></i><b>1.1.2</b> Linux</a></li>
+<li class="chapter" data-level="1.1.3" data-path="installing-r.html"><a href="installing-r.html#macos"><i class="fa fa-check"></i><b>1.1.3</b> macOS</a></li>
+<li class="chapter" data-level="1.1.4" data-path="installing-r.html"><a href="installing-r.html#cloud"><i class="fa fa-check"></i><b>1.1.4</b> Cloud</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="installing-packages.html"><a href="installing-packages.html"><i class="fa fa-check"></i><b>1.2</b> Installing Packages</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="installing-packages.html"><a href="installing-packages.html#cran"><i class="fa fa-check"></i><b>1.2.1</b> CRAN</a></li>
+<li class="chapter" data-level="1.2.2" data-path="installing-packages.html"><a href="installing-packages.html#github"><i class="fa fa-check"></i><b>1.2.2</b> GitHub</a></li>
+<li class="chapter" data-level="1.2.3" data-path="installing-packages.html"><a href="installing-packages.html#writing-packages"><i class="fa fa-check"></i><b>1.2.3</b> Writing Packages</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="required.html"><a href="required.html"><i class="fa fa-check"></i><b>1.3</b> Required Packages</a></li>
+<li class="chapter" data-level="1.4" data-path="troubleshooting.html"><a href="troubleshooting.html"><i class="fa fa-check"></i><b>1.4</b> Troubleshooting</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="background.html"><a href="background.html"><i class="fa fa-check"></i><b>2</b> Background</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="concepts.html"><a href="concepts.html"><i class="fa fa-check"></i><b>2.1</b> Concepts</a></li>
+<li class="chapter" data-level="2.2" data-path="workflow.html"><a href="workflow.html"><i class="fa fa-check"></i><b>2.2</b> Workflow</a></li>
+<li class="chapter" data-level="2.3" data-path="validation.html"><a href="validation.html"><i class="fa fa-check"></i><b>2.3</b> Validation</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="validation.html"><a href="validation.html#validity"><i class="fa fa-check"></i><b>2.3.1</b> Validity</a></li>
+<li class="chapter" data-level="2.3.2" data-path="validation.html"><a href="validation.html#reliability"><i class="fa fa-check"></i><b>2.3.2</b> Reliability</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="import.html"><a href="import.html"><i class="fa fa-check"></i><b>3</b> Text in R</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="basics.html"><a href="basics.html"><i class="fa fa-check"></i><b>3.1</b> Basics</a></li>
+<li class="chapter" data-level="3.2" data-path="import-.html"><a href="import-.html"><i class="fa fa-check"></i><b>3.2</b> Import .txt</a></li>
+<li class="chapter" data-level="3.3" data-path="import-.html"><a href="import-.html#import-.pdf"><i class="fa fa-check"></i><b>3.3</b> Import .pdf</a></li>
+<li class="chapter" data-level="3.4" data-path="import-.html"><a href="import-.html#import-.csv"><i class="fa fa-check"></i><b>3.4</b> Import .csv</a></li>
+<li class="chapter" data-level="3.5" data-path="import-from-an-api.html"><a href="import-from-an-api.html"><i class="fa fa-check"></i><b>3.5</b> Import from an API</a></li>
+<li class="chapter" data-level="3.6" data-path="import-using-web-scraping.html"><a href="import-using-web-scraping.html"><i class="fa fa-check"></i><b>3.6</b> Import using Web Scraping</a></li>
+<li class="chapter" data-level="3.7" data-path="import-json-and-xml.html"><a href="import-json-and-xml.html"><i class="fa fa-check"></i><b>3.7</b> Import JSON and XML</a></li>
+<li class="chapter" data-level="3.8" data-path="import-from-databases.html"><a href="import-from-databases.html"><i class="fa fa-check"></i><b>3.8</b> Import from Databases</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="describe.html"><a href="describe.html"><i class="fa fa-check"></i><b>4</b> Describe</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="corpus-and-dfm.html"><a href="corpus-and-dfm.html"><i class="fa fa-check"></i><b>4.1</b> Corpus and DFM</a></li>
+<li class="chapter" data-level="4.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html"><i class="fa fa-check"></i><b>4.2</b> Text Pre-processing</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="text-pre-processing.html"><a href="text-pre-processing.html#tokenisation-and-initial-cleaning"><i class="fa fa-check"></i><b>4.2.1</b> Tokenisation and Initial Cleaning</a></li>
+<li class="chapter" data-level="4.2.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html#lower-casing"><i class="fa fa-check"></i><b>4.2.2</b> Lower-casing</a></li>
+<li class="chapter" data-level="4.2.3" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stopword-removal"><i class="fa fa-check"></i><b>4.2.3</b> Stopword Removal</a></li>
+<li class="chapter" data-level="4.2.4" data-path="text-pre-processing.html"><a href="text-pre-processing.html#n-grams-and-collocations"><i class="fa fa-check"></i><b>4.2.4</b> N-grams and Collocations</a></li>
+<li class="chapter" data-level="4.2.5" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stemming-and-lemmatisation"><i class="fa fa-check"></i><b>4.2.5</b> Stemming and Lemmatisation</a></li>
+<li class="chapter" data-level="4.2.6" data-path="text-pre-processing.html"><a href="text-pre-processing.html#removing-sparse-features-dfm-trimming"><i class="fa fa-check"></i><b>4.2.6</b> Removing Sparse Features (DFM Trimming)</a></li>
+<li class="chapter" data-level="4.2.7" data-path="text-pre-processing.html"><a href="text-pre-processing.html#additional-pre-processing"><i class="fa fa-check"></i><b>4.2.7</b> Additional Pre-Processing</a></li>
+<li class="chapter" data-level="4.2.8" data-path="text-pre-processing.html"><a href="text-pre-processing.html#evaluating-pre-processing"><i class="fa fa-check"></i><b>4.2.8</b> Evaluating Pre-Processing</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="descriptives-and-visualisations.html"><a href="descriptives-and-visualisations.html"><i class="fa fa-check"></i><b>4.3</b> Descriptives and Visualisations</a></li>
+<li class="chapter" data-level="4.4" data-path="text-statistics.html"><a href="text-statistics.html"><i class="fa fa-check"></i><b>4.4</b> Text Statistics</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="text-statistics.html"><a href="text-statistics.html#summary"><i class="fa fa-check"></i><b>4.4.1</b> Summary</a></li>
+<li class="chapter" data-level="4.4.2" data-path="text-statistics.html"><a href="text-statistics.html#frequencies"><i class="fa fa-check"></i><b>4.4.2</b> Frequencies</a></li>
+<li class="chapter" data-level="4.4.3" data-path="text-statistics.html"><a href="text-statistics.html#lexical-diversity"><i class="fa fa-check"></i><b>4.4.3</b> Lexical diversity</a></li>
+<li class="chapter" data-level="4.4.4" data-path="text-statistics.html"><a href="text-statistics.html#readability"><i class="fa fa-check"></i><b>4.4.4</b> Readability</a></li>
+<li class="chapter" data-level="4.4.5" data-path="text-statistics.html"><a href="text-statistics.html#similarity-and-distance"><i class="fa fa-check"></i><b>4.4.5</b> Similarity and Distance</a></li>
+<li class="chapter" data-level="4.4.6" data-path="text-statistics.html"><a href="text-statistics.html#keyness"><i class="fa fa-check"></i><b>4.4.6</b> Keyness</a></li>
+<li class="chapter" data-level="4.4.7" data-path="text-statistics.html"><a href="text-statistics.html#entropy"><i class="fa fa-check"></i><b>4.4.7</b> Entropy</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="exercises.html"><a href="exercises.html"><i class="fa fa-check"></i><b>4.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="dictionary-analysis.html"><a href="dictionary-analysis.html"><i class="fa fa-check"></i><b>5</b> Dictionary Analysis</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="classical-dictionary-analysis.html"><a href="classical-dictionary-analysis.html"><i class="fa fa-check"></i><b>5.1</b> Classical Dictionary Analysis</a></li>
+<li class="chapter" data-level="5.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html"><i class="fa fa-check"></i><b>5.2</b> Sentiment Analysis</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#movie-reviews"><i class="fa fa-check"></i><b>5.2.1</b> Movie Reviews</a></li>
+<li class="chapter" data-level="5.2.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#twitter"><i class="fa fa-check"></i><b>5.2.2</b> Twitter</a></li>
+<li class="chapter" data-level="5.2.3" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#vader"><i class="fa fa-check"></i><b>5.2.3</b> VADER</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="exercises-1.html"><a href="exercises-1.html"><i class="fa fa-check"></i><b>5.3</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="scaling.html"><a href="scaling.html"><i class="fa fa-check"></i><b>6</b> Scaling Methods</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="wordscores.html"><a href="wordscores.html"><i class="fa fa-check"></i><b>6.1</b> Wordscores</a></li>
+<li class="chapter" data-level="6.2" data-path="wordfish.html"><a href="wordfish.html"><i class="fa fa-check"></i><b>6.2</b> Wordfish</a></li>
+<li class="chapter" data-level="6.3" data-path="correspondence-analysis.html"><a href="correspondence-analysis.html"><i class="fa fa-check"></i><b>6.3</b> Correspondence Analysis</a></li>
+<li class="chapter" data-level="6.4" data-path="exercises-2.html"><a href="exercises-2.html"><i class="fa fa-check"></i><b>6.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="supervised-methods.html"><a href="supervised-methods.html"><i class="fa fa-check"></i><b>7</b> Supervised Methods</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="support-vector-machines-svm.html"><a href="support-vector-machines-svm.html"><i class="fa fa-check"></i><b>7.1</b> Support Vector Machines (SVM)</a></li>
+<li class="chapter" data-level="7.2" data-path="logistic-regression.html"><a href="logistic-regression.html"><i class="fa fa-check"></i><b>7.2</b> Logistic Regression</a></li>
+<li class="chapter" data-level="7.3" data-path="naive-bayes-nb.html"><a href="naive-bayes-nb.html"><i class="fa fa-check"></i><b>7.3</b> Naive Bayes (NB)</a></li>
+<li class="chapter" data-level="7.4" data-path="exercises-3.html"><a href="exercises-3.html"><i class="fa fa-check"></i><b>7.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="unsupervised-methods.html"><a href="unsupervised-methods.html"><i class="fa fa-check"></i><b>8</b> Unsupervised Methods</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="latent-dirichlet-allocation-lda.html"><a href="latent-dirichlet-allocation-lda.html"><i class="fa fa-check"></i><b>8.1</b> Latent Dirichlet Allocation (LDA)</a></li>
+<li class="chapter" data-level="8.2" data-path="seeded-latent-dirichlet-allocation-slda.html"><a href="seeded-latent-dirichlet-allocation-slda.html"><i class="fa fa-check"></i><b>8.2</b> Seeded Latent Dirichlet Allocation (sLDA)</a></li>
+<li class="chapter" data-level="8.3" data-path="structural-topic-model-stm.html"><a href="structural-topic-model-stm.html"><i class="fa fa-check"></i><b>8.3</b> Structural Topic Model (STM)</a></li>
+<li class="chapter" data-level="8.4" data-path="latent-semantic-analysis-lsa.html"><a href="latent-semantic-analysis-lsa.html"><i class="fa fa-check"></i><b>8.4</b> Latent Semantic Analysis (LSA)</a></li>
+<li class="chapter" data-level="8.5" data-path="exercises-4.html"><a href="exercises-4.html"><i class="fa fa-check"></i><b>8.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="day1-intro-fundamentals.html"><a href="day1-intro-fundamentals.html"><i class="fa fa-check"></i><b>9</b> Advanced Quantitative Text Analysis: Day 1: Introduction &amp; Fundamentals</a></li>
+<li class="chapter" data-level="10" data-path="day1-intro-fundamentals.html"><a href="day1-intro-fundamentals.html#day1-intro-fundamentals"><i class="fa fa-check"></i><b>10</b> Advanced Quantitative Text Analysis: Day 1: Introduction &amp; Fundamentals</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="recapitulation-of-text-analysis-fundamentals.html"><a href="recapitulation-of-text-analysis-fundamentals.html"><i class="fa fa-check"></i><b>10.1</b> Recapitulation of Text Analysis Fundamentals</a>
+<ul>
+<li class="chapter" data-level="10.1.1" data-path="recapitulation-of-text-analysis-fundamentals.html"><a href="recapitulation-of-text-analysis-fundamentals.html#the-role-of-manual-coding"><i class="fa fa-check"></i><b>10.1.1</b> The Role of Manual Coding</a></li>
+<li class="chapter" data-level="10.1.2" data-path="recapitulation-of-text-analysis-fundamentals.html"><a href="recapitulation-of-text-analysis-fundamentals.html#dictionary-based-methods"><i class="fa fa-check"></i><b>10.1.2</b> Dictionary-Based Methods</a></li>
+<li class="chapter" data-level="10.1.3" data-path="recapitulation-of-text-analysis-fundamentals.html"><a href="recapitulation-of-text-analysis-fundamentals.html#supervised-machine-learning-for-text-classification"><i class="fa fa-check"></i><b>10.1.3</b> Supervised Machine Learning for Text Classification</a></li>
+<li class="chapter" data-level="10.1.4" data-path="recapitulation-of-text-analysis-fundamentals.html"><a href="recapitulation-of-text-analysis-fundamentals.html#unsupervised-learning-for-topic-discovery"><i class="fa fa-check"></i><b>10.1.4</b> Unsupervised Learning for Topic Discovery</a></li>
+</ul></li>
+<li class="chapter" data-level="10.2" data-path="transitioning-to-deep-learning-for-text-analysis.html"><a href="transitioning-to-deep-learning-for-text-analysis.html"><i class="fa fa-check"></i><b>10.2</b> Transitioning to Deep Learning for Text Analysis</a>
+<ul>
+<li class="chapter" data-level="10.2.1" data-path="transitioning-to-deep-learning-for-text-analysis.html"><a href="transitioning-to-deep-learning-for-text-analysis.html#neural-networks-core-components"><i class="fa fa-check"></i><b>10.2.1</b> Neural Networks: Core Components</a></li>
+<li class="chapter" data-level="10.2.2" data-path="transitioning-to-deep-learning-for-text-analysis.html"><a href="transitioning-to-deep-learning-for-text-analysis.html#representing-words-word-embeddings"><i class="fa fa-check"></i><b>10.2.2</b> Representing Words: Word Embeddings</a></li>
+<li class="chapter" data-level="10.2.3" data-path="transitioning-to-deep-learning-for-text-analysis.html"><a href="transitioning-to-deep-learning-for-text-analysis.html#handling-sequences-recurrent-neural-networks-rnns"><i class="fa fa-check"></i><b>10.2.3</b> Handling Sequences: Recurrent Neural Networks (RNNs)</a></li>
+<li class="chapter" data-level="10.2.4" data-path="transitioning-to-deep-learning-for-text-analysis.html"><a href="transitioning-to-deep-learning-for-text-analysis.html#advanced-architectures-transformers-and-attention"><i class="fa fa-check"></i><b>10.2.4</b> Advanced Architectures: Transformers and Attention</a></li>
+<li class="chapter" data-level="10.2.5" data-path="transitioning-to-deep-learning-for-text-analysis.html"><a href="transitioning-to-deep-learning-for-text-analysis.html#evaluating-deep-learning-advantages-and-challenges"><i class="fa fa-check"></i><b>10.2.5</b> Evaluating Deep Learning: Advantages and Challenges</a></li>
+</ul></li>
+<li class="chapter" data-level="10.3" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><i class="fa fa-check"></i><b>10.3</b> Practical Exercise: Basic Text Classification with Deep Learning in Python</a>
+<ul>
+<li class="chapter" data-level="10.3.1" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html#setup-importing-libraries"><i class="fa fa-check"></i><b>10.3.1</b> 1. Setup: Importing Libraries</a></li>
+<li class="chapter" data-level="10.3.2" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html#load-data-imdb-movie-reviews"><i class="fa fa-check"></i><b>10.3.2</b> 2. Load Data: IMDB Movie Reviews</a></li>
+<li class="chapter" data-level="10.3.3" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html#preprocessing-padding-sequences"><i class="fa fa-check"></i><b>10.3.3</b> 3. Preprocessing: Padding Sequences</a></li>
+<li class="chapter" data-level="10.3.4" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html#build-the-model"><i class="fa fa-check"></i><b>10.3.4</b> 4. Build the Model</a></li>
+<li class="chapter" data-level="10.3.5" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html#compile-the-model"><i class="fa fa-check"></i><b>10.3.5</b> 5. Compile the Model</a></li>
+<li class="chapter" data-level="10.3.6" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html#train-the-model"><i class="fa fa-check"></i><b>10.3.6</b> 6. Train the Model</a></li>
+<li class="chapter" data-level="10.3.7" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html#evaluate-the-model"><i class="fa fa-check"></i><b>10.3.7</b> 7. Evaluate the Model</a></li>
+<li class="chapter" data-level="10.3.8" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html#discussion-next-steps"><i class="fa fa-check"></i><b>10.3.8</b> 8. Discussion &amp; Next Steps</a></li>
+</ul></li>
+<li class="chapter" data-level="10.4" data-path="exercises-and-further-exploration.html"><a href="exercises-and-further-exploration.html"><i class="fa fa-check"></i><b>10.4</b> Exercises and Further Exploration</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="bastiaan.bruinsma@gmail.com" target="blank">Bastiaan Bruinsma</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to Quantitative Text Analysis</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="recapitulation-of-text-analysis-fundamentals" class="section level2 hasAnchor" number="10.1">
+<h2><span class="header-section-number">10.1</span> Recapitulation of Text Analysis Fundamentals<a href="recapitulation-of-text-analysis-fundamentals.html#recapitulation-of-text-analysis-fundamentals" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Computational methods are increasingly employed in text analysis due to their ability to handle <strong>scale</strong>, ensuring <strong>reliability and consistency</strong> in analysis, and providing <strong>speed</strong> in processing large volumes of text[cite: 8]. These methods find common applications in diverse areas such as analyzing political communication (e.g., manifestos, speeches, social media content), media analysis (e.g., news framing, sentiment extraction), sociology (e.g., studying cultural trends, online communities), and survey analysis, particularly for open-ended questions[cite: 8, 9].</p>
+<p>At a fundamental level, computers interpret texts as numerical data, often as counts of words using a model known as the “bag-of-words”[cite: 10]. To manage the high dimensionality and inherent complexities of textual data—a challenge often termed the “Curse of Dimensionality”—several preprocessing steps are necessary[cite: 10]. These include <strong>lowercasing</strong> all text to ensure uniformity, <strong>stemming or lemmatization</strong> to reduce words to their root form (e.g., “running” becomes “run”), removing common <strong>stop words</strong> (like “the”, “is”) and punctuation, <strong>tokenization</strong> which involves splitting text into individual units or tokens, and finally, creating a <strong>Document-Term Matrix (DTM)</strong> which represents word frequencies across all documents in a corpus[cite: 10].</p>
+<div id="the-role-of-manual-coding" class="section level3 hasAnchor" number="10.1.1">
+<h3><span class="header-section-number">10.1.1</span> The Role of Manual Coding<a href="recapitulation-of-text-analysis-fundamentals.html#the-role-of-manual-coding" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Manual content analysis, often considered the <em>gold standard</em>, remains crucial in many text analysis workflows[cite: 11]. It serves multiple purposes: generating labeled data essential for supervised machine learning models, validating the outputs of computational methods, and enabling in-depth qualitative analysis of smaller text samples[cite: 11]. The key steps in manual coding involve developing a clear <strong>codebook</strong> that outlines definitions and rules for annotation, training coders to ensure consistent application of the codebook, and assessing <strong>inter-coder reliability</strong> using statistical measures like Krippendorff’s <span class="math inline">\(\alpha\)</span> or Cohen’s <span class="math inline">\(\kappa\)</span> to quantify the level of agreement between coders[cite: 11, 12].</p>
+</div>
+<div id="dictionary-based-methods" class="section level3 hasAnchor" number="10.1.2">
+<h3><span class="header-section-number">10.1.2</span> Dictionary-Based Methods<a href="recapitulation-of-text-analysis-fundamentals.html#dictionary-based-methods" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Dictionary-based methods represent a common approach in quantitative text analysis. These methods utilize lists of words, phrases, or patterns that are associated with specific concepts or categories of interest[cite: 13]. The core mechanism involves counting the occurrences of these dictionary terms within documents to assign a score for the concept the dictionary represents[cite: 13]. The advantages of this approach lie in its simplicity, transparency, and the ability to be theory-driven[cite: 13]. However, it also has limitations, such as being insensitive to context, requiring a well-curated and validated dictionary, and potentially missing nuances in language[cite: 13].</p>
+<p>Dictionaries can be developed through two primary approaches: deductive, where one starts from existing theory or expert knowledge to define terms[cite: 14], or inductive, where terms are derived from manual coding or exploratory text analysis techniques like examining Keywords In Context (KWIC)[cite: 15]. Validating a dictionary is a critical step. <strong>Face validity</strong> assesses whether the terms intuitively make sense, often checked using KWIC analysis[cite: 16]. <strong>Internal validity</strong> involves checking the correlations between terms within the dictionary to ensure they collectively represent a coherent concept[cite: 17]. <strong>External validity</strong> is established by comparing the dictionary scores against manual codes or other external measures of the same concept[cite: 17].</p>
+</div>
+<div id="supervised-machine-learning-for-text-classification" class="section level3 hasAnchor" number="10.1.3">
+<h3><span class="header-section-number">10.1.3</span> Supervised Machine Learning for Text Classification<a href="recapitulation-of-text-analysis-fundamentals.html#supervised-machine-learning-for-text-classification" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Supervised machine learning aims to train a model that can automatically classify documents into pre-defined categories[cite: 18]. The general workflow begins with preparing labeled data, where each document has associated features (derived from text) and a known category[cite: 18]. This dataset is then split into a training set and a test set[cite: 18]. A classification algorithm is chosen and trained on the training set, learning a mapping from features to categories[cite: 18, 21, 22]. The trained model is subsequently applied to the unseen test set to predict categories[cite: 18, 26]. Finally, the model’s performance is evaluated using metrics such as accuracy, precision, recall, and the F1-score, which assess how well its predictions match the actual categories in the test set[cite: 18]. Figure <a href="recapitulation-of-text-analysis-fundamentals.html#fig:supervised-ml-diagram-para">10.1</a> visually outlines this process.</p>
+<div class="figure"><span style="display:block;" id="fig:supervised-ml-diagram-para"></span>
+<img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/supervised-ml-diagram-para-1.png" alt="Workflow of Supervised Machine Learning, depicting training and prediction phases. The learning algorithm uses training data and labels to produce a trained model, which then makes predictions on new data." width="100%" />
+<p class="caption">
+Figure 10.1: Workflow of Supervised Machine Learning, depicting training and prediction phases. The learning algorithm uses training data and labels to produce a trained model, which then makes predictions on new data.
+</p>
+</div>
+</div>
+<div id="unsupervised-learning-for-topic-discovery" class="section level3 hasAnchor" number="10.1.4">
+<h3><span class="header-section-number">10.1.4</span> Unsupervised Learning for Topic Discovery<a href="recapitulation-of-text-analysis-fundamentals.html#unsupervised-learning-for-topic-discovery" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>In contrast to supervised methods, unsupervised learning aims to discover latent thematic structures within text data without relying on pre-defined labels or categories[cite: 29]. A prominent example is Latent Dirichlet Allocation (LDA). Simplified, LDA operates on the assumption that documents are composed of a mixture of topics, and each topic is characterized by a distribution of words[cite: 29]. The model’s objective is to infer these topic-word distributions (often denoted <span class="math inline">\(\beta\)</span>) and document-topic mixtures (often denoted <span class="math inline">\(\gamma\)</span>) that best explain the observed text data[cite: 29, 33, 34]. A key parameter in LDA is the number of topics, <span class="math inline">\(K\)</span>, which must be specified beforehand by the researcher[cite: 29]. The interpretation and validation of topics discovered through unsupervised methods like LDA are often subjective and require careful qualitative assessment[cite: 29]. Figure <a href="recapitulation-of-text-analysis-fundamentals.html#fig:unsupervised-learning-diagram-para">10.2</a> illustrates how an unsupervised algorithm processes unlabeled documents to find underlying patterns, resulting in structures like topics as word mixtures and documents as topic mixtures.</p>
+<div class="figure"><span style="display:block;" id="fig:unsupervised-learning-diagram-para"></span>
+<img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/unsupervised-learning-diagram-para-1.png" alt="Unsupervised Learning Workflow (e.g., LDA), where an algorithm analyzes unlabeled input data to discover inherent structures, such as topics defined by word mixtures and documents represented by topic mixtures. [cite: 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]" width="100%" />
+<p class="caption">
+Figure 10.2: Unsupervised Learning Workflow (e.g., LDA), where an algorithm analyzes unlabeled input data to discover inherent structures, such as topics defined by word mixtures and documents represented by topic mixtures. [cite: 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+</p>
+</div>
+<p>An overview of these traditional text analysis methods can often be visualized to show their relationships, as referenced by materials like Grimmer &amp; Stewart.</p>
+<pre><code>## Placeholder for image: figures/1_grimmerstewart.png</code></pre>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="day1-intro-fundamentals.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="transitioning-to-deep-learning-for-text-analysis.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="assets/gitbook-2.6.7/js/app.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="assets/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["Introduction to Quantitative Text Analysis.pdf", "Introduction to Quantitative Text Analysis.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  },
+  "toolbar": {
+    "position": "static"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

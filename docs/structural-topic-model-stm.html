@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>8.3 Structural Topic Model (STM) | Introduction to Quantitative Text Analysis</title>
+  <meta name="description" content="8.3 Structural Topic Model (STM) | Introduction to Quantitative Text Analysis" />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="8.3 Structural Topic Model (STM) | Introduction to Quantitative Text Analysis" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="8.3 Structural Topic Model (STM) | Introduction to Quantitative Text Analysis" />
+  
+  
+  
+
+<meta name="author" content="Kostas Gemenis and Bastiaan Bruinsma" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="seeded-latent-dirichlet-allocation-slda.html"/>
+<link rel="next" href="latent-semantic-analysis-lsa.html"/>
+<script src="assets/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="assets/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="assets/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="assets/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="assets/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 2em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Introduction to Quantitative Text Analysis</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome!</a></li>
+<li class="chapter" data-level="1" data-path="preliminaries.html"><a href="preliminaries.html"><i class="fa fa-check"></i><b>1</b> Preliminaries</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="installing-r.html"><a href="installing-r.html"><i class="fa fa-check"></i><b>1.1</b> Installing R</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="installing-r.html"><a href="installing-r.html#windows"><i class="fa fa-check"></i><b>1.1.1</b> Windows</a></li>
+<li class="chapter" data-level="1.1.2" data-path="installing-r.html"><a href="installing-r.html#linux"><i class="fa fa-check"></i><b>1.1.2</b> Linux</a></li>
+<li class="chapter" data-level="1.1.3" data-path="installing-r.html"><a href="installing-r.html#macos"><i class="fa fa-check"></i><b>1.1.3</b> macOS</a></li>
+<li class="chapter" data-level="1.1.4" data-path="installing-r.html"><a href="installing-r.html#cloud"><i class="fa fa-check"></i><b>1.1.4</b> Cloud</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="installing-packages.html"><a href="installing-packages.html"><i class="fa fa-check"></i><b>1.2</b> Installing Packages</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="installing-packages.html"><a href="installing-packages.html#cran"><i class="fa fa-check"></i><b>1.2.1</b> CRAN</a></li>
+<li class="chapter" data-level="1.2.2" data-path="installing-packages.html"><a href="installing-packages.html#github"><i class="fa fa-check"></i><b>1.2.2</b> GitHub</a></li>
+<li class="chapter" data-level="1.2.3" data-path="installing-packages.html"><a href="installing-packages.html#writing-packages"><i class="fa fa-check"></i><b>1.2.3</b> Writing Packages</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="required.html"><a href="required.html"><i class="fa fa-check"></i><b>1.3</b> Required Packages</a></li>
+<li class="chapter" data-level="1.4" data-path="troubleshooting.html"><a href="troubleshooting.html"><i class="fa fa-check"></i><b>1.4</b> Troubleshooting</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="background.html"><a href="background.html"><i class="fa fa-check"></i><b>2</b> Background</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="concepts.html"><a href="concepts.html"><i class="fa fa-check"></i><b>2.1</b> Concepts</a></li>
+<li class="chapter" data-level="2.2" data-path="workflow.html"><a href="workflow.html"><i class="fa fa-check"></i><b>2.2</b> Workflow</a></li>
+<li class="chapter" data-level="2.3" data-path="validation.html"><a href="validation.html"><i class="fa fa-check"></i><b>2.3</b> Validation</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="validation.html"><a href="validation.html#validity"><i class="fa fa-check"></i><b>2.3.1</b> Validity</a></li>
+<li class="chapter" data-level="2.3.2" data-path="validation.html"><a href="validation.html#reliability"><i class="fa fa-check"></i><b>2.3.2</b> Reliability</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="import.html"><a href="import.html"><i class="fa fa-check"></i><b>3</b> Text in R</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="basics.html"><a href="basics.html"><i class="fa fa-check"></i><b>3.1</b> Basics</a></li>
+<li class="chapter" data-level="3.2" data-path="import-.html"><a href="import-.html"><i class="fa fa-check"></i><b>3.2</b> Import .txt</a></li>
+<li class="chapter" data-level="3.3" data-path="import-.html"><a href="import-.html#import-.pdf"><i class="fa fa-check"></i><b>3.3</b> Import .pdf</a></li>
+<li class="chapter" data-level="3.4" data-path="import-.html"><a href="import-.html#import-.csv"><i class="fa fa-check"></i><b>3.4</b> Import .csv</a></li>
+<li class="chapter" data-level="3.5" data-path="import-from-an-api.html"><a href="import-from-an-api.html"><i class="fa fa-check"></i><b>3.5</b> Import from an API</a></li>
+<li class="chapter" data-level="3.6" data-path="import-using-web-scraping.html"><a href="import-using-web-scraping.html"><i class="fa fa-check"></i><b>3.6</b> Import using Web Scraping</a></li>
+<li class="chapter" data-level="3.7" data-path="import-json-and-xml.html"><a href="import-json-and-xml.html"><i class="fa fa-check"></i><b>3.7</b> Import JSON and XML</a></li>
+<li class="chapter" data-level="3.8" data-path="import-from-databases.html"><a href="import-from-databases.html"><i class="fa fa-check"></i><b>3.8</b> Import from Databases</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="describe.html"><a href="describe.html"><i class="fa fa-check"></i><b>4</b> Describe</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="corpus-and-dfm.html"><a href="corpus-and-dfm.html"><i class="fa fa-check"></i><b>4.1</b> Corpus and DFM</a></li>
+<li class="chapter" data-level="4.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html"><i class="fa fa-check"></i><b>4.2</b> Text Pre-processing</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="text-pre-processing.html"><a href="text-pre-processing.html#tokenisation-and-initial-cleaning"><i class="fa fa-check"></i><b>4.2.1</b> Tokenisation and Initial Cleaning</a></li>
+<li class="chapter" data-level="4.2.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html#lower-casing"><i class="fa fa-check"></i><b>4.2.2</b> Lower-casing</a></li>
+<li class="chapter" data-level="4.2.3" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stopword-removal"><i class="fa fa-check"></i><b>4.2.3</b> Stopword Removal</a></li>
+<li class="chapter" data-level="4.2.4" data-path="text-pre-processing.html"><a href="text-pre-processing.html#n-grams-and-collocations"><i class="fa fa-check"></i><b>4.2.4</b> N-grams and Collocations</a></li>
+<li class="chapter" data-level="4.2.5" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stemming-and-lemmatisation"><i class="fa fa-check"></i><b>4.2.5</b> Stemming and Lemmatisation</a></li>
+<li class="chapter" data-level="4.2.6" data-path="text-pre-processing.html"><a href="text-pre-processing.html#removing-sparse-features-dfm-trimming"><i class="fa fa-check"></i><b>4.2.6</b> Removing Sparse Features (DFM Trimming)</a></li>
+<li class="chapter" data-level="4.2.7" data-path="text-pre-processing.html"><a href="text-pre-processing.html#additional-pre-processing"><i class="fa fa-check"></i><b>4.2.7</b> Additional Pre-Processing</a></li>
+<li class="chapter" data-level="4.2.8" data-path="text-pre-processing.html"><a href="text-pre-processing.html#evaluating-pre-processing"><i class="fa fa-check"></i><b>4.2.8</b> Evaluating Pre-Processing</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="descriptives-and-visualisations.html"><a href="descriptives-and-visualisations.html"><i class="fa fa-check"></i><b>4.3</b> Descriptives and Visualisations</a></li>
+<li class="chapter" data-level="4.4" data-path="text-statistics.html"><a href="text-statistics.html"><i class="fa fa-check"></i><b>4.4</b> Text Statistics</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="text-statistics.html"><a href="text-statistics.html#summary"><i class="fa fa-check"></i><b>4.4.1</b> Summary</a></li>
+<li class="chapter" data-level="4.4.2" data-path="text-statistics.html"><a href="text-statistics.html#frequencies"><i class="fa fa-check"></i><b>4.4.2</b> Frequencies</a></li>
+<li class="chapter" data-level="4.4.3" data-path="text-statistics.html"><a href="text-statistics.html#lexical-diversity"><i class="fa fa-check"></i><b>4.4.3</b> Lexical diversity</a></li>
+<li class="chapter" data-level="4.4.4" data-path="text-statistics.html"><a href="text-statistics.html#readability"><i class="fa fa-check"></i><b>4.4.4</b> Readability</a></li>
+<li class="chapter" data-level="4.4.5" data-path="text-statistics.html"><a href="text-statistics.html#similarity-and-distance"><i class="fa fa-check"></i><b>4.4.5</b> Similarity and Distance</a></li>
+<li class="chapter" data-level="4.4.6" data-path="text-statistics.html"><a href="text-statistics.html#keyness"><i class="fa fa-check"></i><b>4.4.6</b> Keyness</a></li>
+<li class="chapter" data-level="4.4.7" data-path="text-statistics.html"><a href="text-statistics.html#entropy"><i class="fa fa-check"></i><b>4.4.7</b> Entropy</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="exercises.html"><a href="exercises.html"><i class="fa fa-check"></i><b>4.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="dictionary-analysis.html"><a href="dictionary-analysis.html"><i class="fa fa-check"></i><b>5</b> Dictionary Analysis</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="classical-dictionary-analysis.html"><a href="classical-dictionary-analysis.html"><i class="fa fa-check"></i><b>5.1</b> Classical Dictionary Analysis</a></li>
+<li class="chapter" data-level="5.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html"><i class="fa fa-check"></i><b>5.2</b> Sentiment Analysis</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#movie-reviews"><i class="fa fa-check"></i><b>5.2.1</b> Movie Reviews</a></li>
+<li class="chapter" data-level="5.2.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#twitter"><i class="fa fa-check"></i><b>5.2.2</b> Twitter</a></li>
+<li class="chapter" data-level="5.2.3" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#vader"><i class="fa fa-check"></i><b>5.2.3</b> VADER</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="exercises-1.html"><a href="exercises-1.html"><i class="fa fa-check"></i><b>5.3</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="scaling.html"><a href="scaling.html"><i class="fa fa-check"></i><b>6</b> Scaling Methods</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="wordscores.html"><a href="wordscores.html"><i class="fa fa-check"></i><b>6.1</b> Wordscores</a></li>
+<li class="chapter" data-level="6.2" data-path="wordfish.html"><a href="wordfish.html"><i class="fa fa-check"></i><b>6.2</b> Wordfish</a></li>
+<li class="chapter" data-level="6.3" data-path="correspondence-analysis.html"><a href="correspondence-analysis.html"><i class="fa fa-check"></i><b>6.3</b> Correspondence Analysis</a></li>
+<li class="chapter" data-level="6.4" data-path="exercises-2.html"><a href="exercises-2.html"><i class="fa fa-check"></i><b>6.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="supervised-methods.html"><a href="supervised-methods.html"><i class="fa fa-check"></i><b>7</b> Supervised Methods</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="support-vector-machines-svm.html"><a href="support-vector-machines-svm.html"><i class="fa fa-check"></i><b>7.1</b> Support Vector Machines (SVM)</a></li>
+<li class="chapter" data-level="7.2" data-path="logistic-regression.html"><a href="logistic-regression.html"><i class="fa fa-check"></i><b>7.2</b> Logistic Regression</a></li>
+<li class="chapter" data-level="7.3" data-path="naive-bayes-nb.html"><a href="naive-bayes-nb.html"><i class="fa fa-check"></i><b>7.3</b> Naive Bayes (NB)</a></li>
+<li class="chapter" data-level="7.4" data-path="exercises-3.html"><a href="exercises-3.html"><i class="fa fa-check"></i><b>7.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="unsupervised-methods.html"><a href="unsupervised-methods.html"><i class="fa fa-check"></i><b>8</b> Unsupervised Methods</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="latent-dirichlet-allocation-lda.html"><a href="latent-dirichlet-allocation-lda.html"><i class="fa fa-check"></i><b>8.1</b> Latent Dirichlet Allocation (LDA)</a></li>
+<li class="chapter" data-level="8.2" data-path="seeded-latent-dirichlet-allocation-slda.html"><a href="seeded-latent-dirichlet-allocation-slda.html"><i class="fa fa-check"></i><b>8.2</b> Seeded Latent Dirichlet Allocation (sLDA)</a></li>
+<li class="chapter" data-level="8.3" data-path="structural-topic-model-stm.html"><a href="structural-topic-model-stm.html"><i class="fa fa-check"></i><b>8.3</b> Structural Topic Model (STM)</a></li>
+<li class="chapter" data-level="8.4" data-path="latent-semantic-analysis-lsa.html"><a href="latent-semantic-analysis-lsa.html"><i class="fa fa-check"></i><b>8.4</b> Latent Semantic Analysis (LSA)</a></li>
+<li class="chapter" data-level="8.5" data-path="exercises-4.html"><a href="exercises-4.html"><i class="fa fa-check"></i><b>8.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="bastiaan.bruinsma@gmail.com" target="blank">Bastiaan Bruinsma</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to Quantitative Text Analysis</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="structural-topic-model-stm" class="section level2 hasAnchor" number="8.3">
+<h2><span class="header-section-number">8.3</span> Structural Topic Model (STM)<a href="structural-topic-model-stm.html#structural-topic-model-stm" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The Structural Topic Model (STM) is another probabilistic topic modelling approach that extends traditional LDA by explicitly incorporating document metadata (such as publication date, author, source, or other document-level characteristics) into the model.
+STM can model:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Topic prevalence:</strong> How the proportion of topics in a document relates to metadata. For example, how does the prevalence of “business” topics change over time or differ between authors?</li>
+<li><strong>Topic content:</strong> How the words associated with a topic (the <span class="math inline">\(\beta\)</span> distribution) vary according to metadata. For example, are the words used to discuss “the environment” different in documents from different political parties?</li>
+</ol>
+<p>One of the key advantages of STM is that it uses this metadata to estimate the topic-document (<span class="math inline">\(\theta\)</span>) and topic-word (<span class="math inline">\(\beta\)</span>) distributions, potentially leading to more coherent and meaningful topics and allowing researchers to directly test hypotheses about the relationship between metadata and language use. Also, Unlike standard LDA, where the hyperparameters (<span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\beta\)</span>) are typically fixed, STM allows them to be influenced by covariates.</p>
+<p>Figure <a href="structural-topic-model-stm.html#fig:stm-diagram">8.1</a> provides a diagram illustrating the structure of the STM.</p>
+<br />
+
+<div class="figure"><span style="display:block;" id="fig:stm-diagram"></span>
+<img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/stm-diagram-1.png" alt="Plate diagram for a Structucal Topic Model." width="90%" />
+<p class="caption">
+Figure 8.1: Plate diagram for a Structucal Topic Model.
+</p>
+</div>
+<p><br />
+</p>
+<p>Figure <a href="structural-topic-model-stm.html#fig:stm-diagram">8.1</a> shows stm in the form of a plate diagram. Here, <span class="math inline">\(X\)</span> refers to the prevalence metadata; <span class="math inline">\(\gamma\)</span>, the metadata weights; <span class="math inline">\(\Sigma\)</span>, the topic covariances; <span class="math inline">\(\theta\)</span>, the document prevalence; <span class="math inline">\(z\)</span>, the per-word topic; <span class="math inline">\(w\)</span>, the observed word; <span class="math inline">\(Y\)</span>, the content metadata; <span class="math inline">\(\beta\)</span>, the topic content; <span class="math inline">\(N\)</span>, the number of words in a document; and <span class="math inline">\(M\)</span>, the number of documents in the corpus.</p>
+<p>To run stm in R, we have to load the package, set a seed, convert our dfm to the stm format and place our documents, vocabulary (the tokens) and any other data in three separate objects (for later convenience):</p>
+<div class="sourceCode" id="cb299"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb299-1"><a href="structural-topic-model-stm.html#cb299-1" tabindex="-1"></a><span class="fu">library</span>(stm)</span>
+<span id="cb299-2"><a href="structural-topic-model-stm.html#cb299-2" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb299-3"><a href="structural-topic-model-stm.html#cb299-3" tabindex="-1"></a></span>
+<span id="cb299-4"><a href="structural-topic-model-stm.html#cb299-4" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb299-5"><a href="structural-topic-model-stm.html#cb299-5" tabindex="-1"></a></span>
+<span id="cb299-6"><a href="structural-topic-model-stm.html#cb299-6" tabindex="-1"></a>data_inaugural_stm <span class="ot">&lt;-</span> <span class="fu">convert</span>(data_inaugural_dfm, <span class="at">to =</span> <span class="st">&quot;stm&quot;</span>)</span>
+<span id="cb299-7"><a href="structural-topic-model-stm.html#cb299-7" tabindex="-1"></a></span>
+<span id="cb299-8"><a href="structural-topic-model-stm.html#cb299-8" tabindex="-1"></a>documents <span class="ot">&lt;-</span> data_inaugural_stm<span class="sc">$</span>documents</span>
+<span id="cb299-9"><a href="structural-topic-model-stm.html#cb299-9" tabindex="-1"></a>vocabulary <span class="ot">&lt;-</span> data_inaugural_stm<span class="sc">$</span>vocab</span>
+<span id="cb299-10"><a href="structural-topic-model-stm.html#cb299-10" tabindex="-1"></a>meta <span class="ot">&lt;-</span> data_inaugural_stm<span class="sc">$</span>meta</span></code></pre></div>
+<p>The first thing we have to do is find the number of topics we need. In the <code>stm</code> package, we can do this by using a function called <code>searchK</code>. Here, we specify a range of values that could include the ‘correct’ number of topics, which we then run and collect. Afterwards, we then look at several goodness-of-fit measures to assess which number of topics (which <em>k</em>) has the best fit for the data. These measures include exclusivity, semantic coherence, held-out likelihood, bound, lbound, and residual dispersion. Here, we run this for 2 to 15 possible topics.</p>
+<p>In our code, we specify our documents, our tokens (the vocabulary), and our meta-data. Moreover, as our prevalence, we include parameters for <code>Year</code> and <code>Party</code>, as we expect the content of the topics to differ between both the Republican and Democratic party, as well as over time:</p>
+<div class="sourceCode" id="cb300"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb300-1"><a href="structural-topic-model-stm.html#cb300-1" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">9</span>, <span class="dv">10</span>, <span class="dv">11</span>, <span class="dv">12</span>, <span class="dv">13</span>, <span class="dv">14</span>, <span class="dv">15</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb301"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb301-1"><a href="structural-topic-model-stm.html#cb301-1" tabindex="-1"></a>findingk <span class="ot">&lt;-</span> <span class="fu">searchK</span>(documents, vocabulary, k, <span class="at">prevalence =</span> <span class="sc">~</span>Party <span class="sc">+</span> <span class="fu">s</span>(Year), <span class="at">data =</span> meta,</span>
+<span id="cb301-2"><a href="structural-topic-model-stm.html#cb301-2" tabindex="-1"></a>    <span class="at">verbose =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb302"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb302-1"><a href="structural-topic-model-stm.html#cb302-1" tabindex="-1"></a>findingk_results <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">matrix</span>(<span class="fu">unlist</span>(findingk<span class="sc">$</span>results), <span class="at">nrow =</span> <span class="fu">length</span>(<span class="fu">unlist</span>(findingk<span class="sc">$</span>results[<span class="dv">1</span>]))))</span>
+<span id="cb302-2"><a href="structural-topic-model-stm.html#cb302-2" tabindex="-1"></a>names <span class="ot">&lt;-</span> <span class="fu">names</span>(findingk<span class="sc">$</span>results)</span>
+<span id="cb302-3"><a href="structural-topic-model-stm.html#cb302-3" tabindex="-1"></a><span class="fu">names</span>(findingk_results) <span class="ot">&lt;-</span> names</span></code></pre></div>
+<p>Looking at <code>findingk_results</code> we find various values. The first, exclusivity, refers to the occurrence that when words have a high probability under one topic, they have a low probability under others. Related to this is semantic coherence which happens when the most probable words in a topic should occur in the same document. Held-out (or held-out log-likelihood) is the likelihood of our model on data that was not used in the initial estimation (the lower the better), while residuals refer to the difference between a data point and the mean value that the model predicts for that data point (which we want to be 1, indicating a standard distribution). Finally, bound and lbound refer to a model’s internal measure of fit. Here, we will be looking for the number of topics, that balance the exclusivity and the semantic coherence, have a residual around 1, and a low held-out. To make this simpler, we visualise our data. In the first graph we plot all the values, while in the second, we only look at the exclusivity and the semantic coherence (as they are the most important):</p>
+<div class="sourceCode" id="cb303"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb303-1"><a href="structural-topic-model-stm.html#cb303-1" tabindex="-1"></a><span class="fu">library</span>(reshape2)</span>
+<span id="cb303-2"><a href="structural-topic-model-stm.html#cb303-2" tabindex="-1"></a></span>
+<span id="cb303-3"><a href="structural-topic-model-stm.html#cb303-3" tabindex="-1"></a>findingk_melt <span class="ot">&lt;-</span> <span class="fu">melt</span>(findingk_results, <span class="at">id =</span> <span class="st">&quot;K&quot;</span>)</span>
+<span id="cb303-4"><a href="structural-topic-model-stm.html#cb303-4" tabindex="-1"></a>findingk_melt<span class="sc">$</span>variable <span class="ot">&lt;-</span> <span class="fu">as.character</span>(findingk_melt<span class="sc">$</span>variable)</span>
+<span id="cb303-5"><a href="structural-topic-model-stm.html#cb303-5" tabindex="-1"></a>findingk<span class="sc">$</span>K <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(findingk_results<span class="sc">$</span>K)</span>
+<span id="cb303-6"><a href="structural-topic-model-stm.html#cb303-6" tabindex="-1"></a></span>
+<span id="cb303-7"><a href="structural-topic-model-stm.html#cb303-7" tabindex="-1"></a><span class="fu">ggplot</span>(findingk_melt, <span class="fu">aes</span>(K, value)) <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">geom_line</span>() <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>variable,</span>
+<span id="cb303-8"><a href="structural-topic-model-stm.html#cb303-8" tabindex="-1"></a>    <span class="at">scales =</span> <span class="st">&quot;free&quot;</span>) <span class="sc">+</span> <span class="fu">theme_classic</span>()</span></code></pre></div>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/ggplot-stm-findk-1.png" width="672" /></p>
+<div class="sourceCode" id="cb304"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb304-1"><a href="structural-topic-model-stm.html#cb304-1" tabindex="-1"></a><span class="fu">ggplot</span>(findingk_results, <span class="fu">aes</span>(semcoh, exclus)) <span class="sc">+</span> <span class="fu">geom_point</span>() <span class="sc">+</span> <span class="fu">geom_text</span>(<span class="at">data =</span> findingk_results,</span>
+<span id="cb304-2"><a href="structural-topic-model-stm.html#cb304-2" tabindex="-1"></a>    <span class="at">label =</span> findingk<span class="sc">$</span>K, <span class="at">nudge_x =</span> <span class="fl">0.15</span>) <span class="sc">+</span> <span class="fu">scale_x_continuous</span>(<span class="st">&quot;Semantic Coherence&quot;</span>) <span class="sc">+</span></span>
+<span id="cb304-3"><a href="structural-topic-model-stm.html#cb304-3" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="st">&quot;Exclusivity&quot;</span>) <span class="sc">+</span> <span class="fu">theme_classic</span>()</span></code></pre></div>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/ggplot-stm-findk-2.png" width="672" /></p>
+<p>Based on these graphs, we decide upon 10 topics. The main reason for this is that for this number of topics, there is a high semantic coherence given the exclusivity. We can now run our stm model, using spectral initialization and a topical prevalence including both the Party and the Year of the inauguration. Also, we have a look at the topics, and the words with the highest probability attached to them:</p>
+<div class="sourceCode" id="cb305"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb305-1"><a href="structural-topic-model-stm.html#cb305-1" tabindex="-1"></a>n_topics <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb305-2"><a href="structural-topic-model-stm.html#cb305-2" tabindex="-1"></a>output_stm <span class="ot">&lt;-</span> <span class="fu">stm</span>(documents, vocabulary, <span class="at">K =</span> n_topics, <span class="at">prevalence =</span> <span class="sc">~</span>Party <span class="sc">+</span> <span class="fu">s</span>(Year),</span>
+<span id="cb305-3"><a href="structural-topic-model-stm.html#cb305-3" tabindex="-1"></a>    <span class="at">data =</span> meta, <span class="at">init.type =</span> <span class="st">&quot;Spectral&quot;</span>, <span class="at">verbose =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb305-4"><a href="structural-topic-model-stm.html#cb305-4" tabindex="-1"></a><span class="fu">labelTopics</span>(output_stm)</span></code></pre></div>
+<p>Here, we see that the word <code>us</code> is dominant in most topics, making it a candidate for removal as a stop word in a future analysis. Looking closer, we find that the first topic refers to peace, the second, third and seventh to the world, the fourth and sixth to America, and the eighth to the government.</p>
+<p>Finally, we can see whether there is any relation between these topics and any of the parameters we included. Here, let us look at any existing differences between the two parties:</p>
+<div class="sourceCode" id="cb306"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb306-1"><a href="structural-topic-model-stm.html#cb306-1" tabindex="-1"></a>est_assoc_effect <span class="ot">&lt;-</span> <span class="fu">estimateEffect</span>(<span class="sc">~</span>Party, output_stm, <span class="at">metadata =</span> meta, <span class="at">prior =</span> <span class="fl">1e-05</span>)</span></code></pre></div>
+<p>While we can visualise this with the <code>plot.estimateEffect</code> option, the visualisation is far from ideal. Thus, let us use some data-wrangling and make the plot ourselves:</p>
+<div class="sourceCode" id="cb307"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb307-1"><a href="structural-topic-model-stm.html#cb307-1" tabindex="-1"></a>estimate_data <span class="ot">&lt;-</span> <span class="fu">plot.estimateEffect</span>(est_assoc_effect, <span class="st">&quot;Party&quot;</span>, <span class="at">method =</span> <span class="st">&quot;pointestimate&quot;</span>,</span>
+<span id="cb307-2"><a href="structural-topic-model-stm.html#cb307-2" tabindex="-1"></a>    <span class="at">model =</span> output_stm, <span class="at">omit.plot =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb307-3"><a href="structural-topic-model-stm.html#cb307-3" tabindex="-1"></a>estimate_graph_means <span class="ot">&lt;-</span> estimate_data<span class="sc">$</span>means</span>
+<span id="cb307-4"><a href="structural-topic-model-stm.html#cb307-4" tabindex="-1"></a>estimate_graph_means <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">matrix</span>(<span class="fu">unlist</span>(estimate_graph_means), <span class="at">nrow =</span> <span class="fu">length</span>(estimate_graph_means),</span>
+<span id="cb307-5"><a href="structural-topic-model-stm.html#cb307-5" tabindex="-1"></a>    <span class="at">byrow =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb307-6"><a href="structural-topic-model-stm.html#cb307-6" tabindex="-1"></a>estimate_graph_means <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">&quot;Republicans&quot;</span>, <span class="dv">10</span>), <span class="fu">rep</span>(<span class="st">&quot;Democrats&quot;</span>, <span class="dv">10</span>)),</span>
+<span id="cb307-7"><a href="structural-topic-model-stm.html#cb307-7" tabindex="-1"></a>    <span class="fu">c</span>(estimate_graph_means<span class="sc">$</span>X1, estimate_graph_means<span class="sc">$</span>X2))</span>
+<span id="cb307-8"><a href="structural-topic-model-stm.html#cb307-8" tabindex="-1"></a></span>
+<span id="cb307-9"><a href="structural-topic-model-stm.html#cb307-9" tabindex="-1"></a>estimate_graph_cis <span class="ot">&lt;-</span> estimate_data<span class="sc">$</span>cis</span>
+<span id="cb307-10"><a href="structural-topic-model-stm.html#cb307-10" tabindex="-1"></a>estimate_graph_cis <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">matrix</span>(<span class="fu">unlist</span>(estimate_graph_cis), <span class="at">nrow =</span> <span class="fu">length</span>(estimate_graph_cis),</span>
+<span id="cb307-11"><a href="structural-topic-model-stm.html#cb307-11" tabindex="-1"></a>    <span class="at">byrow =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb307-12"><a href="structural-topic-model-stm.html#cb307-12" tabindex="-1"></a>estimate_graph_cis <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">c</span>(estimate_graph_cis<span class="sc">$</span>X1, estimate_graph_cis<span class="sc">$</span>X3),</span>
+<span id="cb307-13"><a href="structural-topic-model-stm.html#cb307-13" tabindex="-1"></a>    <span class="fu">c</span>(estimate_graph_cis<span class="sc">$</span>X2, estimate_graph_cis<span class="sc">$</span>X4))</span>
+<span id="cb307-14"><a href="structural-topic-model-stm.html#cb307-14" tabindex="-1"></a></span>
+<span id="cb307-15"><a href="structural-topic-model-stm.html#cb307-15" tabindex="-1"></a>Topic <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Topic 1&quot;</span>, <span class="st">&quot;Topic 2&quot;</span>, <span class="st">&quot;Topic 3&quot;</span>, <span class="st">&quot;Topic 4&quot;</span>, <span class="st">&quot;Topic 5&quot;</span>, <span class="st">&quot;Topic 6&quot;</span>, <span class="st">&quot;Topic 7&quot;</span>,</span>
+<span id="cb307-16"><a href="structural-topic-model-stm.html#cb307-16" tabindex="-1"></a>    <span class="st">&quot;Topic 8&quot;</span>, <span class="st">&quot;Topic 9&quot;</span>, <span class="st">&quot;Topic 10&quot;</span>, <span class="st">&quot;Topic 1&quot;</span>, <span class="st">&quot;Topic 2&quot;</span>, <span class="st">&quot;Topic 3&quot;</span>, <span class="st">&quot;Topic 4&quot;</span>,</span>
+<span id="cb307-17"><a href="structural-topic-model-stm.html#cb307-17" tabindex="-1"></a>    <span class="st">&quot;Topic 5&quot;</span>, <span class="st">&quot;Topic 6&quot;</span>, <span class="st">&quot;Topic 7&quot;</span>, <span class="st">&quot;Topic 8&quot;</span>, <span class="st">&quot;Topic 9&quot;</span>, <span class="st">&quot;Topic 10&quot;</span>)</span>
+<span id="cb307-18"><a href="structural-topic-model-stm.html#cb307-18" tabindex="-1"></a></span>
+<span id="cb307-19"><a href="structural-topic-model-stm.html#cb307-19" tabindex="-1"></a>estimate_graph <span class="ot">&lt;-</span> <span class="fu">cbind</span>(Topic, estimate_graph_means, estimate_graph_cis)</span>
+<span id="cb307-20"><a href="structural-topic-model-stm.html#cb307-20" tabindex="-1"></a><span class="fu">names</span>(estimate_graph) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Topic&quot;</span>, <span class="st">&quot;Party&quot;</span>, <span class="st">&quot;Mean&quot;</span>, <span class="st">&quot;min&quot;</span>, <span class="st">&quot;max&quot;</span>)</span>
+<span id="cb307-21"><a href="structural-topic-model-stm.html#cb307-21" tabindex="-1"></a>estimate_graph<span class="sc">$</span>Party <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(estimate_graph<span class="sc">$</span>Party)</span>
+<span id="cb307-22"><a href="structural-topic-model-stm.html#cb307-22" tabindex="-1"></a>estimate_graph<span class="sc">$</span>Topic <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(estimate_graph<span class="sc">$</span>Topic)</span>
+<span id="cb307-23"><a href="structural-topic-model-stm.html#cb307-23" tabindex="-1"></a>estimate_graph<span class="sc">$</span>Topic <span class="ot">&lt;-</span> <span class="fu">factor</span>(estimate_graph<span class="sc">$</span>Topic, <span class="at">levels =</span> <span class="fu">rev</span>(<span class="fu">levels</span>(estimate_graph<span class="sc">$</span>Topic)))</span></code></pre></div>
+<p>Now, let us plot our intervals:</p>
+<div class="sourceCode" id="cb308"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb308-1"><a href="structural-topic-model-stm.html#cb308-1" tabindex="-1"></a><span class="fu">ggplot</span>(estimate_graph, <span class="fu">aes</span>(Mean, Topic)) <span class="sc">+</span> <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> min, <span class="at">xmax =</span> max,</span>
+<span id="cb308-2"><a href="structural-topic-model-stm.html#cb308-2" tabindex="-1"></a>    <span class="at">color =</span> Party), <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="fl">0.3</span>)) <span class="sc">+</span> <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>,</span>
+<span id="cb308-3"><a href="structural-topic-model-stm.html#cb308-3" tabindex="-1"></a>    <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">size =</span> <span class="fl">0.5</span>) <span class="sc">+</span> <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;#0015BC&quot;</span>, <span class="st">&quot;#E9141D&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb308-4"><a href="structural-topic-model-stm.html#cb308-4" tabindex="-1"></a>    <span class="fu">theme_classic</span>()</span></code></pre></div>
+<pre><code>## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+## ℹ Please use `linewidth` instead.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning
+## was generated.</code></pre>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/ggplot-stm-intervals-1.png" width="672" /></p>
+<p>Here, we find that while the averages for the topic do seem to differ a little between both of the parties, all the intervals are overlapping, indicating that they are not that different.</p>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="seeded-latent-dirichlet-allocation-slda.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="latent-semantic-analysis-lsa.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="assets/gitbook-2.6.7/js/app.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="assets/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["Introduction to Quantitative Text Analysis.pdf", "Introduction to Quantitative Text Analysis.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  },
+  "toolbar": {
+    "position": "static"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

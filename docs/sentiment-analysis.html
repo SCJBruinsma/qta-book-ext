@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>5.2 Sentiment Analysis | Introduction to Quantitative Text Analysis</title>
+  <meta name="description" content="5.2 Sentiment Analysis | Introduction to Quantitative Text Analysis" />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="5.2 Sentiment Analysis | Introduction to Quantitative Text Analysis" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="5.2 Sentiment Analysis | Introduction to Quantitative Text Analysis" />
+  
+  
+  
+
+<meta name="author" content="Kostas Gemenis and Bastiaan Bruinsma" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="classical-dictionary-analysis.html"/>
+<link rel="next" href="exercises-1.html"/>
+<script src="assets/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="assets/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="assets/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="assets/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="assets/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 2em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Introduction to Quantitative Text Analysis</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome!</a></li>
+<li class="chapter" data-level="1" data-path="preliminaries.html"><a href="preliminaries.html"><i class="fa fa-check"></i><b>1</b> Preliminaries</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="installing-r.html"><a href="installing-r.html"><i class="fa fa-check"></i><b>1.1</b> Installing R</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="installing-r.html"><a href="installing-r.html#windows"><i class="fa fa-check"></i><b>1.1.1</b> Windows</a></li>
+<li class="chapter" data-level="1.1.2" data-path="installing-r.html"><a href="installing-r.html#linux"><i class="fa fa-check"></i><b>1.1.2</b> Linux</a></li>
+<li class="chapter" data-level="1.1.3" data-path="installing-r.html"><a href="installing-r.html#macos"><i class="fa fa-check"></i><b>1.1.3</b> macOS</a></li>
+<li class="chapter" data-level="1.1.4" data-path="installing-r.html"><a href="installing-r.html#cloud"><i class="fa fa-check"></i><b>1.1.4</b> Cloud</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="installing-packages.html"><a href="installing-packages.html"><i class="fa fa-check"></i><b>1.2</b> Installing Packages</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="installing-packages.html"><a href="installing-packages.html#cran"><i class="fa fa-check"></i><b>1.2.1</b> CRAN</a></li>
+<li class="chapter" data-level="1.2.2" data-path="installing-packages.html"><a href="installing-packages.html#github"><i class="fa fa-check"></i><b>1.2.2</b> GitHub</a></li>
+<li class="chapter" data-level="1.2.3" data-path="installing-packages.html"><a href="installing-packages.html#writing-packages"><i class="fa fa-check"></i><b>1.2.3</b> Writing Packages</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="required.html"><a href="required.html"><i class="fa fa-check"></i><b>1.3</b> Required Packages</a></li>
+<li class="chapter" data-level="1.4" data-path="troubleshooting.html"><a href="troubleshooting.html"><i class="fa fa-check"></i><b>1.4</b> Troubleshooting</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="background.html"><a href="background.html"><i class="fa fa-check"></i><b>2</b> Background</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="concepts.html"><a href="concepts.html"><i class="fa fa-check"></i><b>2.1</b> Concepts</a></li>
+<li class="chapter" data-level="2.2" data-path="workflow.html"><a href="workflow.html"><i class="fa fa-check"></i><b>2.2</b> Workflow</a></li>
+<li class="chapter" data-level="2.3" data-path="validation.html"><a href="validation.html"><i class="fa fa-check"></i><b>2.3</b> Validation</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="validation.html"><a href="validation.html#validity"><i class="fa fa-check"></i><b>2.3.1</b> Validity</a></li>
+<li class="chapter" data-level="2.3.2" data-path="validation.html"><a href="validation.html#reliability"><i class="fa fa-check"></i><b>2.3.2</b> Reliability</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="import.html"><a href="import.html"><i class="fa fa-check"></i><b>3</b> Text in R</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="basics.html"><a href="basics.html"><i class="fa fa-check"></i><b>3.1</b> Basics</a></li>
+<li class="chapter" data-level="3.2" data-path="import-.html"><a href="import-.html"><i class="fa fa-check"></i><b>3.2</b> Import .txt</a></li>
+<li class="chapter" data-level="3.3" data-path="import-.html"><a href="import-.html#import-.pdf"><i class="fa fa-check"></i><b>3.3</b> Import .pdf</a></li>
+<li class="chapter" data-level="3.4" data-path="import-.html"><a href="import-.html#import-.csv"><i class="fa fa-check"></i><b>3.4</b> Import .csv</a></li>
+<li class="chapter" data-level="3.5" data-path="import-from-an-api.html"><a href="import-from-an-api.html"><i class="fa fa-check"></i><b>3.5</b> Import from an API</a></li>
+<li class="chapter" data-level="3.6" data-path="import-using-web-scraping.html"><a href="import-using-web-scraping.html"><i class="fa fa-check"></i><b>3.6</b> Import using Web Scraping</a></li>
+<li class="chapter" data-level="3.7" data-path="import-json-and-xml.html"><a href="import-json-and-xml.html"><i class="fa fa-check"></i><b>3.7</b> Import JSON and XML</a></li>
+<li class="chapter" data-level="3.8" data-path="import-from-databases.html"><a href="import-from-databases.html"><i class="fa fa-check"></i><b>3.8</b> Import from Databases</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="describe.html"><a href="describe.html"><i class="fa fa-check"></i><b>4</b> Describe</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="corpus-and-dfm.html"><a href="corpus-and-dfm.html"><i class="fa fa-check"></i><b>4.1</b> Corpus and DFM</a></li>
+<li class="chapter" data-level="4.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html"><i class="fa fa-check"></i><b>4.2</b> Text Pre-processing</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="text-pre-processing.html"><a href="text-pre-processing.html#tokenisation-and-initial-cleaning"><i class="fa fa-check"></i><b>4.2.1</b> Tokenisation and Initial Cleaning</a></li>
+<li class="chapter" data-level="4.2.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html#lower-casing"><i class="fa fa-check"></i><b>4.2.2</b> Lower-casing</a></li>
+<li class="chapter" data-level="4.2.3" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stopword-removal"><i class="fa fa-check"></i><b>4.2.3</b> Stopword Removal</a></li>
+<li class="chapter" data-level="4.2.4" data-path="text-pre-processing.html"><a href="text-pre-processing.html#n-grams-and-collocations"><i class="fa fa-check"></i><b>4.2.4</b> N-grams and Collocations</a></li>
+<li class="chapter" data-level="4.2.5" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stemming-and-lemmatisation"><i class="fa fa-check"></i><b>4.2.5</b> Stemming and Lemmatisation</a></li>
+<li class="chapter" data-level="4.2.6" data-path="text-pre-processing.html"><a href="text-pre-processing.html#removing-sparse-features-dfm-trimming"><i class="fa fa-check"></i><b>4.2.6</b> Removing Sparse Features (DFM Trimming)</a></li>
+<li class="chapter" data-level="4.2.7" data-path="text-pre-processing.html"><a href="text-pre-processing.html#additional-pre-processing"><i class="fa fa-check"></i><b>4.2.7</b> Additional Pre-Processing</a></li>
+<li class="chapter" data-level="4.2.8" data-path="text-pre-processing.html"><a href="text-pre-processing.html#evaluating-pre-processing"><i class="fa fa-check"></i><b>4.2.8</b> Evaluating Pre-Processing</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="descriptives-and-visualisations.html"><a href="descriptives-and-visualisations.html"><i class="fa fa-check"></i><b>4.3</b> Descriptives and Visualisations</a></li>
+<li class="chapter" data-level="4.4" data-path="text-statistics.html"><a href="text-statistics.html"><i class="fa fa-check"></i><b>4.4</b> Text Statistics</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="text-statistics.html"><a href="text-statistics.html#summary"><i class="fa fa-check"></i><b>4.4.1</b> Summary</a></li>
+<li class="chapter" data-level="4.4.2" data-path="text-statistics.html"><a href="text-statistics.html#frequencies"><i class="fa fa-check"></i><b>4.4.2</b> Frequencies</a></li>
+<li class="chapter" data-level="4.4.3" data-path="text-statistics.html"><a href="text-statistics.html#lexical-diversity"><i class="fa fa-check"></i><b>4.4.3</b> Lexical diversity</a></li>
+<li class="chapter" data-level="4.4.4" data-path="text-statistics.html"><a href="text-statistics.html#readability"><i class="fa fa-check"></i><b>4.4.4</b> Readability</a></li>
+<li class="chapter" data-level="4.4.5" data-path="text-statistics.html"><a href="text-statistics.html#similarity-and-distance"><i class="fa fa-check"></i><b>4.4.5</b> Similarity and Distance</a></li>
+<li class="chapter" data-level="4.4.6" data-path="text-statistics.html"><a href="text-statistics.html#keyness"><i class="fa fa-check"></i><b>4.4.6</b> Keyness</a></li>
+<li class="chapter" data-level="4.4.7" data-path="text-statistics.html"><a href="text-statistics.html#entropy"><i class="fa fa-check"></i><b>4.4.7</b> Entropy</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="exercises.html"><a href="exercises.html"><i class="fa fa-check"></i><b>4.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="dictionary-analysis.html"><a href="dictionary-analysis.html"><i class="fa fa-check"></i><b>5</b> Dictionary Analysis</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="classical-dictionary-analysis.html"><a href="classical-dictionary-analysis.html"><i class="fa fa-check"></i><b>5.1</b> Classical Dictionary Analysis</a></li>
+<li class="chapter" data-level="5.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html"><i class="fa fa-check"></i><b>5.2</b> Sentiment Analysis</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#movie-reviews"><i class="fa fa-check"></i><b>5.2.1</b> Movie Reviews</a></li>
+<li class="chapter" data-level="5.2.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#twitter"><i class="fa fa-check"></i><b>5.2.2</b> Twitter</a></li>
+<li class="chapter" data-level="5.2.3" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#vader"><i class="fa fa-check"></i><b>5.2.3</b> VADER</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="exercises-1.html"><a href="exercises-1.html"><i class="fa fa-check"></i><b>5.3</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="scaling.html"><a href="scaling.html"><i class="fa fa-check"></i><b>6</b> Scaling Methods</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="wordscores.html"><a href="wordscores.html"><i class="fa fa-check"></i><b>6.1</b> Wordscores</a></li>
+<li class="chapter" data-level="6.2" data-path="wordfish.html"><a href="wordfish.html"><i class="fa fa-check"></i><b>6.2</b> Wordfish</a></li>
+<li class="chapter" data-level="6.3" data-path="correspondence-analysis.html"><a href="correspondence-analysis.html"><i class="fa fa-check"></i><b>6.3</b> Correspondence Analysis</a></li>
+<li class="chapter" data-level="6.4" data-path="exercises-2.html"><a href="exercises-2.html"><i class="fa fa-check"></i><b>6.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="supervised-methods.html"><a href="supervised-methods.html"><i class="fa fa-check"></i><b>7</b> Supervised Methods</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="support-vector-machines-svm.html"><a href="support-vector-machines-svm.html"><i class="fa fa-check"></i><b>7.1</b> Support Vector Machines (SVM)</a></li>
+<li class="chapter" data-level="7.2" data-path="logistic-regression.html"><a href="logistic-regression.html"><i class="fa fa-check"></i><b>7.2</b> Logistic Regression</a></li>
+<li class="chapter" data-level="7.3" data-path="naive-bayes-nb.html"><a href="naive-bayes-nb.html"><i class="fa fa-check"></i><b>7.3</b> Naive Bayes (NB)</a></li>
+<li class="chapter" data-level="7.4" data-path="exercises-3.html"><a href="exercises-3.html"><i class="fa fa-check"></i><b>7.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="unsupervised-methods.html"><a href="unsupervised-methods.html"><i class="fa fa-check"></i><b>8</b> Unsupervised Methods</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="latent-dirichlet-allocation-lda.html"><a href="latent-dirichlet-allocation-lda.html"><i class="fa fa-check"></i><b>8.1</b> Latent Dirichlet Allocation (LDA)</a></li>
+<li class="chapter" data-level="8.2" data-path="seeded-latent-dirichlet-allocation-slda.html"><a href="seeded-latent-dirichlet-allocation-slda.html"><i class="fa fa-check"></i><b>8.2</b> Seeded Latent Dirichlet Allocation (sLDA)</a></li>
+<li class="chapter" data-level="8.3" data-path="structural-topic-model-stm.html"><a href="structural-topic-model-stm.html"><i class="fa fa-check"></i><b>8.3</b> Structural Topic Model (STM)</a></li>
+<li class="chapter" data-level="8.4" data-path="latent-semantic-analysis-lsa.html"><a href="latent-semantic-analysis-lsa.html"><i class="fa fa-check"></i><b>8.4</b> Latent Semantic Analysis (LSA)</a></li>
+<li class="chapter" data-level="8.5" data-path="exercises-4.html"><a href="exercises-4.html"><i class="fa fa-check"></i><b>8.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="bastiaan.bruinsma@gmail.com" target="blank">Bastiaan Bruinsma</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to Quantitative Text Analysis</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="sentiment-analysis" class="section level2 hasAnchor" number="5.2">
+<h2><span class="header-section-number">5.2</span> Sentiment Analysis<a href="sentiment-analysis.html#sentiment-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The logic of dictionaries extends beyond simple words, as we saw above; we can also use them to provide measures related to scaling, such as the degree of positive or negative sentiment and look at whether a text expresses happiness, anger, positivity, negativity, etc. This can be particularly useful for analysing subjective content such as movie reviews, which we will look at in the first example.</p>
+<div id="movie-reviews" class="section level3 hasAnchor" number="5.2.1">
+<h3><span class="header-section-number">5.2.1</span> Movie Reviews<a href="sentiment-analysis.html#movie-reviews" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Movie reviews often describe a film alongside an explicit opinion or rating. Here, we will use a sample from the Large Movie Review Dataset (<code>data_corpus_LMRD</code>), which contains reviews labelled as either positive or negative and which sometimes have ratings associated with them. As the dataset is large, we will work with a smaller sample of 30 reviews for demonstration purposes. We will sample the corpus using the <code>corpus_sample()</code> function and then preprocess it by tokenising, lowercasing, and removing stop words before creating a document feature matrix (DFM):</p>
+<div class="sourceCode" id="cb121"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb121-1"><a href="sentiment-analysis.html#cb121-1" tabindex="-1"></a><span class="fu">library</span>(quanteda.classifiers)</span>
+<span id="cb121-2"><a href="sentiment-analysis.html#cb121-2" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb121-3"><a href="sentiment-analysis.html#cb121-3" tabindex="-1"></a></span>
+<span id="cb121-4"><a href="sentiment-analysis.html#cb121-4" tabindex="-1"></a><span class="co"># Load the large movie review dataset and sample 30 reviews</span></span>
+<span id="cb121-5"><a href="sentiment-analysis.html#cb121-5" tabindex="-1"></a><span class="fu">data</span>(data_corpus_LMRD)</span>
+<span id="cb121-6"><a href="sentiment-analysis.html#cb121-6" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)  <span class="co"># Set seed for reproducibility</span></span>
+<span id="cb121-7"><a href="sentiment-analysis.html#cb121-7" tabindex="-1"></a>reviews <span class="ot">&lt;-</span> <span class="fu">corpus_sample</span>(data_corpus_LMRD, <span class="dv">30</span>)</span>
+<span id="cb121-8"><a href="sentiment-analysis.html#cb121-8" tabindex="-1"></a></span>
+<span id="cb121-9"><a href="sentiment-analysis.html#cb121-9" tabindex="-1"></a>reviews_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(reviews, <span class="at">remove_punct =</span> <span class="cn">TRUE</span>, <span class="at">remove_symbols =</span> <span class="cn">TRUE</span>, <span class="at">remove_numbers =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb121-10"><a href="sentiment-analysis.html#cb121-10" tabindex="-1"></a>    <span class="at">remove_url =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb121-11"><a href="sentiment-analysis.html#cb121-11" tabindex="-1"></a>reviews_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_tolower</span>(reviews_tokens)</span>
+<span id="cb121-12"><a href="sentiment-analysis.html#cb121-12" tabindex="-1"></a>reviews_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(reviews_tokens, <span class="fu">stopwords</span>(<span class="st">&quot;english&quot;</span>), <span class="at">selection =</span> <span class="st">&quot;remove&quot;</span>)</span>
+<span id="cb121-13"><a href="sentiment-analysis.html#cb121-13" tabindex="-1"></a>reviews_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(reviews_tokens)</span></code></pre></div>
+<p>The next step is to load a sentiment analysis dictionary and apply it to our film review dfm. Here, we will use the Lexicoder Sentiment Dictionary (LSD2015), which is included in <code>quanteda.dictionaries</code>. This dictionary categorises words as positive or negative. We use the dictionary with <code>dfm_lookup()</code>:</p>
+<div class="sourceCode" id="cb122"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb122-1"><a href="sentiment-analysis.html#cb122-1" tabindex="-1"></a><span class="fu">library</span>(quanteda.dictionaries)</span>
+<span id="cb122-2"><a href="sentiment-analysis.html#cb122-2" tabindex="-1"></a>data_dictionary_LSD2015</span>
+<span id="cb122-3"><a href="sentiment-analysis.html#cb122-3" tabindex="-1"></a></span>
+<span id="cb122-4"><a href="sentiment-analysis.html#cb122-4" tabindex="-1"></a>results_dfm <span class="ot">&lt;-</span> <span class="fu">dfm_lookup</span>(reviews_dfm, data_dictionary_LSD2015)</span>
+<span id="cb122-5"><a href="sentiment-analysis.html#cb122-5" tabindex="-1"></a>results_dfm</span></code></pre></div>
+<p>The resulting <code>results_dfm</code> has features corresponding to the categories in the LSD2015 dictionary (e.g., “positive” and “negative”), and the values are the number of words in each category found in each film review. The next step then is to convert the results into a data frame for easier analysis and display:</p>
+<div class="sourceCode" id="cb123"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb123-1"><a href="sentiment-analysis.html#cb123-1" tabindex="-1"></a>sentiment <span class="ot">&lt;-</span> <span class="fu">convert</span>(results_dfm, <span class="at">to =</span> <span class="st">&quot;data.frame&quot;</span>)</span>
+<span id="cb123-2"><a href="sentiment-analysis.html#cb123-2" tabindex="-1"></a><span class="fu">head</span>(sentiment)</span></code></pre></div>
+<pre><code>##                 doc_id negative positive neg_positive neg_negative
+## 1 train/neg/6869_1.txt       19       31            0            0
+## 2  test/neg/6694_1.txt        8        7            0            0
+## 3 train/pos/6588_9.txt        8       12            0            0
+## 4 train/pos/7415_8.txt        5       13            0            0
+## 5  test/pos/2566_9.txt        8        9            0            0
+## 6  test/neg/5680_2.txt       31       19            0            0</code></pre>
+<p>Often, movie reviews have an external rating (often in the form of stars or a positive/negative label). In that case, we can see if the dictionary-based sentiment is related to that rating. As the <code>data_corpus_LMRD</code> sample contains these ratings as document variables (docvars), we can extract this easily:</p>
+<div class="sourceCode" id="cb125"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb125-1"><a href="sentiment-analysis.html#cb125-1" tabindex="-1"></a>star_data <span class="ot">&lt;-</span> <span class="fu">docvars</span>(reviews, <span class="at">field =</span> <span class="st">&quot;rating&quot;</span>)</span>
+<span id="cb125-2"><a href="sentiment-analysis.html#cb125-2" tabindex="-1"></a></span>
+<span id="cb125-3"><a href="sentiment-analysis.html#cb125-3" tabindex="-1"></a><span class="co"># Combine the rating with the dictionary sentiment scores</span></span>
+<span id="cb125-4"><a href="sentiment-analysis.html#cb125-4" tabindex="-1"></a></span>
+<span id="cb125-5"><a href="sentiment-analysis.html#cb125-5" tabindex="-1"></a>stargraph <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(star_data, sentiment<span class="sc">$</span>negative, sentiment<span class="sc">$</span>positive))</span>
+<span id="cb125-6"><a href="sentiment-analysis.html#cb125-6" tabindex="-1"></a><span class="fu">names</span>(stargraph) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;stars&quot;</span>, <span class="st">&quot;negative&quot;</span>, <span class="st">&quot;positive&quot;</span>)</span>
+<span id="cb125-7"><a href="sentiment-analysis.html#cb125-7" tabindex="-1"></a><span class="fu">head</span>(stargraph)</span></code></pre></div>
+<pre><code>##   stars negative positive
+## 1     1       19       31
+## 2     1        8        7
+## 3     9        8       12
+## 4     8        5       13
+## 5     9        8        9
+## 6     2       31       19</code></pre>
+<p>Now, we can combine the positive and negative counts into a single sentiment score to compare dictionary-based sentiment with star ratings. For this, we take the ratio of positive words to the total number of sentiment words (<span class="math inline">\(positive / (positive + negative)\)</span>) to avoid division by zero if there are no positive or negative words:</p>
+<div class="sourceCode" id="cb127"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb127-1"><a href="sentiment-analysis.html#cb127-1" tabindex="-1"></a>sentiment_ratio <span class="ot">&lt;-</span> stargraph<span class="sc">$</span>positive<span class="sc">/</span>(stargraph<span class="sc">$</span>positive <span class="sc">+</span> stargraph<span class="sc">$</span>negative)</span>
+<span id="cb127-2"><a href="sentiment-analysis.html#cb127-2" tabindex="-1"></a></span>
+<span id="cb127-3"><a href="sentiment-analysis.html#cb127-3" tabindex="-1"></a>stargraph <span class="ot">&lt;-</span> <span class="fu">cbind</span>(stargraph, sentiment_ratio)</span>
+<span id="cb127-4"><a href="sentiment-analysis.html#cb127-4" tabindex="-1"></a><span class="fu">head</span>(stargraph)</span></code></pre></div>
+<pre><code>##   stars negative positive sentiment_ratio
+## 1     1       19       31       0.6200000
+## 2     1        8        7       0.4666667
+## 3     9        8       12       0.6000000
+## 4     8        5       13       0.7222222
+## 5     9        8        9       0.5294118
+## 6     2       31       19       0.3800000</code></pre>
+<p>Using <code>ggplot2</code>, we can plot the star ratings against these scaled sentiment measures to assess the relationship visually:</p>
+<div class="sourceCode" id="cb129"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb129-1"><a href="sentiment-analysis.html#cb129-1" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb129-2"><a href="sentiment-analysis.html#cb129-2" tabindex="-1"></a></span>
+<span id="cb129-3"><a href="sentiment-analysis.html#cb129-3" tabindex="-1"></a><span class="fu">ggplot</span>(stargraph, <span class="fu">aes</span>(<span class="at">x =</span> sentiment_ratio, <span class="at">y =</span> stars)) <span class="sc">+</span> <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb129-4"><a href="sentiment-analysis.html#cb129-4" tabindex="-1"></a>    <span class="fu">geom_smooth</span>(<span class="at">method =</span> lm, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> <span class="st">&quot;black&quot;</span>) <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Star Rating&quot;</span>,</span>
+<span id="cb129-5"><a href="sentiment-analysis.html#cb129-5" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">10.5</span>), <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span> <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Ratio of Positive to Total Sentiment Words&quot;</span>,</span>
+<span id="cb129-6"><a href="sentiment-analysis.html#cb129-6" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span> <span class="fu">ggtitle</span>(<span class="st">&quot;Sentiment Ratio vs. Star Rating&quot;</span>) <span class="sc">+</span></span>
+<span id="cb129-7"><a href="sentiment-analysis.html#cb129-7" tabindex="-1"></a>    <span class="fu">theme_classic</span>()</span></code></pre></div>
+<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/ggplot-moviereviews-stars-1.png" width="672" /></p>
+<p>Finally, we consider how to estimate the uncertainty around our dictionary-based sentiment scores, particularly the percentages of positive or negative words. For this, we use bootstrapping, a statistical technique that calculates the sampling variability of a statistic by resampling the observed data. In the context of text analysis and dictionary methods, bootstrapping can help us quantify the uncertainty in the estimated proportion of words falling into particular dictionary categories within each document. This is particularly useful for understanding the reliability of scores for shorter documents with limited word counts.</p>
+<p>The following code demonstrates a bootstrapping approach to estimating confidence intervals for the percentage of positive and negative words in each review. This method involves resampling the word counts within each document based on a multinomial distribution derived from the observed counts. While the code may appear complex, it essentially simulates drawing new sets of words for each document many times based on the proportions of positive and negative words found initially. The core logic is that the <code>apply</code> function with <code>rmultinom</code> simulates drawing new counts for the negative and positive categories based on their observed proportions and the total number of sentiment words in each document. We repeat this process <code>nrepl</code> several times to obtain a distribution of possible percentages for each document under resampling. The standard deviation of these simulated percentages estimates the standard error, which is then used to calculate confidence intervals.</p>
+<div class="sourceCode" id="cb131"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb131-1"><a href="sentiment-analysis.html#cb131-1" tabindex="-1"></a><span class="fu">library</span>(ggplot2)  <span class="co"># For plotting</span></span>
+<span id="cb131-2"><a href="sentiment-analysis.html#cb131-2" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb131-3"><a href="sentiment-analysis.html#cb131-3" tabindex="-1"></a></span>
+<span id="cb131-4"><a href="sentiment-analysis.html#cb131-4" tabindex="-1"></a><span class="co"># Prepare data for bootstrapping: include doc_id and sentiment counts</span></span>
+<span id="cb131-5"><a href="sentiment-analysis.html#cb131-5" tabindex="-1"></a></span>
+<span id="cb131-6"><a href="sentiment-analysis.html#cb131-6" tabindex="-1"></a>reviews_bootstrap_data <span class="ot">&lt;-</span> sentiment[, <span class="fu">c</span>(<span class="st">&quot;doc_id&quot;</span>, <span class="st">&quot;negative&quot;</span>, <span class="st">&quot;positive&quot;</span>)]</span>
+<span id="cb131-7"><a href="sentiment-analysis.html#cb131-7" tabindex="-1"></a></span>
+<span id="cb131-8"><a href="sentiment-analysis.html#cb131-8" tabindex="-1"></a><span class="co"># Remove rows with zero total sentiment words to avoid division by zero issues</span></span>
+<span id="cb131-9"><a href="sentiment-analysis.html#cb131-9" tabindex="-1"></a><span class="co"># later</span></span>
+<span id="cb131-10"><a href="sentiment-analysis.html#cb131-10" tabindex="-1"></a>reviews_bootstrap_data <span class="ot">&lt;-</span> reviews_bootstrap_data <span class="sc">%&gt;%</span></span>
+<span id="cb131-11"><a href="sentiment-analysis.html#cb131-11" tabindex="-1"></a>    <span class="fu">filter</span>(negative <span class="sc">+</span> positive <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb131-12"><a href="sentiment-analysis.html#cb131-12" tabindex="-1"></a></span>
+<span id="cb131-13"><a href="sentiment-analysis.html#cb131-13" tabindex="-1"></a><span class="co"># Get the number of documents remaining</span></span>
+<span id="cb131-14"><a href="sentiment-analysis.html#cb131-14" tabindex="-1"></a>nman <span class="ot">&lt;-</span> <span class="fu">nrow</span>(reviews_bootstrap_data)</span>
+<span id="cb131-15"><a href="sentiment-analysis.html#cb131-15" tabindex="-1"></a></span>
+<span id="cb131-16"><a href="sentiment-analysis.html#cb131-16" tabindex="-1"></a><span class="co"># Set parameters for bootstrapping</span></span>
+<span id="cb131-17"><a href="sentiment-analysis.html#cb131-17" tabindex="-1"></a>nrepl <span class="ot">&lt;-</span> <span class="dv">1000</span>  <span class="co"># Number of bootstrap replications</span></span>
+<span id="cb131-18"><a href="sentiment-analysis.html#cb131-18" tabindex="-1"></a></span>
+<span id="cb131-19"><a href="sentiment-analysis.html#cb131-19" tabindex="-1"></a><span class="co"># --- Perform Bootstrapping --- We will store the results of each bootstrap</span></span>
+<span id="cb131-20"><a href="sentiment-analysis.html#cb131-20" tabindex="-1"></a><span class="co"># replication in a list</span></span>
+<span id="cb131-21"><a href="sentiment-analysis.html#cb131-21" tabindex="-1"></a>bootstrap_reps <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">&quot;list&quot;</span>, nrepl)</span>
+<span id="cb131-22"><a href="sentiment-analysis.html#cb131-22" tabindex="-1"></a></span>
+<span id="cb131-23"><a href="sentiment-analysis.html#cb131-23" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nrepl) {</span>
+<span id="cb131-24"><a href="sentiment-analysis.html#cb131-24" tabindex="-1"></a>    <span class="co"># For each document, simulate drawing word counts from a multinomial</span></span>
+<span id="cb131-25"><a href="sentiment-analysis.html#cb131-25" tabindex="-1"></a>    <span class="co"># distribution The number of trials is the total sentiment words in the</span></span>
+<span id="cb131-26"><a href="sentiment-analysis.html#cb131-26" tabindex="-1"></a>    <span class="co"># document The probabilities are the observed proportions of</span></span>
+<span id="cb131-27"><a href="sentiment-analysis.html#cb131-27" tabindex="-1"></a>    <span class="co"># negative/positive words</span></span>
+<span id="cb131-28"><a href="sentiment-analysis.html#cb131-28" tabindex="-1"></a>    boot_counts <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">apply</span>(reviews_bootstrap_data[, <span class="fu">c</span>(<span class="st">&quot;negative&quot;</span>, <span class="st">&quot;positive&quot;</span>)], <span class="dv">1</span>,</span>
+<span id="cb131-29"><a href="sentiment-analysis.html#cb131-29" tabindex="-1"></a>        <span class="cf">function</span>(x) {</span>
+<span id="cb131-30"><a href="sentiment-analysis.html#cb131-30" tabindex="-1"></a>            total_words <span class="ot">&lt;-</span> <span class="fu">sum</span>(x)</span>
+<span id="cb131-31"><a href="sentiment-analysis.html#cb131-31" tabindex="-1"></a>            <span class="co"># Use rmultinom to draw new counts</span></span>
+<span id="cb131-32"><a href="sentiment-analysis.html#cb131-32" tabindex="-1"></a>            <span class="fu">rmultinom</span>(<span class="dv">1</span>, <span class="at">size =</span> total_words, <span class="at">prob =</span> x<span class="sc">/</span>total_words)[, <span class="dv">1</span>]</span>
+<span id="cb131-33"><a href="sentiment-analysis.html#cb131-33" tabindex="-1"></a>        }))</span>
+<span id="cb131-34"><a href="sentiment-analysis.html#cb131-34" tabindex="-1"></a></span>
+<span id="cb131-35"><a href="sentiment-analysis.html#cb131-35" tabindex="-1"></a>    <span class="co"># Calculate the percentage of negative and positive words for this</span></span>
+<span id="cb131-36"><a href="sentiment-analysis.html#cb131-36" tabindex="-1"></a>    <span class="co"># replication</span></span>
+<span id="cb131-37"><a href="sentiment-analysis.html#cb131-37" tabindex="-1"></a>    total_sentiment_words <span class="ot">&lt;-</span> <span class="fu">apply</span>(reviews_bootstrap_data[, <span class="fu">c</span>(<span class="st">&quot;negative&quot;</span>, <span class="st">&quot;positive&quot;</span>)],</span>
+<span id="cb131-38"><a href="sentiment-analysis.html#cb131-38" tabindex="-1"></a>        <span class="dv">1</span>, sum)</span>
+<span id="cb131-39"><a href="sentiment-analysis.html#cb131-39" tabindex="-1"></a>    percent_negative <span class="ot">&lt;-</span> boot_counts[, <span class="st">&quot;negative&quot;</span>]<span class="sc">/</span>total_sentiment_words <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb131-40"><a href="sentiment-analysis.html#cb131-40" tabindex="-1"></a>    percent_positive <span class="ot">&lt;-</span> boot_counts[, <span class="st">&quot;positive&quot;</span>]<span class="sc">/</span>total_sentiment_words <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb131-41"><a href="sentiment-analysis.html#cb131-41" tabindex="-1"></a></span>
+<span id="cb131-42"><a href="sentiment-analysis.html#cb131-42" tabindex="-1"></a>    <span class="co"># Store the percentages for this replication along with doc_id</span></span>
+<span id="cb131-43"><a href="sentiment-analysis.html#cb131-43" tabindex="-1"></a>    bootstrap_reps[[i]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">doc_id =</span> reviews_bootstrap_data<span class="sc">$</span>doc_id, <span class="at">percent_negative =</span> percent_negative,</span>
+<span id="cb131-44"><a href="sentiment-analysis.html#cb131-44" tabindex="-1"></a>        <span class="at">percent_positive =</span> percent_positive)</span>
+<span id="cb131-45"><a href="sentiment-analysis.html#cb131-45" tabindex="-1"></a>}</span>
+<span id="cb131-46"><a href="sentiment-analysis.html#cb131-46" tabindex="-1"></a></span>
+<span id="cb131-47"><a href="sentiment-analysis.html#cb131-47" tabindex="-1"></a><span class="co"># Aggregate Bootstrapping Results and combine results from all replications</span></span>
+<span id="cb131-48"><a href="sentiment-analysis.html#cb131-48" tabindex="-1"></a><span class="co"># into a single data frame</span></span>
+<span id="cb131-49"><a href="sentiment-analysis.html#cb131-49" tabindex="-1"></a></span>
+<span id="cb131-50"><a href="sentiment-analysis.html#cb131-50" tabindex="-1"></a>all_bootstrap_results <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(bootstrap_reps)</span>
+<span id="cb131-51"><a href="sentiment-analysis.html#cb131-51" tabindex="-1"></a></span>
+<span id="cb131-52"><a href="sentiment-analysis.html#cb131-52" tabindex="-1"></a><span class="co"># Calculate the mean percentage and standard error (SD of replicates) for each</span></span>
+<span id="cb131-53"><a href="sentiment-analysis.html#cb131-53" tabindex="-1"></a><span class="co"># document</span></span>
+<span id="cb131-54"><a href="sentiment-analysis.html#cb131-54" tabindex="-1"></a></span>
+<span id="cb131-55"><a href="sentiment-analysis.html#cb131-55" tabindex="-1"></a>summary_dataBS <span class="ot">&lt;-</span> all_bootstrap_results <span class="sc">%&gt;%</span></span>
+<span id="cb131-56"><a href="sentiment-analysis.html#cb131-56" tabindex="-1"></a>    <span class="fu">group_by</span>(doc_id) <span class="sc">%&gt;%</span></span>
+<span id="cb131-57"><a href="sentiment-analysis.html#cb131-57" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">perNegative =</span> <span class="fu">mean</span>(percent_negative), <span class="at">NegativeSE =</span> <span class="fu">sd</span>(percent_negative),</span>
+<span id="cb131-58"><a href="sentiment-analysis.html#cb131-58" tabindex="-1"></a>        <span class="at">perPositive =</span> <span class="fu">mean</span>(percent_positive), <span class="at">PositiveSE =</span> <span class="fu">sd</span>(percent_positive),</span>
+<span id="cb131-59"><a href="sentiment-analysis.html#cb131-59" tabindex="-1"></a>        <span class="at">.groups =</span> <span class="st">&quot;drop&quot;</span>  <span class="co"># Avoid grouping warning</span></span>
+<span id="cb131-60"><a href="sentiment-analysis.html#cb131-60" tabindex="-1"></a>)</span>
+<span id="cb131-61"><a href="sentiment-analysis.html#cb131-61" tabindex="-1"></a></span>
+<span id="cb131-62"><a href="sentiment-analysis.html#cb131-62" tabindex="-1"></a><span class="co"># Join with original counts for completeness</span></span>
+<span id="cb131-63"><a href="sentiment-analysis.html#cb131-63" tabindex="-1"></a>dataBS <span class="ot">&lt;-</span> reviews_bootstrap_data <span class="sc">%&gt;%</span></span>
+<span id="cb131-64"><a href="sentiment-analysis.html#cb131-64" tabindex="-1"></a>    <span class="fu">left_join</span>(summary_dataBS, <span class="at">by =</span> <span class="st">&quot;doc_id&quot;</span>)</span>
+<span id="cb131-65"><a href="sentiment-analysis.html#cb131-65" tabindex="-1"></a></span>
+<span id="cb131-66"><a href="sentiment-analysis.html#cb131-66" tabindex="-1"></a><span class="co"># Calculate the 95% confidence intervals (using 1.96 * Standard Error)</span></span>
+<span id="cb131-67"><a href="sentiment-analysis.html#cb131-67" tabindex="-1"></a></span>
+<span id="cb131-68"><a href="sentiment-analysis.html#cb131-68" tabindex="-1"></a>dataBS<span class="sc">$</span>pos_hi <span class="ot">&lt;-</span> dataBS<span class="sc">$</span>perPositive <span class="sc">+</span> (<span class="fl">1.96</span> <span class="sc">*</span> dataBS<span class="sc">$</span>PositiveSE)</span>
+<span id="cb131-69"><a href="sentiment-analysis.html#cb131-69" tabindex="-1"></a>dataBS<span class="sc">$</span>pos_lo <span class="ot">&lt;-</span> dataBS<span class="sc">$</span>perPositive <span class="sc">-</span> (<span class="fl">1.96</span> <span class="sc">*</span> dataBS<span class="sc">$</span>PositiveSE)</span>
+<span id="cb131-70"><a href="sentiment-analysis.html#cb131-70" tabindex="-1"></a>dataBS<span class="sc">$</span>neg_lo <span class="ot">&lt;-</span> dataBS<span class="sc">$</span>perNegative <span class="sc">-</span> (<span class="fl">1.96</span> <span class="sc">*</span> dataBS<span class="sc">$</span>NegativeSE)</span>
+<span id="cb131-71"><a href="sentiment-analysis.html#cb131-71" tabindex="-1"></a>dataBS<span class="sc">$</span>neg_hi <span class="ot">&lt;-</span> dataBS<span class="sc">$</span>perNegative <span class="sc">+</span> (<span class="fl">1.96</span> <span class="sc">*</span> dataBS<span class="sc">$</span>NegativeSE)</span>
+<span id="cb131-72"><a href="sentiment-analysis.html#cb131-72" tabindex="-1"></a></span>
+<span id="cb131-73"><a href="sentiment-analysis.html#cb131-73" tabindex="-1"></a><span class="co"># Ensure confidence intervals are within the valid range for percentages [0,</span></span>
+<span id="cb131-74"><a href="sentiment-analysis.html#cb131-74" tabindex="-1"></a><span class="co"># 100]</span></span>
+<span id="cb131-75"><a href="sentiment-analysis.html#cb131-75" tabindex="-1"></a></span>
+<span id="cb131-76"><a href="sentiment-analysis.html#cb131-76" tabindex="-1"></a>dataBS<span class="sc">$</span>pos_hi <span class="ot">&lt;-</span> <span class="fu">pmin</span>(dataBS<span class="sc">$</span>pos_hi, <span class="dv">100</span>)</span>
+<span id="cb131-77"><a href="sentiment-analysis.html#cb131-77" tabindex="-1"></a>dataBS<span class="sc">$</span>pos_lo <span class="ot">&lt;-</span> <span class="fu">pmax</span>(dataBS<span class="sc">$</span>pos_lo, <span class="dv">0</span>)</span>
+<span id="cb131-78"><a href="sentiment-analysis.html#cb131-78" tabindex="-1"></a>dataBS<span class="sc">$</span>neg_hi <span class="ot">&lt;-</span> <span class="fu">pmin</span>(dataBS<span class="sc">$</span>neg_hi, <span class="dv">100</span>)</span>
+<span id="cb131-79"><a href="sentiment-analysis.html#cb131-79" tabindex="-1"></a>dataBS<span class="sc">$</span>neg_lo <span class="ot">&lt;-</span> <span class="fu">pmax</span>(dataBS<span class="sc">$</span>neg_lo, <span class="dv">0</span>)</span>
+<span id="cb131-80"><a href="sentiment-analysis.html#cb131-80" tabindex="-1"></a></span>
+<span id="cb131-81"><a href="sentiment-analysis.html#cb131-81" tabindex="-1"></a><span class="fu">head</span>(dataBS)</span></code></pre></div>
+<pre><code>##                 doc_id negative positive perNegative NegativeSE perPositive
+## 1 train/neg/6869_1.txt       19       31    37.79400   6.836395    62.20600
+## 2  test/neg/6694_1.txt        8        7    53.87333  12.858476    46.12667
+## 3 train/pos/6588_9.txt        8       12    39.99000  10.435938    60.01000
+## 4 train/pos/7415_8.txt        5       13    27.89444  10.535295    72.10556
+## 5  test/pos/2566_9.txt        8        9    47.25294  12.038145    52.74706
+## 6  test/neg/5680_2.txt       31       19    62.28200   6.986078    37.71800
+##   PositiveSE   pos_hi   pos_lo    neg_lo   neg_hi
+## 1   6.836395 75.60533 48.80667 24.394665 51.19333
+## 2  12.858476 71.32928 20.92405 28.670720 79.07595
+## 3  10.435938 80.46444 39.55556 19.535561 60.44444
+## 4  10.535295 92.75473 51.45638  7.245266 48.54362
+## 5  12.038145 76.34182 29.15230 23.658178 70.84770
+## 6   6.986078 51.41071 24.02529 48.589288 75.97471</code></pre>
+<p>We can then produce a graph showing each review’s estimated percentages of positive and negative words overlaid with their 95% confidence intervals:</p>
+<div class="sourceCode" id="cb133"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb133-1"><a href="sentiment-analysis.html#cb133-1" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb133-2"><a href="sentiment-analysis.html#cb133-2" tabindex="-1"></a> <span class="fu">geom_point</span>(<span class="at">data =</span> dataBS, <span class="fu">aes</span>(<span class="at">x =</span> perPositive, <span class="at">y =</span> doc_id), <span class="at">shape =</span> <span class="dv">0</span>) <span class="sc">+</span> <span class="co"># Plot mean positive percentage</span></span>
+<span id="cb133-3"><a href="sentiment-analysis.html#cb133-3" tabindex="-1"></a> <span class="fu">geom_point</span>(<span class="at">data =</span> dataBS, <span class="fu">aes</span>(<span class="at">x =</span> perNegative, <span class="at">y =</span> doc_id), <span class="at">shape =</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="co"># Plot mean negative percentage</span></span>
+<span id="cb133-4"><a href="sentiment-analysis.html#cb133-4" tabindex="-1"></a> <span class="fu">geom_errorbarh</span>(<span class="at">data =</span> dataBS, <span class="fu">aes</span>(<span class="at">xmax =</span> pos_hi, <span class="at">xmin =</span> pos_lo, <span class="at">y =</span> doc_id)) <span class="sc">+</span> <span class="co"># Error bars for positive</span></span>
+<span id="cb133-5"><a href="sentiment-analysis.html#cb133-5" tabindex="-1"></a> <span class="fu">geom_errorbarh</span>(<span class="at">data =</span> dataBS, <span class="fu">aes</span>(<span class="at">xmax =</span> neg_hi, <span class="at">xmin =</span> neg_lo, <span class="at">y =</span> doc_id)) <span class="sc">+</span> <span class="co"># Error bars for negative</span></span>
+<span id="cb133-6"><a href="sentiment-analysis.html#cb133-6" tabindex="-1"></a> <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Percent positive/negative with 95% CIs&quot;</span>) <span class="sc">+</span></span>
+<span id="cb133-7"><a href="sentiment-analysis.html#cb133-7" tabindex="-1"></a> <span class="fu">scale_y_discrete</span>(<span class="at">name =</span> <span class="st">&quot;Review Document ID&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb133-8"><a href="sentiment-analysis.html#cb133-8" tabindex="-1"></a> <span class="fu">ggtitle</span>(<span class="st">&quot;Bootstrapped Sentiment Percentage with 95% Confidence Intervals&quot;</span>) <span class="sc">+</span></span>
+<span id="cb133-9"><a href="sentiment-analysis.html#cb133-9" tabindex="-1"></a> <span class="fu">theme_classic</span>()</span></code></pre></div>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/ggplot-moviereviews-posneg-1.png" width="672" /></p>
+<p>Note that the fact that some documents are shorter than others and contain fewer dictionary words introduces more uncertainty to the estimates of the percentages. As can be seen from the overlapping confidence intervals for many documents, the estimated rate of negative words is not statistically different from that of positive words at the 95% confidence level for these reviews. Based on this dictionary and bootstrapping method, the sentiment for these reviews appears to be mixed or uncertain. The width of the error bars provides a visual indication of this uncertainty for each document. While bootstrapping quantifies this uncertainty, its interpretation requires careful consideration of the underlying assumptions.</p>
+</div>
+<div id="twitter" class="section level3 hasAnchor" number="5.2.2">
+<h3><span class="header-section-number">5.2.2</span> Twitter<a href="sentiment-analysis.html#twitter" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Now, let us turn to another example of sentiment analysis using Twitter/X data. Due to its informal nature and use of slang, hashtags and emoticons, this type of text presents unique challenges, especially when cleaning. Here, we examine sentiment towards several major US airlines based on a dataset of tweets. In this case, researchers scraped data from Twitter and asked participants to classify the sentiment of each tweet as negative, positive or neutral, and if negative, to explain why. The data also includes information about the coders’ confidence levels, the airline in question and the tweets’ metadata. We can download this data from platforms such as Kaggle (e.g. the ‘Airline Sentiment’ dataset), but for ease of use in this example, we will load it directly from GitHub via a URL:</p>
+<div class="sourceCode" id="cb134"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb134-1"><a href="sentiment-analysis.html#cb134-1" tabindex="-1"></a>urlfile <span class="ot">=</span> <span class="st">&quot;https://raw.githubusercontent.com/SCJBruinsma/qta-files/master/Tweets.csv&quot;</span></span>
+<span id="cb134-2"><a href="sentiment-analysis.html#cb134-2" tabindex="-1"></a>tweets <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">url</span>(urlfile), <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)  <span class="co"># Use stringsAsFactors = FALSE to keep text as character</span></span>
+<span id="cb134-3"><a href="sentiment-analysis.html#cb134-3" tabindex="-1"></a><span class="fu">head</span>(tweets)</span></code></pre></div>
+<pre><code>##       tweet_id airline_sentiment airline_sentiment_confidence negativereason
+## 1 5.703061e+17           neutral                       1.0000               
+## 2 5.703011e+17          positive                       0.3486               
+## 3 5.703011e+17           neutral                       0.6837               
+## 4 5.703010e+17          negative                       1.0000     Bad Flight
+## 5 5.703008e+17          negative                       1.0000     Can&#39;t Tell
+## 6 5.703008e+17          negative                       1.0000     Can&#39;t Tell
+##   negativereason_confidence        airline airline_sentiment_gold       name
+## 1                        NA Virgin America                           cairdin
+## 2                    0.0000 Virgin America                          jnardino
+## 3                        NA Virgin America                        yvonnalynn
+## 4                    0.7033 Virgin America                          jnardino
+## 5                    1.0000 Virgin America                          jnardino
+## 6                    0.6842 Virgin America                          jnardino
+##   negativereason_gold retweet_count
+## 1                                 0
+## 2                                 0
+## 3                                 0
+## 4                                 0
+## 5                                 0
+## 6                                 0
+##                                                                                                                                       text
+## 1                                                                                                      @VirginAmerica What @dhepburn said.
+## 2                                                                 @VirginAmerica plus you&#39;ve added commercials to the experience... tacky.
+## 3                                                                  @VirginAmerica I didn&#39;t today... Must mean I need to take another trip!
+## 4           @VirginAmerica it&#39;s really aggressive to blast obnoxious &quot;entertainment&quot; in your guests&#39; faces &amp;amp; they have little recourse
+## 5                                                                                  @VirginAmerica and it&#39;s a really big bad thing about it
+## 6 @VirginAmerica seriously would pay $30 a flight for seats that didn&#39;t have this playing.\nit&#39;s really the only bad thing about flying VA
+##   tweet_coord             tweet_created tweet_location
+## 1             2015-02-24 11:35:52 -0800               
+## 2             2015-02-24 11:15:59 -0800               
+## 3             2015-02-24 11:15:48 -0800      Lets Play
+## 4             2015-02-24 11:15:36 -0800               
+## 5             2015-02-24 11:14:45 -0800               
+## 6             2015-02-24 11:14:33 -0800               
+##                user_timezone
+## 1 Eastern Time (US &amp; Canada)
+## 2 Pacific Time (US &amp; Canada)
+## 3 Central Time (US &amp; Canada)
+## 4 Pacific Time (US &amp; Canada)
+## 5 Pacific Time (US &amp; Canada)
+## 6 Pacific Time (US &amp; Canada)</code></pre>
+<p>After cleaning the text data in the data frame, we transform it into a <code>quanteda</code> corpus object, specifying that our text is in the <code>text</code> field. We then proceed with the standard <code>quanteda</code> preprocessing steps: transforming our corpus into a tokens object and removing stop words:</p>
+<div class="sourceCode" id="cb136"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb136-1"><a href="sentiment-analysis.html#cb136-1" tabindex="-1"></a>corpus_tweets <span class="ot">&lt;-</span> <span class="fu">corpus</span>(tweets, <span class="at">text_field =</span> <span class="st">&quot;text&quot;</span>)</span>
+<span id="cb136-2"><a href="sentiment-analysis.html#cb136-2" tabindex="-1"></a></span>
+<span id="cb136-3"><a href="sentiment-analysis.html#cb136-3" tabindex="-1"></a>data_tweets_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(corpus_tweets, <span class="at">remove_punct =</span> <span class="cn">TRUE</span>, <span class="at">remove_symbols =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb136-4"><a href="sentiment-analysis.html#cb136-4" tabindex="-1"></a>    <span class="at">remove_numbers =</span> <span class="cn">TRUE</span>, <span class="at">remove_url =</span> <span class="cn">TRUE</span>, <span class="at">remove_separators =</span> <span class="cn">TRUE</span>, <span class="at">split_hyphens =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb136-5"><a href="sentiment-analysis.html#cb136-5" tabindex="-1"></a>    <span class="at">split_tags =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb136-6"><a href="sentiment-analysis.html#cb136-6" tabindex="-1"></a></span>
+<span id="cb136-7"><a href="sentiment-analysis.html#cb136-7" tabindex="-1"></a>data_tweets_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(data_tweets_tokens, <span class="fu">stopwords</span>(<span class="st">&quot;english&quot;</span>), <span class="at">selection =</span> <span class="st">&quot;remove&quot;</span>)</span>
+<span id="cb136-8"><a href="sentiment-analysis.html#cb136-8" tabindex="-1"></a></span>
+<span id="cb136-9"><a href="sentiment-analysis.html#cb136-9" tabindex="-1"></a>data_tweets_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(data_tweets_tokens)</span></code></pre></div>
+<p>Now, we can apply our sentiment dictionary. As discussed earlier, we can do this in two ways: by applying it to the dfm using <code>dfm_lookup()</code> or to the tokens object using <code>tokens_lookup()</code>. Both should give similar results for single-word entries, but we have to use <code>tokens_lookup()</code> to correctly identify multi-word expressions. As the LSD2015 dictionary contains some multi-word expressions, using <code>tokens_lookup()</code> and then converting the result to a dfm is the preferred approach to ensure that all dictionary entries are captured:</p>
+<div class="sourceCode" id="cb137"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb137-1"><a href="sentiment-analysis.html#cb137-1" tabindex="-1"></a>results_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_lookup</span>(data_tweets_tokens, data_dictionary_LSD2015)</span>
+<span id="cb137-2"><a href="sentiment-analysis.html#cb137-2" tabindex="-1"></a></span>
+<span id="cb137-3"><a href="sentiment-analysis.html#cb137-3" tabindex="-1"></a><span class="co"># Convert the resulting tokens object (with categories) to a dfm</span></span>
+<span id="cb137-4"><a href="sentiment-analysis.html#cb137-4" tabindex="-1"></a>results_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(results_tokens)</span>
+<span id="cb137-5"><a href="sentiment-analysis.html#cb137-5" tabindex="-1"></a></span>
+<span id="cb137-6"><a href="sentiment-analysis.html#cb137-6" tabindex="-1"></a><span class="co"># Convert the dfm to a data frame for analysis</span></span>
+<span id="cb137-7"><a href="sentiment-analysis.html#cb137-7" tabindex="-1"></a>results_df <span class="ot">&lt;-</span> <span class="fu">convert</span>(results_dfm, <span class="at">to =</span> <span class="st">&quot;data.frame&quot;</span>)</span></code></pre></div>
+<p>Now, let us see how well our dictionary-based sentiment matches the human-assigned sentiment labels in the original dataset. We recode the human-assigned <code>airline_sentiment</code> labels from our original dataset into numerical values for easier comparison (e.g. positive = 1, negative = -1, neutral = 0):</p>
+<div class="sourceCode" id="cb138"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb138-1"><a href="sentiment-analysis.html#cb138-1" tabindex="-1"></a><span class="fu">library</span>(car)</span>
+<span id="cb138-2"><a href="sentiment-analysis.html#cb138-2" tabindex="-1"></a></span>
+<span id="cb138-3"><a href="sentiment-analysis.html#cb138-3" tabindex="-1"></a>labels <span class="ot">&lt;-</span> tweets<span class="sc">$</span>airline_sentiment</span>
+<span id="cb138-4"><a href="sentiment-analysis.html#cb138-4" tabindex="-1"></a>sentiment_numeric <span class="ot">&lt;-</span> car<span class="sc">::</span><span class="fu">recode</span>(labels, <span class="st">&quot;&#39;positive&#39;=1; &#39;negative&#39;=-1; &#39;neutral&#39;=0&quot;</span>)</span>
+<span id="cb138-5"><a href="sentiment-analysis.html#cb138-5" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">table</span>(sentiment_numeric))</span></code></pre></div>
+<p>A quick look at the table shows how human-assigned sentiment is distributed. Perhaps not unexpected, negative tweets about airlines are more common than positive ones. We now want to combine this data with the output of our dictionary analysis to calculate an overall sentiment score for each tweet. One common method is subtracting the negative score from the positive score (positive minus negative). A higher resulting score indicates a more positive dictionary-based sentiment:</p>
+<div class="sourceCode" id="cb139"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb139-1"><a href="sentiment-analysis.html#cb139-1" tabindex="-1"></a>comparison_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(results_df<span class="sc">$</span>positive, results_df<span class="sc">$</span>negative, sentiment_numeric))</span>
+<span id="cb139-2"><a href="sentiment-analysis.html#cb139-2" tabindex="-1"></a><span class="fu">names</span>(comparison_df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;positive_dict&quot;</span>, <span class="st">&quot;negative_dict&quot;</span>, <span class="st">&quot;human_sentiment&quot;</span>)</span>
+<span id="cb139-3"><a href="sentiment-analysis.html#cb139-3" tabindex="-1"></a></span>
+<span id="cb139-4"><a href="sentiment-analysis.html#cb139-4" tabindex="-1"></a><span class="co"># Calculate the sentiment difference from dictionary counts</span></span>
+<span id="cb139-5"><a href="sentiment-analysis.html#cb139-5" tabindex="-1"></a>comparison_df<span class="sc">$</span>sentiment_difference_dict <span class="ot">&lt;-</span> comparison_df<span class="sc">$</span>positive_dict <span class="sc">-</span> comparison_df<span class="sc">$</span>negative_dict</span>
+<span id="cb139-6"><a href="sentiment-analysis.html#cb139-6" tabindex="-1"></a></span>
+<span id="cb139-7"><a href="sentiment-analysis.html#cb139-7" tabindex="-1"></a><span class="fu">head</span>(comparison_df)</span></code></pre></div>
+<pre><code>##   positive_dict negative_dict human_sentiment sentiment_difference_dict
+## 1             0             0               0                         0
+## 2             0             1               1                        -1
+## 3             0             0               0                         0
+## 4             1             3              -1                        -2
+## 5             0             1              -1                        -1
+## 6             0             1              -1                        -1</code></pre>
+<p>Finally, we can visualise the relationship between human-assigned and dictionary-based sentiment scores using a scatter plot. Since human sentiment is categorical (or comprises a small set of numerical values), adding jitter to the scores can help to visualise density. A simple linear regression line can illustrate the overall trend. We will use the results from the <code>tokens_lookup()</code> function, as this handles multi-word expressions correctly.</p>
+<div class="sourceCode" id="cb141"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb141-1"><a href="sentiment-analysis.html#cb141-1" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb141-2"><a href="sentiment-analysis.html#cb141-2" tabindex="-1"></a></span>
+<span id="cb141-3"><a href="sentiment-analysis.html#cb141-3" tabindex="-1"></a><span class="fu">ggplot</span>(comparison_df,</span>
+<span id="cb141-4"><a href="sentiment-analysis.html#cb141-4" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> sentiment_difference_dict, <span class="at">y =</span> human_sentiment)) <span class="sc">+</span></span>
+<span id="cb141-5"><a href="sentiment-analysis.html#cb141-5" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">shape =</span> <span class="dv">1</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> <span class="co"># Add jitter and transparency</span></span>
+<span id="cb141-6"><a href="sentiment-analysis.html#cb141-6" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> lm, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co"># Add linear regression line</span></span>
+<span id="cb141-7"><a href="sentiment-analysis.html#cb141-7" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Dictionary Sentiment Score (Positive - Negative)&quot;</span>) <span class="sc">+</span></span>
+<span id="cb141-8"><a href="sentiment-analysis.html#cb141-8" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Human Judgment (Recoded)&quot;</span>) <span class="sc">+</span></span>
+<span id="cb141-9"><a href="sentiment-analysis.html#cb141-9" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Dictionary Sentiment vs. Human Judgment for Tweets&quot;</span>) <span class="sc">+</span></span>
+<span id="cb141-10"><a href="sentiment-analysis.html#cb141-10" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code></pre></div>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/ggplot-tweets-comparison-1.png" width="672" /></p>
+<p>This graph visually shows the correlation between dictionary-based and human-assigned sentiment scores. A positive slope suggests that human coders rate tweets with higher positive-minus-negative dictionary scores as more positive. The strength of this relationship (e.g., measured by the correlation coefficient or <span class="math inline">\(R^2\)</span> from the linear model) indicates how well the dictionary captures the sentiment as perceived by humans in that particular domain.</p>
+</div>
+<div id="vader" class="section level3 hasAnchor" number="5.2.3">
+<h3><span class="header-section-number">5.2.3</span> VADER<a href="sentiment-analysis.html#vader" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Another popular dictionary-based approach for sentiment analysis in social media contexts is VADER <span class="citation">(<a href="#ref-Hutto2014a">Hutto &amp; Gilbert, 2014</a>)</span> (Valence Aware Dictionary and sEntiment Reasoner). Unlike a simple dictionary lookup, VADER is a rule-based model that considers punctuation, capitalisation, emojis, and negation to determine sentiment intensity. It provides a continuous sentiment score ranging from -1 (most negative) to +1 (most positive) and scores for the proportions of positive, negative and neutral sentiment. Unlike most dictionaries, which rely on the judgement of a single expert or small group, the VADER dictionary was developed and validated using crowdsourced human judgements.</p>
+<p>We can use the <code>vader</code> package to use VADER in R; let’s test it again using the airline tweet data. First, we reload the data and select a subset of tweets to work with to speed up processing, converting the text into a character vector:</p>
+<div class="sourceCode" id="cb142"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb142-1"><a href="sentiment-analysis.html#cb142-1" tabindex="-1"></a>urlfile <span class="ot">=</span> <span class="st">&quot;https://raw.githubusercontent.com/SCJBruinsma/qta-files/master/Tweets.csv&quot;</span></span>
+<span id="cb142-2"><a href="sentiment-analysis.html#cb142-2" tabindex="-1"></a>tweets_vader <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="fu">url</span>(urlfile), <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb142-3"><a href="sentiment-analysis.html#cb142-3" tabindex="-1"></a><span class="co"># Select a sample of 1000 tweets for demonstration</span></span>
+<span id="cb142-4"><a href="sentiment-analysis.html#cb142-4" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb142-5"><a href="sentiment-analysis.html#cb142-5" tabindex="-1"></a>tweets_sample_vader <span class="ot">&lt;-</span> tweets_vader[<span class="fu">sample</span>(<span class="fu">nrow</span>(tweets_vader), <span class="dv">1000</span>), ]</span>
+<span id="cb142-6"><a href="sentiment-analysis.html#cb142-6" tabindex="-1"></a>text_vader <span class="ot">&lt;-</span> tweets_sample_vader<span class="sc">$</span>text  <span class="co"># Extract the text column</span></span></code></pre></div>
+<p>We then apply VADER to our tweets using the <code>vader_df()</code> function, which is designed to work with a character vector or data frame of text.</p>
+<div class="sourceCode" id="cb143"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb143-1"><a href="sentiment-analysis.html#cb143-1" tabindex="-1"></a><span class="fu">library</span>(vader)</span>
+<span id="cb143-2"><a href="sentiment-analysis.html#cb143-2" tabindex="-1"></a></span>
+<span id="cb143-3"><a href="sentiment-analysis.html#cb143-3" tabindex="-1"></a>results_vader <span class="ot">&lt;-</span> <span class="fu">vader_df</span>(text_vader)  <span class="co"># Apply vader_df to the extracted text vector</span></span></code></pre></div>
+<p>VADER then provides us with a data frame consisting of several variables. The most important ones are:</p>
+<ul>
+<li><code>text</code>: The original text of the tweet.</li>
+<li><code>compound</code>: A single, aggregated sentiment score ranging from -1 to +1. This is often the primary score we would use</li>
+<li><code>pos</code>, <code>neg</code>, <code>neu</code>: The proportion of the text that falls into positive, negative, and neutral categories, respectively.</li>
+<li><code>word_scores</code>: (If requested) Individual sentiment scores for each word.</li>
+</ul>
+<p>To get a better idea of the output, we can look at the distribution of the <code>compound</code> sentiment scores using a histogram:</p>
+<div class="sourceCode" id="cb144"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb144-1"><a href="sentiment-analysis.html#cb144-1" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb144-2"><a href="sentiment-analysis.html#cb144-2" tabindex="-1"></a></span>
+<span id="cb144-3"><a href="sentiment-analysis.html#cb144-3" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> results_vader, <span class="fu">aes</span>(<span class="at">x =</span> compound)) <span class="sc">+</span> <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>) <span class="sc">+</span> <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Compound Sentiment Score&quot;</span>,</span>
+<span id="cb144-4"><a href="sentiment-analysis.html#cb144-4" tabindex="-1"></a>    <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Frequency&quot;</span>, <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb144-5"><a href="sentiment-analysis.html#cb144-5" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="st">&quot;Distribution of VADER Compound Sentiment Scores&quot;</span>) <span class="sc">+</span> <span class="fu">theme_classic</span>()</span></code></pre></div>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/tweets-vader-outputs-1.png" width="672" /></p>
+<p>The histogram illustrates the frequency of tweets across the range of composite sentiment scores. In this dataset, a significant proportion of tweets tend to cluster around a neutral score (<span class="math inline">\(0\)</span>), potentially due to the presence of purely informative tweets or the absence of strong emotional language. Examining tweets with scores close to zero can help us understand why they are classified as neutral by VADER. Tweets such as ‘@JetBlue Counting on your flight <span class="math inline">\(989\)</span> to get to DC!’ may lack explicit positive or negative language and, therefore, receive a neutral or near-neutral composite score. As before, we can compare the VADER composite score with the human-assigned sentiment labels:</p>
+<div class="sourceCode" id="cb145"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb145-1"><a href="sentiment-analysis.html#cb145-1" tabindex="-1"></a>vader_comparison_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">vader_compound =</span> results_vader<span class="sc">$</span>compound, <span class="at">human_sentiment =</span> sentiment_numeric[<span class="fu">as.numeric</span>(<span class="fu">rownames</span>(tweets_sample_vader))])</span>
+<span id="cb145-2"><a href="sentiment-analysis.html#cb145-2" tabindex="-1"></a></span>
+<span id="cb145-3"><a href="sentiment-analysis.html#cb145-3" tabindex="-1"></a>vader_comparison_df <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(vader_comparison_df)</span>
+<span id="cb145-4"><a href="sentiment-analysis.html#cb145-4" tabindex="-1"></a></span>
+<span id="cb145-5"><a href="sentiment-analysis.html#cb145-5" tabindex="-1"></a><span class="fu">ggplot</span>(vader_comparison_df, <span class="fu">aes</span>(<span class="at">x =</span> vader_compound, <span class="at">y =</span> human_sentiment)) <span class="sc">+</span></span>
+<span id="cb145-6"><a href="sentiment-analysis.html#cb145-6" tabindex="-1"></a>    <span class="fu">geom_jitter</span>(<span class="at">shape =</span> <span class="dv">1</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> <span class="co"># Add jitter and transparency</span></span>
+<span id="cb145-7"><a href="sentiment-analysis.html#cb145-7" tabindex="-1"></a>    <span class="fu">geom_smooth</span>(<span class="at">method =</span> lm, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="co"># Add linear regression line</span></span>
+<span id="cb145-8"><a href="sentiment-analysis.html#cb145-8" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">&quot;VADER Compound Sentiment Score&quot;</span>) <span class="sc">+</span></span>
+<span id="cb145-9"><a href="sentiment-analysis.html#cb145-9" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Human Judgment (Recoded)&quot;</span>) <span class="sc">+</span></span>
+<span id="cb145-10"><a href="sentiment-analysis.html#cb145-10" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="st">&quot;VADER Compound Sentiment vs. Human Judgment for Tweets&quot;</span>) <span class="sc">+</span></span>
+<span id="cb145-11"><a href="sentiment-analysis.html#cb145-11" tabindex="-1"></a>    <span class="fu">theme_classic</span>()</span></code></pre></div>
+<pre><code>## `geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/tweets-vader-comparison-1.png" width="672" /></p>
+<p>Comparing this plot with the previous one using LSD2015 provides us with some additional insight into which dictionary/approach better matches human judgement for this dataset.</p>
+</div>
+</div>
+<h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="2">
+<div id="ref-Hutto2014a" class="csl-entry">
+Hutto, C., &amp; Gilbert, E. (2014). VADER: A parsimonious rule-based model for sentiment analysis of social media text. <em>Proceedings of the International AAAI Conference on Web and Social Media</em>, <em>8</em>(1), 216–225. <a href="https://doi.org/10.1609/icwsm.v8i1.14550">https://doi.org/10.1609/icwsm.v8i1.14550</a>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="classical-dictionary-analysis.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="exercises-1.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="assets/gitbook-2.6.7/js/app.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="assets/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["Introduction to Quantitative Text Analysis.pdf", "Introduction to Quantitative Text Analysis.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  },
+  "toolbar": {
+    "position": "static"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

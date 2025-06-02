@@ -1,0 +1,54 @@
+---
+title: "Introduction to Quantitative Text Analysis"
+author: "Kostas Gemenis and Bastiaan Bruinsma"
+bibliography: library.bib
+biblio-style: apa
+csl: apa.csl
+link-citations: yes
+site: bookdown::bookdown_site
+output:
+  bookdown::gitbook:
+    lib_dir: assets
+    split_by: section
+    config:
+      toolbar:
+        position: static
+  bookdown::pdf_book:
+    keep_tex: true
+  bookdown::html_book:
+    css: style.css
+documentclass: book
+always_allow_html: true
+---
+
+# Welcome! {.unnumbered}
+
+Welcome to our textbook on quantitative text analysis! This book originated as a collection of assignments and lecture slides we prepared for the ECPR Winter and Summer Schools in Methods and Techniques. Later, as we taught the Introduction to Quantitative Analysis course at the ECPR Schools, the MethodsNET Summer School, and seminars at the Max Planck Institute for the Study of Societies, Goethe University Frankfurt, Chalmers University, and the Cyprus University of Technology, we added more and more material and text, resulting in this book. We have updated the version you see today with the help of a grant from the [Learning Development Network](https://ldn.cut.ac.cy/) at the Cyprus University of Technology. For now, the book focuses on some of the best-known quantitative text analysis methods in the field, showing what they are and how to run them in R.
+
+So why bother with quantitative content analysis? Over the last twenty years, developments have made research using quantitative text analysis a fascinating proposition. First, the massive increase in computing power has made it possible to work with large amounts of text. Second, there is the development of R -- a free, open-source, cross-platform statistical software. This development has enabled many researchers and programmers to develop packages for statistical methods for working with text. In addition, the spread of the internet has made many interesting sources of textual data available in digital form.
+
+However, quantitative text analysis can be daunting for someone unfamiliar with quantitative methods or programming. Therefore, in this book, we aim to guide you through it, combining theoretical explanations with step-by-step explanations of the code. We also designed several exercises to practise for those with little or no experience in text analysis, R, or quantitative methods. Ultimately, we hope this book is informative, engaging, and educational.
+
+This book has 8 chapters, each of which focuses on a specific aspect of quantitative text analysis in R. While we wrote them with the idea that you will read them in sequence, you are, of course, free to skip to any chapter you like.
+
+------------------------------------------------------------------------
+
+1.  **Chapter** \@ref(preliminaries) will discuss all the preliminaries and tell you how to install R, download and write packages, and what to do when encountering an error.
+
+2.  **Chapter** \@ref(background) discusses the basics and background of quantitative text analysis and looks at the various steps of the average analysis. Besides, we briefly discuss the concepts of validity, reliability and validation and why they are essential for quantitative text analysis.
+
+3.  **Chapter** \@ref(import) looks at how to import textual data into R. We will look at how R handles data in general, how we can import files such as .txt, .pdf, and .csv, and how we can use an API, JSON, or databases such as MySQL or SQLite.
+
+4.  **Chapter** \@ref(describe) shows the different ways we can use to understand what the texts in our data are about. We will also introduce the idea of the *corpus* as the central element of most QTA analyses and the *Data Frequency Matrix* (*DFM*), which we derive from it. We will also look at pre-processing, descriptives and various text statistics such as keyness and entropy.
+
+5.  **Chapter** \@ref(dictionary-analysis) introduces dictionaries, including classical dictionary analysis, sentiment analysis and dictionary analysis using VADER.
+
+6.  **Chapter** \@ref(scaling) looks at methods to scale texts on one or more dimensions. We look at three of the most popular methods to do so: *Wordscores*, *Wordfish*, and *Correspondence Analysis*.
+
+7.  **Chapter** \@ref(supervised-methods) discusses methods for supervised analysis, where we train an algorithm on a particular set of texts to classify others. We look at *Support Vector Machines (SVMs)*, *Regularised Logistic Regression*, and *Naive Bayes (NB)*. In addition, we also discuss how to evaluate and validate our classifications and several other points we should keep in mind.
+
+8.  **Chapter** \@ref(unsupervised-methods) is about unsupervised methods, where we have an algorithm to find categories and structure in our texts. Here, we look at the most popular way to do so – *Latent Dirichlet Analysis (LDA)* – its *seeded LDA* form, the *Structural Topic Model* derived from it, and *Latent Semantic Analysis (LSA)*. Again, we will also look at various ways to validate our findings.
+
+------------------------------------------------------------------------
+
+If you want to learn more about text analysis, there is no shortage of good introductions available these days. Which book is best for you, therefore, depends mainly on your focus. For a traditional (more qualitative) introduction, *Content Analysis - an Introduction to Its Methodology* by Klaus Krippendorff (currently in its 4th edition) is a good place to start [@Krippendorff2019a]. For a more quantitative approach, *Text as Data: A New Framework for Machine Learning and the Social Sciences* by Grimmer, Roberts, and Stewart from 2022 is the latest in combining machine learning with text analysis [@Grimmer2022a]. Finally, for another qualitative approach, *The Content Analysis Guidebook* by Kimberly Neuendorf (currently in its 2nd edition) delves deeper into the underlying theory (which we discuss here in passing) [@Neuendorf2017a]. These texts, among others, form the bedrock of the field and offer different perspectives on the theory and practice of making sense of texts using quantitative methods.

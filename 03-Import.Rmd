@@ -1,0 +1,275 @@
+# Text in R {#import}
+
+No analysis is possible unless we have some data to work with. In this chapter, we will look at seven different ways of getting textual data into R: a) using .txt files, b) using .pdf files, c) using .csv files, d) using an API, e) using web scraping, f) using structured files such as JSON and XML, and g) importing from a database. However, before we look at these methods, let us first look at how R understands text and how we can work with it.
+
+## Basics
+
+R treats text as a *string* or *character vector*, making it one of R's basic data structures, the others being logical, integer, real (numeric), complex, and raw. A character vector can contain a single string (such as a single word or phrase), while more complex character vectors can contain multiple strings, which could represent a collection of sentences, paragraphs, or even entire documents. Because character vectors are vectors, we can perform many of the same operations on them as we can on other vector types, such as calculations or checking their properties. For example, the `nchar()` function returns the number of characters *within* each string element, while `length()` returns the number of *elements* (or individual strings) contained in the vector.
+
+Let's start by defining a character vector containing a single string and examining its properties using these two functions. Note that in R, we must enclose our strings in either double quotes (`" `) or single quotes ("`):
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  tidy=TRUE
+)
+```
+
+```{r, eval=FALSE}
+vector1 <- "This is the first of our character vectors"
+nchar(vector1) # Number of characters in the string
+length(vector1) # Number of elements (strings) in the vector
+```
+
+As you can see from the output of the above code, the `nchar()` function tells us that the string has $42$ characters. However, `length()` tells us the vector contains only $1$ element. This is because `vector1` contains only a single string, even though that string is quite long. To illustrate a vector with multiple strings, we use the `c()` function (short for "combine"). When used with strings, `c()` combines multiple individual strings into a single character vector. Let's create a vector with three different strings and see how `length()` and `nchar()` behave:
+
+```{r, eval=FALSE}
+vector2 <- c('This is one example', 'This is another', 'And so we can continue.')
+length(vector2) # Number of elements in vector
+nchar(vector2) # Returns characters for each element
+sum(nchar(vector2)) # Total number of characters in all elements
+```
+
+When we run this code, `length(vector2)` will return $3$ because the vector contains three separate strings. As a result, `nchar(vector2)` now has multiple elements (3), and `nchar()` returns a vector of results, one for each string. To get the total number of characters in all three strings, we can wrap (or nest) `nchar(vector2)` inside the `sum()` function. Note that R typically evaluates commands from the inside out. So, it will first calculate the number of characters for each string in `vector2` (producing an intermediate numeric vector), after which the `sum()` function will calculate the sum of this intermediate vector.
+
+The next step is to modify our vectors. For example, we can extract specific parts of a string and create substrings using the `substr(text, start_position, end_position)` function. To do so, we specify the starting and ending character positions. Note that the positions are counted from the beginning of the string, starting at 1 (and thus not 0):
+
+```{r, eval=FALSE}
+substr(vector1, 1, 5) # Extracts characters from position 1 to 5
+substr(vector1, 7, 11) # Extracts characters from position 7 to 11
+```
+
+Another thing we can do is combine multiple strings into a single one. The first way to do this is to use the `paste()` function and concatenate multiple strings into a single one. By default, `paste()` concatenates strings with a space in between, but we can change this using the `sep` argument. Another approach is to use a vector of multiple strings. In this case, we still use `paste()`, but now with the `collapse` argument:
+
+```{r, eval=FALSE}
+fruits <- paste('oranges','lemons','pears', sep = '-')
+fruits
+
+paste(vector2, collapse = "")
+```
+
+We can also change the text itself, for example, changing its case (lowercase or uppercase) using `tolower()` (which converts all characters to lowercase) and `toupper()` (which converts them to uppercase):
+
+```{r, eval=FALSE}
+sentences2 <- c("This is a piece of example text", "This is another piece of example text")
+tolower(sentences2)
+toupper(sentences2)
+```
+
+Another (and powerful) feature of R is its ability to find specific patterns within strings. These functions are especially powerful when combined with regular expressions (see for more on that [here](https://en.wikipedia.org/wiki/Regular_expression)):
+
+-   `grep(pattern, x)`: This function searches for the specified `pattern` within each string element of the character vector `x`. It returns a vector of the *indices* (positions) of the elements in `x` that contain a match for the pattern.
+-   `grepl(pattern, x)`: Similar to `grep`, but instead of returning indices, it returns a *logical vector* of the same length as `x`. Each element in the resulting vector is `TRUE` if the corresponding string in `x` matches the pattern and `FALSE` otherwise. This is useful for filtering or sub setting.
+-   `sub(pattern, replacement, x)`: This function finds the specified `pattern` in each string element of `x` and replaces it with the `replacement` string. Importantly, `sub()` only replaces the *first* occurrence of the pattern found within each string.
+-   `gsub(pattern, replacement, x)`: This function is identical to `sub()`, but with one key difference: it replaces *all* occurrences of the pattern found within each string element, not just the first one.
+
+Let's see these pattern-matching and replacement functions in action:
+
+```{r, eval=FALSE}
+text_vector <- c("This is a test sentence.", "Another test here.", "No match in this one.")
+
+grep("test", text_vector) # Find elements containing the exact word "test"
+grepl("test", text_vector) # Check which elements contain the word "test"
+sub("test", "sample", text_vector) # Replace the first instance of "test" with "sample" in each string
+gsub(" ", "_", text_vector) # Replace all spaces " " with underscores "_"
+```
+
+The opposite of pasting strings together is splitting them apart. The `strsplit(x, split)` function is designed to break down the elements of a character vector `x` into smaller pieces based on a specified `split` pattern (often a single character like a space, comma, or dash). Because each string in the input vector `x` might be split into a different number of resulting pieces, `strsplit()` returns a *list*. Each element of this list corresponds to an original string from `x`, and within each list element is a character vector containing the substrings that resulted from the split.
+
+```{r, eval=FALSE}
+sentence <- "This sentence will be split into words"
+strsplit(sentence, " ") # Splits the single string by spaces, returns a list with one element (a vector of words)
+
+dates <- c("2023-01-15", "2024-11-01")
+strsplit(dates, "-") # Splits each date string by the dash, returns a list with two elements (vectors of year, month, day)
+```
+
+While basic functions like `print()` and `cat()` are sufficient for simple output, `sprintf()` provides much finer control over how numbers, strings, and other data types are formatted within a string, similar to the `printf` function found in C. You construct a format string containing placeholders (like `% d' for integers, `%s` for strings, `%.2f` for floating-point numbers with two decimal places), and `sprintf()` replaces these placeholders with the values of subsequent arguments, respecting the specified formatting rules. This is particularly useful for creating consistent output or messages.
+
+```{r, eval=FALSE}
+my_var <- "Hello"
+print(my_var) # Prints the variable's value, often with quotes for strings
+cat(my_var, "world!\n") # Concatenates and prints, useful for console output
+
+value <- 42.567
+sprintf("The value is %.2f", value) # Formats' value' to 2 decimal places within the string
+sprintf("Integer: %d, String: %s", 100, "example") # Inserts an integer and a string into the format string
+```
+
+While base R provides these essential tools for working with text, specialised packages such as `quanteda`, `tm`, `stringr`, or `tidytext` offer more comprehensive, efficient, and often more user-friendly functions for complex text processing and analysis tasks. These packages typically build upon the fundamental vector concepts and functions available in base R, providing extended capabilities that include more powerful regular expression handling, tokenisation, stemming, stop-word removal, and advanced text manipulation tools.
+
+## Import .txt
+
+Plain text (.txt) files are a standard, simple format for storing text due to their lack of formatting, small size, and cross-platform compatibility. The `readtext` package provides a convenient way to read text files. It automatically creates a data frame with text content and associated metadata, such as filenames. First, ensure the `readtext` package is installed (`install.packages("readtext")`) and loaded. Then, specify the directory containing your .txt files. It is good practice to use relative paths or R projects to manage file locations.
+
+```{r, eval=FALSE}
+library(readtext)
+
+txt_directory <- "folder/txt" # Address of folder with the TXT files
+
+# The pattern "*" reads all files
+# Encoding specifies the encoding the TXT documents are in
+
+data_texts <- readtext(paste0(txt_directory, "/*.txt"), docvarsfrom = "filenames", encoding = "UTF-8")
+```
+
+In the last line, we set `docvarsfrom = "filenames"`. This creates a variable that stores the filenames alongside the text, allowing us to identify them later easily. In addition to `readtext`, base R functions like `readLines()` or `scan()` can also read .txt files, often line by line or into a single character vector, which may require further processing to organise by document.
+
+## Import .pdf
+
+Importing PDF files is a bit more challenging than importing TXT files, as they often contain not only text but also complex formatting, images, and tables. To import them into R, we again use the `readtext` package (though, in this case, it will use `pdftools` in the background). Note that this only works with readable PDFs (where text can be selected/copied), not image-based scans. In case you have an image-based scan (basically a picture stored as a PDF), you first need to use Optical Character Recognition (OCR) to retrieve the text from it (there are various ways to do this, with `tesseract` being the most popular -- see for more on that [here](https://github.com/tesseract-ocr/tesseract)).
+
+```{r, eval=FALSE}
+library(readtext)
+
+pdf_directory <- "folder/pdf" # Address of folder with the PDF files
+data_pdf_texts <- readtext(paste0(pdf_files, "/*.pdf"), docvarsfrom = "filenames")
+```
+
+Also, remember that PDF text extraction is imperfect. Formatting, tables, headers/footers, and multi-column layouts can lead to jumbled text. Manual inspection and cleaning are often required.
+
+## Import .csv
+
+Sometimes, text data comes pre-processed as a document-term matrix (DTM) or term-frequency matrix stored in a CSV file. A DTM typically has documents as rows, terms (or words) as columns, and cell values representing the word counts. There are two main ways we can import CSV files: using R's inbuilt `read.csv()` or the `read_csv` function from the `readr` package:
+
+```{r import-csv, eval=FALSE}
+data_dtm <- read.csv("your_dtm_file.csv") # In case the first row is NOT the column names
+data_dtm <- read.csv("your_dtm_file.csv", header= TRUE)
+data_dtm <- readr::read_csv("your_dtm_file.csv", col_names = FALSE) # In case the first row are NOT the column names
+data_dtm <- readr::read_csv("your_dtm_file.csv")
+```
+
+Remember that importing a pre-computed matrix means you inherit the pre-processing choices made when it was created. Also, take into account that in some cases, the CSV is not delimited by a comma but by a semicolon (;) or tab. In that case, we have to import it as a delimited object:
+
+```{r import-tab, eval=FALSE}
+data_dtm <- read_delim(NULL, delim = ";", escape_double = FALSE)
+data_dtm <- read_delim(NULL, delim = "\t", escape_double = FALSE)
+```
+
+## Import from an API
+
+Application Programming Interfaces (APIs) provide structured ways to request and receive data directly from web services (e.g., social media platforms, news organisations, databases). When available, using an API is generally more reliable and efficient than web scraping. There are some considerations to keep in mind:
+
+-   **Registration/Authentication**: Most APIs require registration to obtain an API key or token for authentication.
+-   **Rate Limits**: APIs usually limit the requests allowed within a specific period.
+-   **Terms of Service**: Always review the API's terms of service regarding data usage and restrictions.
+-   **API Changes & Restrictions**: APIs can change. Notably, access to platforms like Twitter/X and Facebook has become significantly restricted and often requires payment or enhanced verification. For instance, the `Rfacebook` package is no longer actively maintained. Always check the current status and documentation.
+-   **R Packages**: Specific R packages often exist to simplify interaction with popular APIs (e.g., `rtweet` for Twitter/X, `RedditExtractoR` for Reddit, `WikipediR` for Wikipedia, `manifestoR` for the Manifesto Project corpus). If no dedicated package exists, you can use general HTTP packages like `httr` or `httr2` combined with `jsonlite` to handle requests and responses.
+
+To demonstrate how this works, let us have a look at the New York Times Movie Reviews API (requires registering for an API key at <https://developer.nytimes.com/>):
+
+```{r, eval=FALSE}
+library(httr)
+library(jsonlite)
+library(tidyverse)
+
+nyt_api_key <- "[YOUR_API_KEY_HERE]" # Replace "[YOUR_API_KEY_HERE]" with your actual key
+
+# Construct the API request URL
+base_url <- "[https://api.nytimes.com/svc/movies/v2/reviews/search.json](https://api.nytimes.com/svc/movies/v2/reviews/search.json)"
+query_params <- list(query = "love",
+                     `opening-date` = "2000-01-01:2020-01-01",
+                     `api-key` = nyt_api_key)
+
+response <- GET(base_url, query = query_params) # Make the API request using httr::GET()
+
+# Parse the JSON content
+content_json <- content(response, as = "text", encoding = "UTF-8")
+reviews_list <- fromJSON(content_json, flatten = TRUE)
+reviews_df <- as_tibble(reviews_list$results) # Convert the relevant part of the list (results) to a data frame
+```
+
+This example retrieves movie reviews published between 2000 and 2020 containing the word "love". The response is in JSON format, which `jsonlite::fromJSON()` converts into an R list, which is subsequently transformed into a `tibble` (a type of data frame).
+
+## Import using Web Scraping
+
+When an API is unavailable, web scraping—extracting data directly from the HTML structure of web pages—can be an alternative. Again, there are a few things to keep in mind:
+
+-   **Legality/Ethics**: Always check the website's `robots.txt` file (e.g., `www.example.com/robots.txt`) and Terms of Service before scraping. Many sites prohibit or restrict scraping. Respect website resources; avoid overly aggressive scraping that could overload servers.
+-   **Website Structure**: Scraping relies on the stability of a website's HTML structure. If the site changes, your scraper might break.
+-   **Static or Dynamic Content**: Simple websites with content loaded directly in the initial HTML are easier to scrape (using packages like `rvest`). Websites that load content dynamically using JavaScript after the initial page load often require browser automation tools, such as `RSelenium`.
+-   **Complexity**: Scraping can be complex and requires knowledge of HTML and CSS selectors (or XPath).
+
+To see how scraping works, let us scrape the page on the Cold War from Wikipedia using `rvest`:
+
+```{r, eval=FALSE}
+# Load necessary libraries
+library(rvest)
+library(dplyr)
+library(stringr)
+library(tibble)
+
+# Define the URL of the Wikipedia page
+url <- "https://en.wikipedia.org/wiki/Cold_War"
+
+# Read the HTML content from the page
+html_content <- read_html(url)
+```
+
+Now, we need to identify the HTML elements containing the desired text. Using browser developer tools (often opened with F12 or Cmd+Shift+C) helps inspect the page structure. The main content paragraphs for Wikipedia articles are typically within `<p>`tags inside a main content `div`:
+
+```{r, eval=FALSE}
+# Extract paragraph text from the content section
+paragraphs <- html_content %>%
+  html_nodes("#mw-content-text .mw-parser-output p") %>%
+  html_text2() # Extract text, attempting to preserve formatting like line breaks
+
+coldwar_text_df <- tibble(paragraph = paragraphs) # Convert to a tibble/data frame
+coldwar_text_df <- coldwar_text_df %>%
+  filter(nchar(trimws(paragraph)) > 0) # Remove empty or whitespace-only paragraphs
+
+# Extract paragraph text from the content section
+paragraphs <- html_content %>%
+  html_nodes("#mw-content-text .mw-parser-output p") %>%
+  html_text2()  # Extracts text while preserving formatting
+
+# Convert to a tibble and remove empty/whitespace-only paragraphs
+coldwar_text_df <- tibble(paragraph = paragraphs) %>%
+  filter(nchar(trimws(paragraph)) > 0)
+
+# Display the first few rows
+print(head(coldwar_text_df))
+```
+
+For more complex scraping involving logins, button clicks, or dynamically loaded content, explore the `RSelenium` package, which programmatically controls a web browser. For more on web scraping, see @Wickham2023a, with the book being available [here](https://r4ds.hadley.nz/webscraping.html).
+
+## Import JSON and XML
+
+JSON (JavaScript Object Notation) and XML (eXtensible Markup Language) are standard hierarchical data formats often obtained from APIs or other data sources. For JSON, we use the `jsonlite` package. Here, `fromJSON()` reads JSON files or text into R lists or data frames. Note that the path does not need to refer to a place on your computer but can also be an address to an online API:
+
+```{r, eval=FALSE}
+library(jsonlite)
+my_data_df <- fromJSON("path/to/your/data.json", flatten = TRUE) # Here, ``flatten = TRUE`` flattens the object into a data frame
+```
+
+For XML, we use the `xml2` package. It provides functions like `read_xml()` or `read_html()` to parse files/URLs, and `xml_find_all()` (with XPath expressions), `xml_text()`, `xml_attr()` etc., to navigate and extract data:
+
+```{r, eval=FALSE}
+library(xml2)
+xml_doc <- read_xml("path/to/your/data.xml")
+titles <- xml_find_all(xml_doc, ".//title") %>% xml_text() # Find specific nodes using XPath and extract text (here <title>)
+```
+
+## Import from Databases
+
+If your text data is somewhere in a relational database (like PostgreSQL, MySQL, SQLite, etc.), you can connect directly from R using the `DBI` (Database Interface) package along with a specific backend package for your database type, such as `RPostgres`, `RMariaDB`, `RSQLite`, `odbc`. Here, let us try to import a PostgreSQL database file:
+
+```{r, eval=FALSE}
+library(DBI)
+library(RSQLite) # Load the specific backend
+
+connection <- dbConnect(
+  RPostgres::Postgres(),
+  dbname = "your_db",
+  host = "your_host",
+  port = 5432,
+  user = "your_user",
+  password = "your_password"
+)
+
+print(dbListTables(connection)) # List available tables
+
+query <- "SELECT doc_id, text_content FROM documents WHERE year = 2023;" # Query the database using SQL
+results_df <- dbGetQuery(connection, query)
+
+dbDisconnect(connection)
+```

@@ -1,0 +1,595 @@
+---
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+# Unsupervised Methods {#unsupervised-methods}
+
+Unlike supervised methods, which require labelled data to train a model for classifying or predicting values for new text, unsupervised learning methods in text analysis aim to discover inherent patterns and structures within text data without relying on pre-assigned labels.
+These methods are useful for exploring large unannotated corpora to identify recurring themes (topics), group similar documents (clustering) and reduce the dimensionality of the data.
+
+Supervised models excel at well-defined classification tasks where labelled data is available, but unsupervised methods allow us to uncover latent structures that we may not have anticipated or would be prohibitively expensive to label.
+This chapter focuses on probabilistic topic modelling, a popular suite of unsupervised methods for identifying abstract 'topics' within a body of text.
+Each document is treated as a mixture of these topics, with a word distribution characterising each.
+We will cover Latent Dirichlet Allocation (LDA), seeded LDA, which incorporates prior knowledge, the Structural Topic Model (STM), which allows the inclusion of document metadata to model topic prevalence and content, and Latent Semantic Analysis (LSA) as a dimensionality reduction technique.
+
+The original document provided a solid introduction to these methods.
+I have expanded upon the explanations of each technique, particularly focusing on the rationale behind key steps and the interpretation of results.
+I have also significantly extended the sections on model validation for LDA, STM, and LSA, as understanding how to evaluate these models is crucial for their practical application.
+
+## Latent Dirichlet Allocation (LDA)
+
+Latent Dirichlet Allocation (LDA) is a generative probabilistic model for collections of discrete data, such as text corpora.
+The core idea is that each document contains various topics, and a word distribution characterises each topic.
+The model assumes that the process of writing a document includes:
+
+1.  Choosing the length of the document.
+2.  Choosing a mixture of topics for the document.
+3.  For each word in the document:
+    -   Choosing a topic from the mixture of topics in the document.
+    -   Choosing a word from the word distribution of the selected topic.
+
+LDA aims to infer these latent topic mixtures for each document and word distributions for each topic, given the observed word frequencies in the corpus.
+
+We will primarily use the `topicmodels` package to run LDA in R.
+This package works with a specific document-term matrix format, so we first need to convert our `quanteda` dfm into this format using the `convert()` function.
+We will use the inaugural speeches corpus (`data_inaugural_dfm`) from previous chapters as our example data.
+
+We begin by loading the necessary libraries.
+`topicmodels` is the core package for LDA.
+`quanteda` is needed for corpus and DFM manipulation.
+`dplyr`, `tidytext`, and `ggplot2` are essential for subsequent data manipulation and visualisation of the model outputs in a tidy format.
+
+```{r import-topicmodels, warning=FALSE, message=FALSE}
+# Install topicmodels if you haven't already: install.packages("topicmodels")
+library(topicmodels)
+library(quanteda) # Ensure quanteda is loaded
+library(dplyr)    # For data manipulation later
+library(tidytext) # For tidying model output later
+library(ggplot2)  # For visualization later
+
+
+data(data_corpus_inaugural)
+data_inaugural_tokens <- tokens(data_corpus_inaugural, remove_punct = TRUE, remove_symbols = TRUE, remove_numbers = TRUE, remove_url = TRUE, remove_separators = TRUE, split_hyphens = FALSE)
+data_inaugural_tokens <- tokens_tolower(data_inaugural_tokens)
+data_inaugural_tokens <- tokens_select(data_inaugural_tokens, stopwords("english"), selection = "remove")
+data_inaugural_dfm <- dfm(data_inaugural_tokens)
+data_inaugural_dfm <- dfm_compress(data_inaugural_dfm, margin = "features")
+
+inaugural_dtm <- convert(data_inaugural_dfm, to = "topicmodels")
+```
+
+Once the libraries have been loaded and the data has been prepared in the required format, we will specify the parameters for the LDA model using Gibbs sampling.
+These parameters control the inference process, including the number of iterations, burn-in period, thinning interval, random seeds for reproducibility, and independent chains to run.
+
+When using Gibbs sampling, specific parameters need to be set: *burnin* (the number of initial iterations to discard), *iter* (the total number of iterations after the burn-in period), *thin* (the thinning interval), *seed* (the random seed or seeds for multiple runs), *nstart* (the number of independent chains) and *best* (whether to keep the model with the highest log-likelihood if nstart \> 1).
+Additionally, we must set the desired number of topics to extract.
+This is a common challenge in topic modelling, as no definitive method exists.
+It often involves a combination of statistical measures, such as likelihood or coherence scores, and qualitative evaluation of the topics to determine their meaning and interpretability.
+
+Using Gibbs sampling, we can fit an LDA model with a chosen number of topics.
+For example, k could be set to 10.
+The explanation of the parameters and the choice of k has been expanded slightly for clarity.
+
+```{r lda-settings, results='hide'}
+# Set parameters for Gibbs sampling
+burnin <- 2000  # Number of initial iterations to discard.
+iter <- 1000   # Number of iterations to keep after burnin.
+thin <- 200    # Keep every 200th iteration.
+seed <- list(42, 5, 24, 158, 2500) # Seeds for multiple runs. 
+nstart <- 5    # Number of independent chains to run.
+best <- TRUE   # Keep the best model from the multiple runs. 
+k_lda <- 10    # Number of topics to find. 
+```
+
+With the parameters defined, we fit the LDA model to the document-term matrix.
+The `LDA()` function from the `topicmodels` package performs this fitting process using the specified method and control parameters.
+
+```{r lda-run, cache=TRUE}
+# Fit the LDA model using Gibbs sampling
+inaugural_lda10 <- LDA(inaugural_dtm, k = k_lda,
+                       method = "Gibbs",
+                       control = list(burnin = burnin,
+                                      iter = iter,
+                                      thin = thin,
+                                      seed = seed,
+                                      nstart = nstart,
+                                      best = best))
+
+# Display the top words for each topic
+print("Top terms per topic:")
+terms(inaugural_lda10, 10) # Show top 10 terms for each of the 10 topics. These terms are the words with the highest probability within each topic.
+```
+
+The `terms()` function allows us to inspect the words with the highest probability of belonging to each topic.
+These top words provide initial clues for interpreting the meaning of each discovered topic.
+By examining the words associated with each topic, we can begin to understand the themes present in the corpus.
+
+To further explore the topic-word distributions, known as $\beta$, and prepare them for visualization, we use the `tidy()` function from the `tidytext` package.
+`tidytext` facilitates working with text data and model outputs in a "tidy" format, which is compatible with `dplyr` and `ggplot2` for efficient data manipulation and visualization.
+
+```{r lda-tidy, message=FALSE, warning=FALSE}
+library(tidytext) # Ensure tidytext is loaded
+library(dplyr)    # Ensure dplyr is loaded
+library(ggplot2)  # Ensure ggplot2 is loaded
+
+# Tidy the LDA model output to get the topic-word probabilities (beta)
+# The 'beta' matrix represents the probability of a word belonging to a topic.
+inaugural_lda10_topics <- tidy(inaugural_lda10, matrix = "beta")
+
+# Display the structure of the tidied beta output
+print(inaugural_lda10_topics)
+```
+
+The resulting `inaugural_lda10_topics` data frame contains columns for the `topic`, the `term` (word), and `beta` (the probability of that word occurring in that topic).
+To visualize the top words for each topic, we filter this data frame to retain only the top N words per topic based on their beta values, typically the top 10, before creating a bar chart.
+
+We select the top terms for each topic based on their beta values, grouping the data by topic and then using `slice_max` to select the top 10 terms within each group.
+Finally, we arrange the results for better readability.
+
+```{r lda-group1}
+# Select the top 10 terms for each topic based on beta values
+inaugural_lda10_topterms <- inaugural_lda10_topics %>%
+  group_by(topic) %>%          # Group the data by topic
+  slice_max(beta, n = 10) %>% 
+  ungroup() %>%                
+  arrange(topic, -beta)        
+```
+
+Using the filtered data, we create a faceted bar chart to visualize the top terms for each topic and their corresponding beta probabilities.
+Reordering the terms within each facet based on their beta values makes the plot easier to interpret.
+The explanation of the plot has been slightly expanded.
+
+```{r lda-tidy-graph1, fig.asp = 1.5}
+inaugural_lda10_topterms %>%
+  mutate(term = reorder_within(term, beta, topic)) %>% 
+  ggplot(aes(beta, term, fill = factor(topic))) +      # Plot beta on the x-axis, term on the y-axis.
+  geom_col(show.legend = FALSE) +                      # Add bars, hide legend
+  facet_wrap(~ topic, scales = "free_y") +             # Create a separate plot (facet) for each topic. 
+  scale_y_reordered() +      
+  labs(title = "Top 10 Words per Topic (LDA Beta)",     
+       x = "Beta (Probability in Topic)",
+       y = "Term") +
+  theme_minimal() # Use a minimal theme for a clean appearance.
+```
+
+This plot provides a visual overview of the keywords that define each topic.
+By examining these words, we can assign a meaningful label or interpretation to each discovered topic.
+This step is crucial for understanding the thematic structure of the corpus.
+
+Another important output of LDA is the document-topic distribution, known as $\gamma$, which represents the proportion of each topic present in each document. This information allows us to identify which topics are most prominent in specific documents. We again use the `tidy()` function to extract this data in a convenient format.
+
+```{r lda-tidy-gamma1}
+# Tidy the LDA model output to get the document-topic probabilities (gamma)
+# The 'gamma' matrix represents the proportion of each topic in each document.
+inaugural_lda10_documents <- tidy(inaugural_lda10, matrix = "gamma")
+
+# Display the structure of the tidied gamma output
+print(inaugural_lda10_documents)
+```
+
+The `inaugural_lda10_documents` data frame contains columns for the `document`, the `topic`, and `gamma` (the proportion of that topic in that document).
+We can visualize the topic distribution across documents, for example, by looking at the top topics in a selection of documents or by visualizing the distribution of a specific topic across all documents.
+Here, we will visualize the topic distribution for a few selected documents to illustrate how topics are mixed within documents.
+
+We select a subset of documents to visualize their topic distributions.
+This allows us to examine the topic proportions in individual documents and see how different topics contribute to the content of each document.
+
+```{r lda-tidy-gamma2}
+# Select a few documents to visualise (e.g., the first few)
+selected_docs <- unique(inaugural_lda10_documents$document)[1:5] # Select the names of the first 5 unique documents.
+
+# Filter the gamma data for selected documents and arrange
+inaugural_lda10_selected_docs <- inaugural_lda10_documents %>%
+  filter(document %in% selected_docs) %>% # Keep only the rows where the document name is in our selected_docs list.
+  arrange(document, -gamma) # Arrange the data first by document name, then by gamma in descending order to easily see the most prominent topics per document.
+
+# Show the structure of the selected documents' gamma data
+print(inaugural_lda10_selected_docs)
+```
+
+With the data filtered for the selected documents, we can create a faceted bar plot. This plot shows the proportion of each topic within each of the selected documents, providing a visual representation of the document-topic mixtures.
+
+```{r lda-tidy-graph2, fig.asp = 1.5}
+inaugural_lda10_selected_docs %>%
+  mutate(topic = factor(topic)) %>%
+  ggplot(aes(gamma, topic, fill = topic)) +
+  geom_col(show.legend = FALSE) + 
+  facet_wrap(~ document, scales = "free_x") + 
+  labs(title = "Topic Distribution per Document (LDA Gamma)",
+       x = "Gamma (Proportion in Document)",
+       y = "Topic") +
+  theme_minimal()
+```
+
+It might be a good idea at this point to refer back to the "Validate, Validate, "Validate" by @Grimmer2013a, which we mentioned earlier. This is especially relevant here, as unsupervised methods literally "find" patterns, with the risk that --- given we tend to be very good at recognizing patterns -- we find non-sense patterns. Thus, we must ensure that the patterns or topics we find are meaningful and useful. The validation needed for this often involves a combination of quantitative metrics and qualitative interpretation. 
+
+On the quantitative side, we can use **topic coherence**, which assesses the semantic similarity between the high-scoring words in a topic. Topics with high coherence tend to be more human-interpretable. While the `topicmodels` package doesn't directly provide a built-in topic coherence measure, it can be computed using other packages like `ldatuning` or manual calculation based on word co-occurrence statistics in the corpus (we will return to this when discussing STM, where the package makes this significantly easier). 
+
+Another quantitative approach involves examining **perplexity**, a measure of how well the model predicts a held-out set of documents.
+Lower perplexity generally indicates a better model fit. As the `topicmodels` package provides the log-likelihood of the model, we can derive the perplexity from it.
+
+```{r lda-loglikelihood}
+# Get the log-likelihood of the fitted model
+log_likelihood <- logLik(inaugural_lda10)
+N <- sum(inaugural_dtm) # Calculate the total words in the document-term matrix.
+perplexity <- exp(-log_likelihood / N) # Calculate perplexity using the formula.
+print(paste("Perplexity of the LDA model:", perplexity))
+```
+
+Most importantly, beyond quantitative metrics, **qualitative evaluation** is essential. For LDA, this involves carefully inspecting the top terms for each topic (as shown in the beta visualization) and assessing whether they form a coherent theme. We also examine the document-topic distributions (gamma visualization) to see if documents with high proportions of a given topic are indeed about the interpreted theme. Comparing topic assignments to known characteristics of documents or human judgments (if available) can also provide valuable validation. Experimenting with different numbers of topics ($k$) and comparing the resulting topics qualitatively and quantitatively is a standard practice in LDA model validation.
+
+Finally, the choice of the number of topics ($k$) is the most problematic aspect of validation as, while quantitative measures like coherence or perplexity can guide this choice, ultimately, the interpretability and utility of the topics for the research question are paramount. To compare models with different numbers of topics, one would typically train multiple LDA models (each with a different $k$) and then compare their log-likelihood/perplexity or topic coherence scores, visualizing these scores against $k$.
+
+## Seeded Latent Dirichlet Allocation (sLDA)
+
+An alternative to the above approach is one known as seeded-LDA. This approach uses seed words to steer the LDA in the right direction. One origin of these seed words can be a dictionary that tells the algorithm which words belong together in various categories. To use it, we will first load the packages and set a seed:
+
+```{r import-seededlda, warning=FALSE, results=FALSE, message=FALSE}
+library(seededlda)
+library(quanteda.dictionaries)
+
+set.seed(42)
+```
+
+Next, we need to specify a selection of seed words in dictionary form. While we can construct a dictionary ourselves, we use the Laver and Garry dictionary we saw earlier. We then use this dictionary to run our seeded LDA:
+
+```{r seededlda-lavergarry}
+dictionary_LaverGarry <- dictionary(data_dictionary_LaverGarry)
+seededmodel <- textmodel_seededlda(data_inaugural_dfm, dictionary = dictionary_LaverGarry)
+```
+
+Note that using the dictionary has ensured that we only use the categories in the dictionary. This means we can look at which topics are in each inaugural speech and which terms were most likely for each. Let us start with the topics first:
+
+```{r ggplot-seededlda}
+topics <- topics(seededmodel)
+topics_table <- ftable(topics)
+topics_prop_table <- as.data.frame(prop.table(topics_table))
+
+ggplot(data=topics_prop_table, aes(x=topics, y=Freq))+
+ geom_bar(stat="identity")+
+ labs(x="Topics", y="Topic Percentage")+
+ scale_y_continuous(expand = c(0, 0)) +
+ theme_classic()+
+ theme(axis.text.x = element_text(size=10, angle=90, hjust = 1))
+```
+
+Here, we find that Culture was the most favoured topic, followed by the Economy and Values. Finally, we can then have a look at the most likely terms for each topic, sorted by each of the categories in the dictionary:
+
+```{r seededlda-terms}
+terms <- terms(seededmodel)
+terms_table <- ftable(terms)
+terms_df <- as.data.frame(terms_table)
+head(terms_df)
+```
+
+Here, we find that in the first cluster (denoted as 'A'), the word 'people' was most likely (from all words that belonged to Culture). Thus, within this cluster, talking about culture often references the people. In the same way, we can make similar observations for the other categories.
+
+
+## Structural Topic Model (STM)
+
+The Structural Topic Model (STM) is another probabilistic topic modelling approach that extends traditional LDA by explicitly incorporating document metadata (such as publication date, author, source, or other document-level characteristics) into the model.
+STM can model:
+
+1.  **Topic prevalence:** How the proportion of topics in a document relates to metadata. For example, how does the prevalence of "business" topics change over time or differ between authors?
+2.  **Topic content:** How the words associated with a topic (the $\beta$ distribution) vary according to metadata. For example, are the words used to discuss "the environment" different in documents from different political parties?
+
+One of the key advantages of STM is that it uses this metadata to estimate the topic-document ($\theta$) and topic-word ($\beta$) distributions, potentially leading to more coherent and meaningful topics and allowing researchers to directly test hypotheses about the relationship between metadata and language use. Also, Unlike standard LDA, where the hyperparameters ($\alpha$ and $\beta$) are typically fixed, STM allows them to be influenced by covariates.
+
+Figure \@ref(fig:stm-diagram) provides a diagram illustrating the structure of the STM.
+
+\
+```{r stm-diagram, echo=FALSE, engine='tikz', out.width='90%', fig.ext=if (knitr:::is_latex_output()) 'pdf' else 'png', fig.cap='Plate diagram for a Structucal Topic Model.'}
+\usetikzlibrary{fit,positioning,arrows.meta}
+\begin{tikzpicture}[connect/.style={arrows=-{Triangle}, black, thick}, main/.style={circle, minimum size = 10mm, thick, draw =black!80, node distance = 16mm}, plate/.style={draw, shape=rectangle, thick, minimum width=3.1cm, text width=3.1cm, align=right,inner sep=10pt, inner ysep=10pt, append after command={node[above left= 3pt of \tikzlastnode.south east] {#1}}}]
+ \node[main] (X) [label=below:$X$] { };
+ \node[main] (gamma) [above=of X,label=below:$\gamma$] { };
+ \node[main] (sigma) [below=of X,label=below:$\Sigma$] { };
+ \node[main] (theta) [right=of X,label=below:$\theta$] { };
+ \node[main] (z) [right=of theta,label=below:z] {};
+ \node[main, fill = black!10] (w) [right=of z,label=below:w] { };
+ \node[main] (beta) [right=of w,label=below:$\beta$] { };
+ \node[main] (Y) [right=of beta,label=below:$Y$] { };
+ 
+ \draw[connect] (gamma) to (theta);
+ \draw[connect] (sigma) to (theta);
+ \draw[connect] (X) to (theta);
+ \draw[connect] (theta) to (z);
+ \draw[connect] (z) to (w);
+ \draw[connect] (Y) to (beta);
+ \draw[connect] (beta) to (w);
+
+ \node[plate=N, inner sep=20pt, fit=(z) (w)] (plate1) {};
+ \node[plate=M, inner sep=28pt, fit=(X) (z) (Y)] (plate2) {};
+
+\end{tikzpicture}
+```
+\
+
+Figure \@ref(fig:stm-diagram) shows stm in the form of a plate diagram. Here, $X$ refers to the prevalence metadata; $\gamma$, the metadata weights; $\Sigma$, the topic covariances; $\theta$, the document prevalence; $z$, the per-word topic; $w$, the observed word; $Y$, the content metadata; $\beta$, the topic content; $N$, the number of words in a document; and $M$, the number of documents in the corpus. 
+
+To run stm in R, we have to load the package, set a seed, convert our dfm to the stm format and place our documents, vocabulary (the tokens) and any other data in three separate objects (for later convenience):
+
+```{r import-stm, results=FALSE, message=FALSE}
+library(stm)
+library(quanteda)
+
+set.seed(42)
+
+data_inaugural_stm <- convert(data_inaugural_dfm, to = "stm")
+
+documents <- data_inaugural_stm$documents
+vocabulary <- data_inaugural_stm$vocab
+meta <- data_inaugural_stm$meta
+```
+
+The first thing we have to do is find the number of topics we need. In the `stm` package, we can do this by using a function called `searchK`. Here, we specify a range of values that could include the 'correct' number of topics, which we then run and collect. Afterwards, we then look at several goodness-of-fit measures to assess which number of topics (which *k*) has the best fit for the data. These measures include exclusivity, semantic coherence, held-out likelihood, bound, lbound, and residual dispersion. Here, we run this for 2 to 15 possible topics.
+
+In our code, we specify our documents, our tokens (the vocabulary), and our meta-data. Moreover, as our prevalence, we include parameters for `Year` and `Party`, as we expect the content of the topics to differ between both the Republican and Democratic party, as well as over time:
+
+```{r stm-setk}
+k <- c(3,4,5,6,7,8,9,10,11,12,13,14,15)
+```
+```{r stm-finding-k, results=FALSE, eval=FALSE}
+findingk <- searchK(documents, vocabulary, k, prevalence =~ Party + s(Year), data = meta, verbose=TRUE)
+```
+```{r load-k, echo=FALSE}
+findingk <- readr::read_rds("~/Scrivania/Git/qta-book/data/findingk.rds")
+```
+```{r stm-dataframe-k, results=FALSE}
+findingk_results <- as.data.frame(matrix(unlist(findingk$results), nrow=length(unlist(findingk$results[1]))))
+names <- names(findingk$results)
+names(findingk_results) <- names
+```
+
+Looking at `findingk_results` we find various values. The first, exclusivity, refers to the occurrence that when words have a high probability under one topic, they have a low probability under others. Related to this is semantic coherence which happens when the most probable words in a topic should occur in the same document. Held-out (or held-out log-likelihood) is the likelihood of our model on data that was not used in the initial estimation (the lower the better), while residuals refer to the difference between a data point and the mean value that the model predicts for that data point (which we want to be 1, indicating a standard distribution). Finally, bound and lbound refer to a model's internal measure of fit. Here, we will be looking for the number of topics, that balance the exclusivity and the semantic coherence, have a residual around 1, and a low held-out. To make this simpler, we visualise our data. In the first graph we plot all the values, while in the second, we only look at the exclusivity and the semantic coherence (as they are the most important):
+
+```{r ggplot-stm-findk, warning=FALSE, message=FALSE}
+library(reshape2)
+
+findingk_melt <- melt(findingk_results, id="K") 
+findingk_melt$variable <- as.character(findingk_melt$variable)
+findingk$K <- as.factor(findingk_results$K)
+
+ggplot(findingk_melt, aes(K, value)) +
+ geom_point()+
+ geom_line()+
+ facet_wrap(~ variable, scales = "free")+
+ theme_classic()
+
+ggplot(findingk_results, aes(semcoh, exclus)) +
+ geom_point()+
+ geom_text(data=findingk_results, label=findingk$K, nudge_x = 0.15)+
+ scale_x_continuous("Semantic Coherence")+
+ scale_y_continuous("Exclusivity")+
+ theme_classic()
+```
+
+Based on these graphs, we decide upon 10 topics. The main reason for this is that for this number of topics, there is a high semantic coherence given the exclusivity. We can now run our stm model, using spectral initialization and a topical prevalence including both the Party and the Year of the inauguration. Also, we have a look at the topics, and the words with the highest probability attached to them:
+
+```{r stm-runmodel, results=FALSE}
+n_topics <- 10
+output_stm <- stm(documents, vocabulary, K = n_topics, prevalence =~ Party + s(Year), data = meta, init.type = "Spectral", verbose=TRUE)
+labelTopics(output_stm)
+```
+
+Here, we see that the word `us` is dominant in most topics, making it a candidate for removal as a stop word in a future analysis. Looking closer, we find that the first topic refers to peace, the second, third and seventh to the world, the fourth and sixth to America, and the eighth to the government.
+
+Finally, we can see whether there is any relation between these topics and any of the parameters we included. Here, let us look at any existing differences between the two parties:
+
+```{r stm-estimate-effect, results=FALSE}
+est_assoc_effect <- estimateEffect(~Party, output_stm, metadata = meta, prior=1e-5)
+```
+
+While we can visualise this with the `plot.estimateEffect` option, the visualisation is far from ideal. Thus, let us use some data-wrangling and make the plot ourselves:
+
+```{r stm-arrange-data, results=FALSE}
+estimate_data <- plot.estimateEffect(est_assoc_effect, "Party", method = "pointestimate", model = output_stm, omit.plot = TRUE)
+estimate_graph_means <- estimate_data$means
+estimate_graph_means <- data.frame(matrix(unlist(estimate_graph_means), nrow=length(estimate_graph_means), byrow=TRUE))
+estimate_graph_means <- data.frame(c(rep("Republicans", 10), rep("Democrats", 10)), c(estimate_graph_means$X1,estimate_graph_means$X2))
+
+estimate_graph_cis <- estimate_data$cis
+estimate_graph_cis <- data.frame(matrix(unlist(estimate_graph_cis), nrow=length(estimate_graph_cis), byrow=TRUE))
+estimate_graph_cis <- data.frame(c(estimate_graph_cis$X1,estimate_graph_cis$X3), c(estimate_graph_cis$X2,estimate_graph_cis$X4))
+
+Topic <- c("Topic 1", "Topic 2", "Topic 3", "Topic 4","Topic 5", "Topic 6", "Topic 7", "Topic 8", "Topic 9", "Topic 10", "Topic 1", "Topic 2", "Topic 3", "Topic 4","Topic 5", "Topic 6", "Topic 7", "Topic 8", "Topic 9", "Topic 10")
+
+estimate_graph <- cbind(Topic, estimate_graph_means,estimate_graph_cis)
+names(estimate_graph) <- c("Topic","Party","Mean", "min", "max")
+estimate_graph$Party <- as.factor(estimate_graph$Party)
+estimate_graph$Topic <- as.factor(estimate_graph$Topic)
+estimate_graph$Topic <- factor(estimate_graph$Topic, levels=rev(levels(estimate_graph$Topic)))
+
+```
+
+Now, let us plot our intervals:
+
+```{r ggplot-stm-intervals}
+ggplot(estimate_graph, aes(Mean, Topic)) +
+ geom_pointrange(aes(xmin = min, xmax = max, color = Party),
+                 position = position_dodge(0.3))+
+ geom_vline(xintercept = 0,
+            linetype="dashed", size=0.5)+
+ scale_color_manual(values = c("#0015BC", "#E9141D"))+
+ theme_classic()
+```
+
+Here, we find that while the averages for the topic do seem to differ a little between both of the parties, all the intervals are overlapping, indicating that they are not that different.
+
+## Latent Semantic Analysis (LSA)
+
+Finally, we will look at Latent Semantic Analysis (LSA), a matrix factorization technique that uses Singular Value Decomposition (SVD) on a term-document matrix to uncover latent semantic structures. Unlike probabilistic models like LDA or STM, LSA is algebraic and assumes that semantically similar terms appear in similar documents.
+
+We’ll use the `textmodel_lsa()` function from the `quanteda.textmodels` package to perform LSA on the U.S. Presidential Inaugural Corpus.
+
+Before applying LSA, we need to load the necessary R libraries and prepare the text data:
+
+```{r setup, warning=FALSE, message=FALSE}
+library(quanteda) 
+library(quanteda.textmodels) 
+library(dplyr) 
+library(tidyr) 
+library(ggplot2) 
+
+data("data_corpus_inaugural")
+
+inaugural_tokens <- tokens(data_corpus_inaugural,
+                           remove_punct = TRUE, 
+                           remove_symbols = TRUE,
+                           remove_numbers = TRUE) %>% 
+  tokens_tolower() %>% 
+  tokens_remove(stopwords("en")) 
+
+inaugural_dfm <- dfm(inaugural_tokens)
+```
+
+With the data preprocessed and organized into a document-feature matrix, we are ready to fit the LSA model. We use the `textmodel_lsa()` function, specifying the document-feature matrix and the desired number of latent dimensions (`nd`). Again, choosing the optimal number of dimensions often requires experimentation and evaluation, which we will look at in the validation section. Setting a random seed ensures that the results are reproducible.
+
+```{r lsa-model, results=FALSE}
+set.seed(42)
+
+# Fit LSA with 10 dimensions. The number of dimensions (nd) determines the size of the reduced semantic space.
+n_dims <- 10
+lsa_model <- textmodel_lsa(inaugural_dfm, nd = n_dims)
+
+lsa_model
+```
+
+After fitting the LSA model, we can explore the term loadings. Term loadings indicate the association of each term (word) with each of the discovered latent dimensions. High positive or negative loadings suggest that a term is strongly associated with a particular dimension. By examining the terms with the highest absolute loadings for each dimension, we can begin to interpret the semantic meaning captured by that dimension. We extract the term loadings from the model, convert them into a tidy data frame, and then identify the top terms for each dimension based on the absolute value of their loadings. Visualizing the top terms for a dimension, as shown in the optional plot, can aid in this interpretation.
+
+```{r lsa-terms}
+term_matrix <- as.data.frame(lsa_model$features)
+colnames(term_matrix) <- paste0("Dim", 1:n_dims) # Rename columns
+term_matrix$term <- rownames(term_matrix) # Add the actual terms as a column
+
+term_long <- term_matrix %>%
+  pivot_longer(cols = starts_with("Dim"), names_to = "Dimension", values_to = "Loading")
+
+top_terms <- term_long %>%
+  group_by(Dimension) %>%
+  slice_max(abs(Loading), n = 10, with_ties = FALSE) %>% 
+  arrange(Dimension, -abs(Loading))
+
+ggplot(filter(top_terms, Dimension == "Dim1"), aes(x = reorder(term, Loading), y = Loading)) +
+  geom_col(fill = "steelblue") + # Create a bar chart with the loading on the x-axis and term on the y-axis.
+  coord_flip() + # Flip the coordinate axes to make term labels easier to read.
+  labs(title = "Top Terms for LSA Dimension 1", x = "Term", y = "Loading") + # Add plot title and axis labels.
+  theme_minimal() # Use a minimal theme for a clean plot.
+```
+
+Similar to term loadings, we can explore document loadings. Document loadings represent the association of each document with each latent dimension. Documents with high positive or negative loadings on a particular dimension are estimated to be strongly related to the semantic concept captured by that dimension. By examining the documents with the highest loadings for each dimension, we can see which texts most represent the themes identified by LSA. We extract the document loadings and identify the top documents for each dimension based on their positive loadings.
+
+```{r lsa-documents}
+doc_matrix <- as.data.frame(lsa_model$docs)
+colnames(doc_matrix) <- paste0("Dim", 1:n_dims) 
+doc_matrix$document <- docnames(inaugural_dfm) 
+
+doc_long <- doc_matrix %>%
+  pivot_longer(cols = starts_with("Dim"), names_to = "Dimension", values_to = "Loading")
+
+top_docs <- doc_long %>%
+  group_by(Dimension) %>% # Group by dimension to find top documents within each dimension.
+  slice_max(Loading, n = 5, with_ties = FALSE) %>% # Select the top 5 documents based on positive loading.
+  arrange(Dimension, -Loading) # Arrange the results for better readability.
+```
+
+By examining the most positively and negatively associated terms and documents per dimension, we can interpret the latent semantic "concepts" discovered by LSA. Overall, LSA is useful for:
+
+- **Similarity:** Comparing documents based on their LSA vectors.
+- **Keywords:** Finding terms similar to a query term in the LSA space.
+- **Summarization:** Identifying key sentences representing the document's main dimensions.
+- **Reducing dimensionality:** Using the LSA dimensions as features for subsequent supervised learning tasks.
+
+So, how do we validate an LSA? As with LDA, our validation assesses how well the reduced-dimensionality space captures the original data structure and semantic relationships. To begin with, we can look at how much variance each dimension explains. This helps determine how many dimensions to keep by looking for an "elbow" point, where additional dimensions offer diminishing returns. The explained variance for each dimension is proportional to the square of its corresponding singular value from the SVD.
+
+```{r lsa-explained-variance}
+# Extract singular values from the LSA model.
+singular_values <- lsa_model$sk
+
+# Compute the proportion of variance explained by each dimension
+explained_variance <- singular_values^2 / sum(singular_values^2) 
+
+# Compute the cumulative variance. 
+cumulative_variance <- cumsum(explained_variance)
+
+variance_df <- data.frame(
+  Dimension = seq_along(explained_variance), # Dimension number.
+  Explained = explained_variance, # Proportion of variance explained by each dimension.
+  Cumulative = cumulative_variance # Cumulative proportion of variance explained.
+)
+```
+
+We can easily visualize the individual and cumulative variance explained to identify a good cutoff point for dimensionality. This helps select the number of dimensions (`nd`) to use, balancing dimensionality reduction with retaining sufficient information.
+
+```{r lsa-explained-variance-plots, fig.height=6}
+library(ggplot2)
+library(gridExtra) 
+
+p1 <- ggplot(variance_df, aes(x = Dimension, y = Explained)) +
+  geom_line() + geom_point() + # Add lines and points.
+  labs(title = "Explained Variance by LSA Dimension", # Add title and labels.
+       x = "Dimension", y = "Proportion of Variance") +
+  theme_minimal()
+
+p2 <- ggplot(variance_df, aes(x = Dimension, y = Cumulative)) +
+  geom_line() + geom_point() + # Add lines and points.
+  labs(title = "Cumulative Explained Variance", # Add title and labels.
+       x = "Dimension", y = "Cumulative Proportion") +
+  ylim(0, 1) + # Set y-axis limits from 0 to 1.
+  theme_minimal() 
+
+# Arrange the plots vertically.
+grid.arrange(p1, p2, ncol = 1)
+```
+
+These plots help us determine the ideal number of dimensions to retain by identifying where the cumulative curve levels off—a common strategy known as the "elbow method." Choosing the dimensionality is a trade-off between reducing noise and computational complexity versus preserving semantic information.
+
+Another way to validate LSA is to examine whether semantically similar words are close together in the latent space. We compute the cosine similarity between LSA-generated vectors for selected terms. Terms used in similar contexts should have high cosine similarity in the LSA space.
+
+```{r lsa-cosine-terms}
+library(coop) # Need to install: install.packages("coop")
+
+term_vectors <- lsa_model$features
+
+# Choose a set of semantically related terms for validation.
+selected_terms <- c("america", "united", "states", "freedom", "liberty", "war", "peace")
+
+selected_term_vectors <- term_vectors[selected_terms, , drop = FALSE]
+term_similarity <- cosine(t(selected_term_vectors))
+```
+
+We expect related terms (e.g., “freedom” and “liberty”) to have high cosine similarity. This indicates that LSA captures semantic relationships effectively. Unrelated terms should have lower cosine similarity.
+
+Similarly, we can validate whether semantically similar documents are close in the latent space. Again, we use cosine similarity on the LSA vectors of selected presidential speeches. Documents that discuss identical themes or are from similar historical periods might be expected to have a higher similarity.
+
+```{r lsa-cosine-documents}
+doc_vectors <- lsa_model$docs
+docnames_all <- docnames(inaugural_dfm) # Get all document names.
+
+# Select documents of interest by their names for validation.
+selected_docs <- c("1789-Washington", "1861-Lincoln", "2001-G.W.Bush", "2009-Obama")
+selected_doc_vectors <- doc_vectors[docnames_all %in% selected_docs, , drop = FALSE]
+
+# Compute cosine similarity between selected document vectors.
+doc_similarity <- cosine(t(selected_doc_vectors))
+```
+
+By interpreting this matrix, we can observe whether documents from similar eras or with similar themes cluster together—an indicator that LSA is capturing meaningful structures. For instance, one might expect speeches from presidents in closer periods or from the same political party to exhibit higher similarity than those from vastly different eras or parties.
+
+## Exercises
+
+1. Apply standard LDA to a different corpus (e.g. UK party manifestos or movie reviews). Experiment with varying numbers of topics (k) and evaluate the topics qualitatively based on the most frequent words and quantitatively using semantic coherence and perplexity if these are available in the package used. Select an appropriate k and interpret the main topics found.
+
+2. For the LDA model fitted in Exercise 1, visualise the document-topic distributions for a few selected documents. Which documents have the highest proportions of the most interesting topics? Validate your interpretation by examining the content of these documents. As part of your validation process, calculate and compare the log-likelihood or perplexity for models with different numbers of topics.
+
+3. Create a custom dictionary with seed words relevant to a research question, then apply seeded LDA to a suitable corpus. Interpret the seeded topics and examine the dominant topic assignments per document. If available, compare the resulting top terms and document assignments to those from a standard LDA model on the same corpus as a form of validation.
+
+4. Apply STM to a corpus with rich metadata (e.g. a dataset of news articles containing the date and source or a corpus of speeches containing speaker attributes). Select a set of topics using searchK, carefully evaluating the diagnostic plots. Fit the STM model to the prevalence formula, including relevant metadata. Use estimateEffect() to analyse how the metadata affects the prevalence of specific topics, visualising the results and interpreting the significance of the effects as part of the validation process. Examine the 'labelTopics()' output for qualitative validation of the topics.
+
+5. Apply LSA to a corpus using the textmodel_lsa function. Experiment with different numbers of dimensions (nd). Examine the term and document loadings for a selected number of dimensions, then try to interpret the latent concepts discovered by LSA. Calculate and visualise the cumulative explained variance by the dimensions to help select nd.
+
+6. For your LSA model from Exercise 5, calculate and examine the cosine similarity between a few pairs of selected documents or terms that you expect to be similar or dissimilar based on your knowledge of the corpus. Assess whether the LSA similarity scores align with your expectations to validate the results.
+
+7. Research and implement a method to compute topic coherence (e.g. pointwise mutual information between top words) for an LDA or STM model, in cases where either `searchK` or `labelTopics` do not provide sufficient detail, or where another package is being used. Use this to quantitatively validate your chosen topic models and compare models with different k.

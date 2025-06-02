@@ -1,0 +1,456 @@
+# Scaling Methods{#scaling}
+
+While methods like dictionary analysis help identify themes or sentiments, their dictionary categories are often treated as distinct and not inherently ordered on a scale. If we want to compare texts or place them along a continuum (e.g., a left-right political spectrum, a scale of formality, or a sentiment dimension), we need methods to place documents on a scale. 
+
+In this chapter, we will look at three prominent scaling methods: *Wordscores* [@Laver2003a], *Wordfish* [@Slapin2008a] and *Correspondence Analysis* (specifically Multiple Correspondence Analysis for categorical text data). The first two were initially part of the main `quanteda` package but have since moved to the `quanteda.textmodels` package. Correspondence Analysis, meanwhile, is a dimensionality reduction technique that can position documents and features in a multidimensional space and reveal relationships between them. For this, we will mainly use functions from the `FactoMineR` and `factoextra` packages, but we will also look at the `textmodel_ca` from `quanteda.textmodels`.
+
+## Wordscores
+
+Wordscores is a supervised scaling method that requires a set of *reference texts* for which the position on the scale of interest is already known. These positions are then used to estimate scores for individual words, which are aggregated to estimate the position of new texts (for which the position is unknown) on the same scale. The basic idea is that words that frequently appear in texts with known extreme positions on a scale are likely to indicate that position. For instance, words that frequently appear in texts known to be on the far left of the scale might receive low scores, while words that frequently appear in texts on the far right might receive high scores. The score of a new text is calculated by taking the weighted average of the scores of the words it contains, where the weights are usually the word frequencies.
+
+Here, we aim to position the 2005 manifestos of the five main UK political parties (Labour, Liberal Democrats, Conservatives, Scottish National Party and Plaid Cymru) on a general left-right scale. The 2001 manifestos of the same parties are used as reference texts. We will use external ratings, such as those from the 2002 Chapel Hill Expert Survey [@Bakker2012a] or other expert judgements, to determine their positions on the scale.
+
+First, we load the necessary libraries and the corpus of UK party manifestos provided in `quanteda.corpora`. We then subset the corpus to include only the 2001 and 2005 manifestos of the selected parties. We then create a document feature matrix (DFM) following standard preprocessing steps.
+
+```{r import-wordscores, message=FALSE, warning=FALSE}
+library(quanteda)
+library(quanteda.corpora)
+library(dplyr) # For data manipulation
+library(stringr) # For string manipulation
+library(ggplot2) # For plotting
+
+# Load the UK manifestos corpus
+data(data_corpus_ukmanifestos)
+
+corpus_manifestos <- corpus_subset(data_corpus_ukmanifestos, Year %in% c(2001, 2005))
+corpus_manifestos <- corpus_subset(corpus_manifestos, Party %in% c("Lab", "LD", "Con", "SNP", "PCy"))
+
+# Tokenise the corpus with standard preprocessing
+data_manifestos_tokens <- tokens(
+  corpus_manifestos,
+  what = "word",
+  remove_punct = TRUE,
+  remove_symbols = TRUE,
+  remove_numbers = TRUE,
+  remove_url = TRUE,
+  remove_separators = TRUE,
+  split_hyphens = FALSE,
+  include_docvars = TRUE,
+  padding = FALSE
+)
+
+data_manifestos_tokens <- tokens_tolower(data_manifestos_tokens) 
+data_manifestos_tokens <- tokens_select(data_manifestos_tokens, stopwords("english"), selection = "remove")
+
+data_manifestos_dfm <- dfm(data_manifestos_tokens)
+
+# Print the document names to verify the order
+data_manifestos_dfm@Dimnames$docs
+```
+
+The order of the documents in the DFM is essential for assigning reference scores. We can check this by looking at the document names. Next, we set the known scores (from the 2002 Chapel Hill Expert Survey) for the reference texts (the 2001 manifestos). We set the score to 'NA' for the new texts (the 2005 manifestos). These scores should match the order of the documents in the DFM. Finally, we run the `textmodel_wordscores()` function, providing it with the DFM and the vector of reference scores:
+
+```{r package-textmodels, message=FALSE, warning=FALSE}
+library(quanteda.textmodels)
+
+scores <- c(7.7, 5.2, 3.8, 3.2, 3.0, NA, NA, NA, NA, NA)
+
+# Run the Wordscores model
+ws <- textmodel_wordscores(data_manifestos_dfm, scores)
+
+# Display the summary of the Wordscores model, including word scores
+summary(ws)
+```
+
+The `summary()` output shows the estimated score for each word based on its distribution across the reference texts. These are the "word scores." A text's score is a weighted average of these word scores. Wordscores also calculates a raw score for each text. However, these raw scores are often clustered around the mean. To make the virgin text scores comparable to the reference scale, a *rescaling* step is applied. `predict()` with a `textmodel_wordscores` object performs this rescaling. There are two standard rescaling methods:
+
+1.  **LBG (Laver–Benoit–Garry)** [@Laver2003a]: Rescales the raw scores linearly to match the range of the reference scores.
+2.  **MV (Martin–Vanberg)** [@Martin2008a]: Rescales the raw scores to match the median and variance of the reference scores. This method calculates standard errors and confidence intervals for the estimated text scores.
+
+Here, we apply both rescaling methods using the `predict()` function. We also request standard errors and confidence intervals for the MV rescaling:
+
+```{r wordscores-predict}
+pred_lbg <- predict(ws, rescaling = "lbg")
+print(pred_lbg)
+
+pred_mv <- predict(ws, rescaling = "mv", se.fit = TRUE, interval = "confidence")
+print(pred_mv)
+```
+
+The `predict()` function returns scaled scores for reference and virgin texts. The scores for the reference texts can be used to evaluate how well the Wordscores model recovers the original known positions. The warning "n features in data not used in prediction" indicates that some words in the virgin texts were not present in the reference texts (or vice versa) and, therefore, could not be used in the scoring process. This common problem highlights the importance of vocabulary overlap between reference and novel texts (and is one of the disadvantages of using Wordscores [@Bruinsma2019a]).
+
+Now, we can compare the original reference scores with those predicted by Wordscores for the reference documents to assess the model's performance in recovering the known scores. The Concordance Correlation Coefficient (CCC) developed by @Lin1989a is an appropriate metric for this, as it measures the agreement between two variables by assessing how far the data points deviate from the 45-degree line (which would indicate perfect agreement). We calculate the CCC using the LBG scores for the 2001 manifestos and their original reference scores. We use the `CCC()` function from the `DescTools` package:
+
+```{r wordscores-ccc, tidy=TRUE}
+library(DescTools)
+
+# Create a data frame with original reference scores, and LBG predicted scores for the 2001 manifestos
+# Select the first 5 rows corresponding to the 2001 manifestos based on the dfm order
+
+comparison_data <- data.frame(
+  original_scores = scores[1:5],
+  predicted_lbg = pred_lbg[1:5]
+)
+
+ccc_result <- CCC(comparison_data$original_scores, comparison_data$predicted_lbg, ci = "z-transform", conf.level = 0.95, na.rm = TRUE)
+```
+
+The CCC value indicates the level of agreement. A value closer to 1 indicates greater agreement. The confidence interval provides a range for the true CCC value. We can examine the level of agreement in more detail by plotting the original scores against the predicted scores for the reference texts. Including the 45-degree line (perfect concordance) and a linear regression line (reduced major axis) helps visualise the relationship and identify potential outliers.
+
+```{r ggplot-wordscores-ccc, warning=FALSE, message=FALSE}
+library(ggplot2)
+
+# Calculate the linear model (Reduced Major Axis) for visualisation
+
+lm_line <- lm(comparison_data$original_scores ~ comparison_data$predicted_lbg)
+
+ggplot(comparison_data, aes(x = original_scores, y = predicted_lbg)) +
+  geom_point(size = 3) + # Use slightly larger points
+  scale_x_continuous(name = "Original Reference Scores (2001)", limits = c(0,8)) +
+  scale_y_continuous(name = "Predicted LBG Scores (2001)", limits = c(0,8)) +
+  ggtitle("Original vs. Predicted Scores") +
+  coord_equal(ratio = 1) + # Ensure equal scaling for x and y axes
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "grey") + # 45-degree line
+  geom_abline(intercept = coef(lm_line)[1], slope = coef(lm_line)[2], linetype = "solid", color = "darkblue") + # Linear regression line
+  theme_classic() +
+  labs(caption = paste("CCC =", round(ccc_result$rho.c[1], 2),
+                     "95% CI [", round(ccc_result$rho.c[2], 2), ",",
+                     round(ccc_result$rho.c[3], 2), "]")) # Add CCC to caption
+```
+
+This graph enables us to inspect the level of agreement visually. Points close to the dashed 45-degree line suggest accurate predictions. Deviations from this line show areas where the model struggles to reproduce the original values. Identifying points far from the line (outliers) can help us to diagnose problems, such as a particular reference text whose language does not align well with its assigned score compared to the other texts.
+
+As well as positioning the texts, we can look at the word scores themselves. Plotting word scores can show which words are most strongly associated with different positions on the scale. The `textplot_scale1d()` function from `quanteda.textplots` is useful. We specify `margin = "features"` to plot the word scores and can highlight specific words of interest.
+
+```{r wordscores-textplotscale-features}
+library(quanteda.textplots)
+
+# Plot the distribution of word scores
+textplot_scale1d(
+  ws,
+  margin = "features",
+  highlighted = c("british", "vote", "europe", "taxes", "economy", "immigration") # Highlight relevant words on the plot
+)
+```
+
+The position of words on the scale indicates their estimated ideological leaning based on the reference texts. Words like 'taxes' or 'economy' might be expected to fall towards one end (e.g. left). In contrast, words related to national identity or immigration might be closer to the other (e.g. right), depending on the corpus and the reference scores.
+
+Finally, we can examine the confidence intervals around the estimated text scores, which is particularly important for the virgin texts, as it measures the uncertainty in their estimated positions. The `textplot_scale1d()` function can also plot document scores with confidence intervals when `margin = "documents"` is specified, but this requires the standard errors to be available, which is the case for the MV rescaling method (`pred_mv`):
+
+```{r wordscores-textplotscale-documents}
+textplot_scale1d(pred_mv,
+                 margin = "documents" # Specify that we want to plot document scores
+                 )
+```
+
+The length of the error bars in this graph indicates the width of the confidence interval. Longer error bars indicate greater uncertainty in the estimated position of the document in question. This uncertainty may be due to various factors, such as the number of dictionary words in the document, variability in the scores of these words and the quantity and quality of the reference texts. We can manually create this document scaling plot using `ggplot2` and the results from `pred_mv`. This requires manipulating the data to extract the scores and confidence intervals and document information into a data frame, for which we can use the `dplyr` package:
+
+```{r dplyr-wordscores-textplotscale, warning=FALSE, message=FALSE}
+library(dplyr)
+library(stringr)
+library(tibble)
+
+# Extract predicted fit and standard error
+
+scores_fit <- as.data.frame(pred_mv$fit) %>%
+  rename(fit = 1) # Rename the column to 'fit'
+
+scores_se <- as.data.frame(pred_mv$se.fit) %>%
+  rename(se = 1) # Rename the column to 'se'
+
+# Combine fit and SE data frames and add document metadata
+
+data_textplot <- scores_fit %>%
+  bind_cols(scores_se) %>% # Combine the 'fit' and 'se' data frames side by side
+  rownames_to_column("doc_id") %>% # Convert the row names (which are the document IDs) into a new column named 'doc_id'
+  mutate(
+    lwr = fit - 1.96 * se,
+    # Calculate the lower bound of the 95% confidence interval (assuming normal distribution)
+    upr = fit + 1.96 * se,
+    # Calculate the upper bound of the 95% confidence interval
+    year = factor(str_extract(doc_id, "\\d{4}")),
+    # Extract the year (four digits) from the doc_id and convert to a factor
+    party = str_replace(doc_id, "\\d{4}_", ""),
+    # Remove the year and underscore from the doc_id to get the party name
+    label = factor(paste(party, year), levels = paste(party, year)[order(fit)]) # Create a combined label of party and year, ordered by the 'fit' score for plotting
+  ) %>%
+  select(doc_id, fit, lwr, upr, se, year, party, label) # Select and reorder the columns
+
+head(data_textplot)
+```
+
+Now that we have the data in a convenient format, we can plot the estimated document positions with their confidence intervals using `ggplot2`. Ordering the documents by their estimated score on the y-axis is often helpful for visualisation.
+
+```{r ggplot-wordscores-textplotscale}
+library(ggplot2)
+
+ggplot(data_textplot, aes(x = fit, y = label, colour = year)) +
+  geom_point(size = 3) +
+  scale_x_continuous(name = "Left - Right Score") +
+  geom_errorbarh(aes(xmax = upr, xmin = lwr),
+                 height = 0,
+                 linewidth = 0.8) +
+  theme_classic() +
+  scale_colour_manual(
+    values = c("2001" = "#ffa600", "2005" = "#ff6361"),
+    # Define custom colours for the years 2001 and 2005
+    name = "Years"
+  ) + # Set the title for the colour legend
+  ggtitle("Left-Right Distribution of UK Party Manifestos (Wordscores MV)",
+          subtitle = "with 95% confidence intervals") +
+  theme(
+    plot.title = element_text(size = 14, hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5),
+    legend.position = "top",
+    axis.title.y = element_blank()
+  )
+```
+
+This graph shows the estimated left-right position of each manifesto in 2001 and 2005, as well as the uncertainty of the 2005 estimates. It shows the parties' relative positions and how their estimated values may have changed between the two election years. The width of the confidence intervals indicates which estimates are less specific, potentially because of limited text length or vocabulary overlap with the reference texts.
+
+## Wordfish
+
+Unlike Wordscores, Wordfish is an unsupervised scaling method. It does not require pre-scored reference texts. Instead, it models word frequencies in documents based on a Poisson distribution while simultaneously estimating document positions and word-specific parameters. The model assumes that a word's frequency in a document is related to the document's position on a single latent dimension, the word's overall tendency to occur in the document, and its specific association with the latent dimension.
+
+The output of Wordfish includes
+* $\theta$ (theta): The estimated position of each document on the latent dimension.
+* $\alpha$ (alpha): The estimated intercept for each word, representing its overall frequency.
+* $\beta$ (beta): The estimated weight for each word, representing its association with the latent dimension. Words with large positive beta values are more likely to appear in documents with high theta values, and vice versa for large negative beta values.
+* $\psi$ (psi): A document-specific fixed effect that captures variations in document length.
+
+Wordfish estimates a single latent dimension. The direction of this dimension is arbitrary (e.g. left to right or right to left). We can orient the dimension by specifying two *anchor texts* or by selecting a direction using the `dir` argument in `textmodel_wordfish()`.
+
+Let's apply Wordfish to a corpus of US presidential inaugural speeches. We will use speeches after 1900 and preprocess the texts similarly to the Wordscores example. We could choose speeches from presidents typically considered at opposite ends of a relevant dimension (such as a left-right scale) to orient the scale. For example, we could use the 1965 Johnson and the 1985 Reagan speeches to define the direction, arbitrarily assigning one speech to one end of the scale and the other to the other.
+
+```{r wordfish-setoptions, message = FALSE}
+library(quanteda)
+data(data_corpus_inaugural)
+set.seed(42)
+
+corpus_inaugural <- corpus_subset(data_corpus_inaugural, Year > 1900)
+
+# Tokenise and preprocess the corpus
+data_inaugural_tokens <- tokens(
+ corpus_inaugural,
+ what = "word",
+ remove_punct = TRUE, # Remove punctuation
+ remove_symbols = TRUE, # Remove symbols
+ remove_numbers = TRUE, # Remove numbers
+ remove_url = TRUE, # Remove URLs
+ remove_separators = TRUE, # Remove separators
+ split_hyphens = FALSE, # Do not split hyphenated words
+ include_docvars = TRUE # Include document variables (metadata)
+)
+
+data_inaugural_tokens <- tokens_tolower(data_inaugural_tokens) 
+data_inaugural_tokens <- tokens_select(data_inaugural_tokens, stopwords("english"), selection = "remove")
+
+data_inaugural_dfm <- dfm(data_inaugural_tokens)
+
+# Print document names to identify indices for direction. We needed the order of documents to specify anchor texts by index
+data_inaugural_dfm@Dimnames$docs
+
+# Identify the indices of the anchor documents (1965 Johnson and 1985 Reagan)
+johnson_index <- which(docnames(data_inaugural_dfm) == "1965-Johnson")
+reagan_index <- which(docnames(data_inaugural_dfm) == "1985-Reagan")
+
+wordfish <- textmodel_wordfish(data_inaugural_dfm, dir = c(johnson_index, reagan_index))
+summary(wordfish)
+```
+
+The `summary()` output for a Wordfish model provides information about the model fit and the estimated parameters ($\theta$, $\alpha$, $\beta$, $\psi$). The $\theta$ values are the estimated positions of the documents on the latent dimension. Like Wordscores, we can use the `predict()` function to obtain the estimated document positions with confidence intervals. The estimated position (`theta`) is called the `fit` in the output.
+
+```{r wordfish-predict, message=FALSE, warning=FALSE}
+pred_wordfish <- predict(wordfish, interval = "confidence")
+```
+
+Using the `textplot_scale1d()` function, similar to Wordscores, we can visualise the estimated document positions and the word parameters. Plotting the word parameters (`margin = "features"`) shows which words are associated with which end of the latent dimension.
+
+```{r wordfish-textplot-features, message=FALSE, warning=FALSE}
+library(quanteda.textplots)
+textplot_scale1d(wordfish,
+                 margin = "features", # Plot features (words)
+                 highlighted = c("america", "great", "freedom", "government", "taxes", "people", "world")
+                 )
+```
+
+A word's position on this scale corresponds to its $\beta$ value. Words at one end of the scale are more likely to appear in documents with high $\theta$ values, and words at the other extreme are more likely to appear in documents with low $\theta$ values. How we interpret the scale depends on the words we find at the extremes and any anchor texts used for orientation. Plotting document positions (`margin = "documents"` ) visualises the estimated values of $\theta$.
+
+```{r wordfish-textplot-documents, message=FALSE, warning=FALSE}
+# Plot the distribution of document positions (theta values) with confidence intervals. Theta values are the estimated document scores on the latent dimension.
+textplot_scale1d(wordfish,
+                 margin = "documents" # Plot documents
+                 )
+```
+
+This graph shows the estimated position of each inaugural address on the latent dimension, ordered by year. The confidence intervals indicate the uncertainty of these estimates. Interpreting this dimension requires careful consideration of the anchor texts used and the words that load highly on the dimension (from the word plot). For example, suppose we anchor with a president who is typically considered 'liberal' at one end and 'conservative' at the other, and the word plot shows terms related to social programmes at one end and terms related to individual freedom at the other. In that case, we might interpret this as a left-right political dimension. However, Wordfish can uncover any dominant latent dimension in the text, which may not always conform to preconceived notions such as a simple left-right scale.
+
+Wordfish is a valuable tool for discovering latent dimensions in text data without relying on external scores. Its unsupervised nature can be both a strength (no need for reference data) and a weakness (latent dimension interpretation is not always straightforward and requires careful analysis of word loadings).
+
+## Correspondence Analysis
+
+Correspondence analysis (CA) is a dimensionality reduction technique used to analyse the relationship between categorical variables. In text analysis, it is often applied to document feature matrices (DFM) to explore the associations between documents and words. CA can be considered categorical data (or count data treated as frequencies or proportions) equivalent to Principal Component Analysis (PCA). It simultaneously positions documents and features (words) in a low-dimensional space, where proximity between points indicates association.
+
+* **Simple Correspondence Analysis (SCA)** is applied to a two-way contingency table (like a dfm).
+* **Multiple Correspondence Analysis (MCA)** is an extension used to analyse relationships between more than two categorical variables and is often applied to surveys or questionnaires. While a DFM is inherently a two-way table, MCA can be used by treating the presence or absence of each word in a document as a categorical variable. However, this approach is less common than applying SCA directly to the dfm or using specialised text analysis functions that perform a form of CA.
+
+Here, we look at an example using a dataset where the text has been coded into specific categories, making it suitable for MCA. The example uses data from an article on the stylistic variation in Donald Trump's Twitter data (which we already looked at earlier) between 2009 and 2018 [@Clarke2019a]. In this study, the authors downloaded 21,739 tweets and grouped them into 63 categories over 5 dimensions based on their content. First, we load the packages we need for the Correspondence Analysis:
+
+Although there is a CA function in ``quanteda``, here, we first look at `FactoMineR` and `factoextra`, which allow us several interesting possibilities. `FactoMineR` is renowned for its extensive range of exploratory data analysis functions, including CA and MCA, and it integrates seamlessly with `factoextra` for visualisation. First, we load the necessary packages and the dataset:
+
+```{r packages-factominer, warning=FALSE, message=FALSE}
+library(FactoMineR)
+library(factoextra)
+library(readr)
+library(dplyr)
+```
+
+Then, we import the data, which should contain categorised information about the tweets. As before, you can load the data directly from the URL:
+
+```{r import-trumptweets, message=FALSE, results=FALSE}
+urlfile = "https://raw.githubusercontent.com/SCJBruinsma/qta-files/master/TRUMP_DATA.csv"
+tweets <- read_csv(url(urlfile), show_col_types = FALSE)
+head(tweets)
+```
+
+This dataset contains several variables, including categorisations of the tweets and possibly other metadata. For the MCA, we must select the columns representing the categorical variables we want to analyse (the 63 categories mentioned in the original text). We will also sample a subset of the tweets for faster processing.
+
+```{r sample-trumptweets}
+tweets <- tweets[sample(nrow(tweets), 500), ]
+tweets_mat <- tweets[,2:65] # Select columns 2 through 65, which contain the categorical variables for MCA.
+```
+
+We can then run the Multiple Correspondence Analysis using the `MCA()` function from the `FactoMineR` package. When we provide the data frame containing the categorical variables, we need to specify the number of dimensions (`ncp`) to retain. We can determine this by examining the eigenvalues (similar to a scree plot in PCA) or base ourselves on theoretical considerations. Here, we use 5, as this was the number of dimensions found by @Clarke2019a. In addition, we can include supplementary quantitative variables (`quanti.sup`) or supplementary individuals (`ind.sup`) that do not contribute to the MCA but are projected onto the resulting dimensions. Here, we include 'Tweet.Length' as a supplementary quantitative variable:
+
+```{r mca-trumptweets, results='hide', warning=FALSE}
+mca_tweets <- MCA(tweets_mat, ncp=5, quanti.sup=1, graph = FALSE) # 'ncp=5' specifies keeping 5 dimensions. 'quanti.sup=1' indicates that the first column (Tweet.Length) is a supplementary quantitative variable. 'graph=FALSE' prevents the default plots from being generated immediately.
+```
+
+First, let's look at the association of the supplementary quantitative variable (Tweet Length) with the five dimensions. The MCA output's `quanti.sup` element shows the correlation between the supplementary variable and each dimension.
+
+```{r trumptweets-quanti}
+mca_tweets$quanti.sup # Display the correlations between the supplementary quantitative variable and the MCA dimensions.
+```
+
+As we can see, the 'Tweet.Length' variable strongly correlates with dimension 1. This means that the first dimension primarily captures the variation in the length of tweets rather than different stylistic categories. When interpreting the correspondence between categories and dimensions, it's often advisable to focus on the dimensions that explain the variance in the categorical variables independently of the ancillary variables, such as length. We will, therefore, concentrate our visualisation on dimensions 2 and 3, as we did in the original analysis.
+
+We can visualise the position of the categories on the chosen dimensions using `fviz_mca_var()` from the `factoextra` package. This plot shows the categories in MCA space. Closely related categories are often related, and their position relative to the dimensions indicates their contribution to those dimensions.
+
+```{r trumptweets-fvizvar}
+fviz_mca_var(mca_tweets,
+             repel = TRUE, # Avoid overlapping text labels
+             geom = c("point", "text"), # Display both points and text labels
+             axes = c(2, 3), # Specify that we want to plot Dimensions 2 and 3
+             ggtheme = theme_minimal(),
+             title = "MCA Plot of Tweet Categories (Dimensions 2 & 3)")
+```
+
+This plot illustrates the relationships between the tweet categories based on Dimensions 2 and 3. @Clarke2019a interpreted Dimension 2 as a 'Conversational Style' and Dimension 3 as a 'Campaigning Style'. Thus, categories at the extremes of Dimension 2 indicate conversational style, while those at the extremes of Dimension 3 are associated with campaigning style. Categories near the centre are less distinctive along these dimensions.
+
+To see which categories contribute most to these dimensions or have the most extreme positions, we can examine their coordinates on the dimensions. The `get_mca_var()` function extracts detailed information about the variables (categories), including their coordinates, contributions to the dimensions, and correlations.
+
+```{r trumptweets-coordinates}
+var_info <- get_mca_var(mca_tweets) # Get detailed information about the categories (variables) from the MCA output.
+coordinates <- as.data.frame(var_info$coord) # Extract the coordinates of the categories on each dimension.
+head(coordinates)
+
+# Optionally, order by a specific dimension to see the extremes. This can help interpret the dimensions by identifying the categories most strongly associated with each end.
+
+coordinates_ordered_dim2 <- coordinates %>%
+  arrange(`Dim 2`)
+
+head(coordinates_ordered_dim2) # Display categories with the most negative coordinates on Dim 2
+tail(coordinates_ordered_dim2) # Display categories with the most positive coordinates on Dim 2
+
+coordinates_ordered_dim3 <- coordinates %>%
+  arrange(`Dim 3`)
+
+head(coordinates_ordered_dim3)
+tail(coordinates_ordered_dim3)
+```
+
+Examining the categories with the highest absolute coordinates on Dimensions 2 and 3 provides insight into the characteristics of these stylistic dimensions. For instance, if categories such as 'Use of colloquialisms' or 'Personal anecdotes' have high positive coordinates on Dimension 2, this lends weight to interpreting this dimension as 'Conversational Style'. Similarly, if categories such as 'Policy mentions' or 'Calls to action' have high positive coordinates on Dimension 3, this would support the interpretation of this dimension as 'Campaigning Style'. MCA also enables individuals (or, in this case, tweets) to be plotted in the same space using the `fviz_mca_ind()` function, which can reveal clusters of tweets with similar stylistic features:
+
+```{r trumptweets-fvizind}
+# Plot the position of individual tweets on Dimensions 2 and 3.
+fviz_mca_ind(mca_tweets,
+             geom = "point", # Show points for each tweet
+             axes = c(2, 3), # Plot Dimensions 2 and 3
+             col.ind = "cos2", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), # Color individuals by their quality of representation (cos2) on the dimensions, using a colour gradient
+             repel = FALSE,
+             ggtheme = theme_minimal(),
+             title = "MCA Plot of Individual Tweets (Dimensions 2 & 3)")
+```
+
+Interpreting MCA results is often an iterative and exploratory process that involves examining the position of categories and individuals and potentially using additional variables or external information to understand the meaning of the dimensions. The designers of `FactoMineR` have developed a Shiny app called `Factoshiny` that provides an interactive interface for exploring MCA results that can be very helpful in this process.
+
+```{r trumptweets-factoshiny, eval=FALSE}
+library(Factoshiny)
+
+# Launch the interactive Shiny app for MCA results. This provides a graphical user interface to explore the MCA output interactively
+
+res.shiny <- MCAshiny(mca_tweets) # Use the MCA output object as input.
+```
+
+Ensure you quit the Shiny application by clicking the "Quit the App" button to return to your R session. For more information on Correspondence Analysis and the `FactoMineR` package, see the original article by @Le2008a or the package website.
+
+While `FactoMineR` is excellent for MCA with pre-coded categorical data, the `quanteda.textmodels` package also provides a function, `textmodel_ca()`, designed explicitly for Simple Correspondence Analysis (SCA) on a document-feature matrix (dfm). This is particularly useful when you want to perform CA directly on raw term frequencies in your corpus without prior categorisation. Based on their co-occurrence patterns, SCA on a dfm positions both documents and terms in a low-dimensional space.
+
+Let's apply `textmodel_ca()` to the UK party manifestos dfm we created earlier in the Wordscores section. We will fit an SCA model and then explore the resulting document and feature placements. First, ensure you have loaded the `quanteda.textmodels` package. Then, we can apply the `textmodel_ca()` function to our `data_manifestos_dfm`, for which we must specify the number of dimensions (`nd`) to compute:
+
+```{r ca-textmodelca}
+# Ensure quanteda.textmodels is loaded
+library(quanteda.textmodels)
+
+# We will compute the first 2 dimensions
+ca_model <- textmodel_ca(data_manifestos_dfm, nd = 2)
+ca_model$sv
+```
+
+The output for `textmodel_ca` shows the eigenvalues for the first two dimensions, indicating the amount of variance explained by each dimension. The `ca_model` object also provides the coordinates of both features (terms) and documents on the computed dimensions. Features or documents with similar coordinates are located close together in the CA space, suggesting a strong association based on their co-occurrence patterns. We can access the coordinates of the documents and features directly from the model object for plotting. The document coordinates are stored in `ca_model$rowcoord`, and the feature coordinates are in `ca_model$colcoord`:
+
+```{r ca-textmodelca-coordinates}
+doc_coords <- as.data.frame(ca_model$rowcoord)
+doc_coords$document <- rownames(doc_coords)
+head(doc_coords)
+
+# Extract feature coordinates
+
+feature_coords <- as.data.frame(ca_model$colcoord)
+feature_coords$feature <- rownames(feature_coords)
+head(feature_coords)
+```
+
+Now that we have extracted the coordinates, we can visualise the documents and features in the CA space using `ggplot2`. Plotting both documents and features on the same plot enables us to inspect their relationships directly. Terms located near a document are likely to appear frequently compared to other documents, and documents located near each other tend to use similar vocabulary.
+
+```{r ggplot-textmodelca}
+library(ggplot2)
+
+ggplot() +
+  geom_point(data = doc_coords, aes(x = Dim1, y = Dim2, color = document), size = 3) + 
+  geom_text(data = doc_coords, aes(x = Dim1, y = Dim2, label = document), vjust = 1.5, size = 3) + # Add document labels
+  geom_point(data = feature_coords, aes(x = Dim1, y = Dim2), shape = 3, color = "darkgrey") + 
+geom_vline(xintercept = 0, linetype = "dashed", color = "grey") + # Add vertical line at x=0
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey") + # Add horizontal line at y=0
+  ggtitle("Correspondence Analysis of UK Party Manifestos") +
+scale_x_continuous(name = "Dimension 1") +
+scale_y_continuous(name = "Dimension 2") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+This plot illustrates the relative positions of UK party manifestos and terms extracted from the first two dimensions by SCA. Documents positioned closer together use similar vocabulary, and terms positioned closer to documents are more characteristic of them. The interpretation of the dimensions (e.g. as a left-right scale or another thematic contrast) depends on examining which documents and terms fall at the extremes of each dimension. For instance, if manifestos from left-leaning parties and terms related to social welfare appear at one end of Dimension 1 and manifestos from right-leaning parties and terms related to the economy or security appear at the other, then Dimension 1 probably represents a left-right political spectrum.
+
+## Exercises
+
+1. Apply the Wordscores method to the inaugural speeches corpus (data_corpus_inaugural). Select a set of reference speeches and assign them hypothetical scores based on a dimension of interest (e.g. populism, as defined by external knowledge). Estimate the scores for the remaining speeches and visualise the results. Discuss the estimated positions and the uncertainty around them.
+
+2. Apply the Wordfish method to the corpus of UK party manifestos used in the Wordscores example. Select two manifestos to define the direction of the scale. Interpret the resulting dimension based on the words that load highly on it and the manifestos' positions. Compare the Wordfish results with the Wordscores results.
+
+3. Explore another dataset with categorical text annotations or create a categorised dataset from a text corpus (for example, by coding themes in a small set of documents). Perform Multiple Correspondence Analysis on this data. Interpret the main dimensions based on the categories that contribute most to them. Visualise the categories and/or individuals in the MCA space.
+
+4. Apply Simple Correspondence Analysis to a document-feature matrix of your choice using the `textmodel_ca()` function. Interpret the first two dimensions based on the words and documents located at the extremes. Visualise the results and discuss the relationships revealed by the plot.
+
+5. Use the `textmodel_affinity()` function to compute the affinity matrix for a corpus. Explore the matrix to identify documents with a high affinity to specific documents of interest. Apply a clustering method (e.g. hierarchical clustering) to the affinity matrix and interpret the resulting clusters.
+
+6. Research other scaling methods for text analysis, such as ideal point models or specialised techniques for specific text data types. How do they differ from Wordscores, Wordfish and Correspondence Analysis in terms of their assumptions and applications?

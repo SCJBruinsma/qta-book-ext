@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>10.2 Transitioning to Deep Learning for Text Analysis | Introduction to Quantitative Text Analysis</title>
+  <meta name="description" content="10.2 Transitioning to Deep Learning for Text Analysis | Introduction to Quantitative Text Analysis" />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="10.2 Transitioning to Deep Learning for Text Analysis | Introduction to Quantitative Text Analysis" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="10.2 Transitioning to Deep Learning for Text Analysis | Introduction to Quantitative Text Analysis" />
+  
+  
+  
+
+<meta name="author" content="Kostas Gemenis and Bastiaan Bruinsma" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="recapitulation-of-text-analysis-fundamentals.html"/>
+<link rel="next" href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"/>
+<script src="assets/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="assets/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="assets/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="assets/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="assets/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Introduction to Quantitative Text Analysis</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome!</a></li>
+<li class="chapter" data-level="1" data-path="preliminaries.html"><a href="preliminaries.html"><i class="fa fa-check"></i><b>1</b> Preliminaries</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="installing-r.html"><a href="installing-r.html"><i class="fa fa-check"></i><b>1.1</b> Installing R</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="installing-r.html"><a href="installing-r.html#windows"><i class="fa fa-check"></i><b>1.1.1</b> Windows</a></li>
+<li class="chapter" data-level="1.1.2" data-path="installing-r.html"><a href="installing-r.html#linux"><i class="fa fa-check"></i><b>1.1.2</b> Linux</a></li>
+<li class="chapter" data-level="1.1.3" data-path="installing-r.html"><a href="installing-r.html#macos"><i class="fa fa-check"></i><b>1.1.3</b> macOS</a></li>
+<li class="chapter" data-level="1.1.4" data-path="installing-r.html"><a href="installing-r.html#cloud"><i class="fa fa-check"></i><b>1.1.4</b> Cloud</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="installing-packages.html"><a href="installing-packages.html"><i class="fa fa-check"></i><b>1.2</b> Installing Packages</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="installing-packages.html"><a href="installing-packages.html#cran"><i class="fa fa-check"></i><b>1.2.1</b> CRAN</a></li>
+<li class="chapter" data-level="1.2.2" data-path="installing-packages.html"><a href="installing-packages.html#github"><i class="fa fa-check"></i><b>1.2.2</b> GitHub</a></li>
+<li class="chapter" data-level="1.2.3" data-path="installing-packages.html"><a href="installing-packages.html#writing-packages"><i class="fa fa-check"></i><b>1.2.3</b> Writing Packages</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="required.html"><a href="required.html"><i class="fa fa-check"></i><b>1.3</b> Required Packages</a></li>
+<li class="chapter" data-level="1.4" data-path="troubleshooting.html"><a href="troubleshooting.html"><i class="fa fa-check"></i><b>1.4</b> Troubleshooting</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="background.html"><a href="background.html"><i class="fa fa-check"></i><b>2</b> Background</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="concepts.html"><a href="concepts.html"><i class="fa fa-check"></i><b>2.1</b> Concepts</a></li>
+<li class="chapter" data-level="2.2" data-path="workflow.html"><a href="workflow.html"><i class="fa fa-check"></i><b>2.2</b> Workflow</a></li>
+<li class="chapter" data-level="2.3" data-path="validation.html"><a href="validation.html"><i class="fa fa-check"></i><b>2.3</b> Validation</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="validation.html"><a href="validation.html#validity"><i class="fa fa-check"></i><b>2.3.1</b> Validity</a></li>
+<li class="chapter" data-level="2.3.2" data-path="validation.html"><a href="validation.html#reliability"><i class="fa fa-check"></i><b>2.3.2</b> Reliability</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="import.html"><a href="import.html"><i class="fa fa-check"></i><b>3</b> Text in R</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="basics.html"><a href="basics.html"><i class="fa fa-check"></i><b>3.1</b> Basics</a></li>
+<li class="chapter" data-level="3.2" data-path="import-.html"><a href="import-.html"><i class="fa fa-check"></i><b>3.2</b> Import .txt</a></li>
+<li class="chapter" data-level="3.3" data-path="import-.html"><a href="import-.html#import-.pdf"><i class="fa fa-check"></i><b>3.3</b> Import .pdf</a></li>
+<li class="chapter" data-level="3.4" data-path="import-.html"><a href="import-.html#import-.csv"><i class="fa fa-check"></i><b>3.4</b> Import .csv</a></li>
+<li class="chapter" data-level="3.5" data-path="import-from-an-api.html"><a href="import-from-an-api.html"><i class="fa fa-check"></i><b>3.5</b> Import from an API</a></li>
+<li class="chapter" data-level="3.6" data-path="import-using-web-scraping.html"><a href="import-using-web-scraping.html"><i class="fa fa-check"></i><b>3.6</b> Import using Web Scraping</a></li>
+<li class="chapter" data-level="3.7" data-path="import-json-and-xml.html"><a href="import-json-and-xml.html"><i class="fa fa-check"></i><b>3.7</b> Import JSON and XML</a></li>
+<li class="chapter" data-level="3.8" data-path="import-from-databases.html"><a href="import-from-databases.html"><i class="fa fa-check"></i><b>3.8</b> Import from Databases</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="describe.html"><a href="describe.html"><i class="fa fa-check"></i><b>4</b> Describe</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="corpus-and-dfm.html"><a href="corpus-and-dfm.html"><i class="fa fa-check"></i><b>4.1</b> Corpus and DFM</a></li>
+<li class="chapter" data-level="4.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html"><i class="fa fa-check"></i><b>4.2</b> Text Pre-processing</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="text-pre-processing.html"><a href="text-pre-processing.html#tokenisation-and-initial-cleaning"><i class="fa fa-check"></i><b>4.2.1</b> Tokenisation and Initial Cleaning</a></li>
+<li class="chapter" data-level="4.2.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html#lower-casing"><i class="fa fa-check"></i><b>4.2.2</b> Lower-casing</a></li>
+<li class="chapter" data-level="4.2.3" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stopword-removal"><i class="fa fa-check"></i><b>4.2.3</b> Stopword Removal</a></li>
+<li class="chapter" data-level="4.2.4" data-path="text-pre-processing.html"><a href="text-pre-processing.html#n-grams-and-collocations"><i class="fa fa-check"></i><b>4.2.4</b> N-grams and Collocations</a></li>
+<li class="chapter" data-level="4.2.5" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stemming-and-lemmatisation"><i class="fa fa-check"></i><b>4.2.5</b> Stemming and Lemmatisation</a></li>
+<li class="chapter" data-level="4.2.6" data-path="text-pre-processing.html"><a href="text-pre-processing.html#removing-sparse-features-dfm-trimming"><i class="fa fa-check"></i><b>4.2.6</b> Removing Sparse Features (DFM Trimming)</a></li>
+<li class="chapter" data-level="4.2.7" data-path="text-pre-processing.html"><a href="text-pre-processing.html#additional-pre-processing"><i class="fa fa-check"></i><b>4.2.7</b> Additional Pre-Processing</a></li>
+<li class="chapter" data-level="4.2.8" data-path="text-pre-processing.html"><a href="text-pre-processing.html#evaluating-pre-processing"><i class="fa fa-check"></i><b>4.2.8</b> Evaluating Pre-Processing</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="descriptives-and-visualisations.html"><a href="descriptives-and-visualisations.html"><i class="fa fa-check"></i><b>4.3</b> Descriptives and Visualisations</a></li>
+<li class="chapter" data-level="4.4" data-path="text-statistics.html"><a href="text-statistics.html"><i class="fa fa-check"></i><b>4.4</b> Text Statistics</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="text-statistics.html"><a href="text-statistics.html#summary"><i class="fa fa-check"></i><b>4.4.1</b> Summary</a></li>
+<li class="chapter" data-level="4.4.2" data-path="text-statistics.html"><a href="text-statistics.html#frequencies"><i class="fa fa-check"></i><b>4.4.2</b> Frequencies</a></li>
+<li class="chapter" data-level="4.4.3" data-path="text-statistics.html"><a href="text-statistics.html#lexical-diversity"><i class="fa fa-check"></i><b>4.4.3</b> Lexical diversity</a></li>
+<li class="chapter" data-level="4.4.4" data-path="text-statistics.html"><a href="text-statistics.html#readability"><i class="fa fa-check"></i><b>4.4.4</b> Readability</a></li>
+<li class="chapter" data-level="4.4.5" data-path="text-statistics.html"><a href="text-statistics.html#similarity-and-distance"><i class="fa fa-check"></i><b>4.4.5</b> Similarity and Distance</a></li>
+<li class="chapter" data-level="4.4.6" data-path="text-statistics.html"><a href="text-statistics.html#keyness"><i class="fa fa-check"></i><b>4.4.6</b> Keyness</a></li>
+<li class="chapter" data-level="4.4.7" data-path="text-statistics.html"><a href="text-statistics.html#entropy"><i class="fa fa-check"></i><b>4.4.7</b> Entropy</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="exercises.html"><a href="exercises.html"><i class="fa fa-check"></i><b>4.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="dictionary-analysis.html"><a href="dictionary-analysis.html"><i class="fa fa-check"></i><b>5</b> Dictionary Analysis</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="classical-dictionary-analysis.html"><a href="classical-dictionary-analysis.html"><i class="fa fa-check"></i><b>5.1</b> Classical Dictionary Analysis</a></li>
+<li class="chapter" data-level="5.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html"><i class="fa fa-check"></i><b>5.2</b> Sentiment Analysis</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#movie-reviews"><i class="fa fa-check"></i><b>5.2.1</b> Movie Reviews</a></li>
+<li class="chapter" data-level="5.2.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#twitter"><i class="fa fa-check"></i><b>5.2.2</b> Twitter</a></li>
+<li class="chapter" data-level="5.2.3" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#vader"><i class="fa fa-check"></i><b>5.2.3</b> VADER</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="exercises-1.html"><a href="exercises-1.html"><i class="fa fa-check"></i><b>5.3</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="scaling.html"><a href="scaling.html"><i class="fa fa-check"></i><b>6</b> Scaling Methods</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="wordscores.html"><a href="wordscores.html"><i class="fa fa-check"></i><b>6.1</b> Wordscores</a></li>
+<li class="chapter" data-level="6.2" data-path="wordfish.html"><a href="wordfish.html"><i class="fa fa-check"></i><b>6.2</b> Wordfish</a></li>
+<li class="chapter" data-level="6.3" data-path="correspondence-analysis.html"><a href="correspondence-analysis.html"><i class="fa fa-check"></i><b>6.3</b> Correspondence Analysis</a></li>
+<li class="chapter" data-level="6.4" data-path="exercises-2.html"><a href="exercises-2.html"><i class="fa fa-check"></i><b>6.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="supervised-methods.html"><a href="supervised-methods.html"><i class="fa fa-check"></i><b>7</b> Supervised Methods</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="support-vector-machines-svm.html"><a href="support-vector-machines-svm.html"><i class="fa fa-check"></i><b>7.1</b> Support Vector Machines (SVM)</a></li>
+<li class="chapter" data-level="7.2" data-path="logistic-regression.html"><a href="logistic-regression.html"><i class="fa fa-check"></i><b>7.2</b> Logistic Regression</a></li>
+<li class="chapter" data-level="7.3" data-path="naive-bayes-nb.html"><a href="naive-bayes-nb.html"><i class="fa fa-check"></i><b>7.3</b> Naive Bayes (NB)</a></li>
+<li class="chapter" data-level="7.4" data-path="exercises-3.html"><a href="exercises-3.html"><i class="fa fa-check"></i><b>7.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="unsupervised-methods.html"><a href="unsupervised-methods.html"><i class="fa fa-check"></i><b>8</b> Unsupervised Methods</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="latent-dirichlet-allocation-lda.html"><a href="latent-dirichlet-allocation-lda.html"><i class="fa fa-check"></i><b>8.1</b> Latent Dirichlet Allocation (LDA)</a></li>
+<li class="chapter" data-level="8.2" data-path="seeded-latent-dirichlet-allocation-slda.html"><a href="seeded-latent-dirichlet-allocation-slda.html"><i class="fa fa-check"></i><b>8.2</b> Seeded Latent Dirichlet Allocation (sLDA)</a></li>
+<li class="chapter" data-level="8.3" data-path="structural-topic-model-stm.html"><a href="structural-topic-model-stm.html"><i class="fa fa-check"></i><b>8.3</b> Structural Topic Model (STM)</a></li>
+<li class="chapter" data-level="8.4" data-path="latent-semantic-analysis-lsa.html"><a href="latent-semantic-analysis-lsa.html"><i class="fa fa-check"></i><b>8.4</b> Latent Semantic Analysis (LSA)</a></li>
+<li class="chapter" data-level="8.5" data-path="exercises-4.html"><a href="exercises-4.html"><i class="fa fa-check"></i><b>8.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="day1-intro-fundamentals.html"><a href="day1-intro-fundamentals.html"><i class="fa fa-check"></i><b>9</b> Advanced Quantitative Text Analysis: Day 1: Introduction &amp; Fundamentals</a></li>
+<li class="chapter" data-level="10" data-path="day1-intro-fundamentals.html"><a href="day1-intro-fundamentals.html#day1-intro-fundamentals"><i class="fa fa-check"></i><b>10</b> Advanced Quantitative Text Analysis: Day 1: Introduction &amp; Fundamentals</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="recapitulation-of-text-analysis-fundamentals.html"><a href="recapitulation-of-text-analysis-fundamentals.html"><i class="fa fa-check"></i><b>10.1</b> Recapitulation of Text Analysis Fundamentals</a>
+<ul>
+<li class="chapter" data-level="10.1.1" data-path="recapitulation-of-text-analysis-fundamentals.html"><a href="recapitulation-of-text-analysis-fundamentals.html#the-role-of-manual-coding"><i class="fa fa-check"></i><b>10.1.1</b> The Role of Manual Coding</a></li>
+<li class="chapter" data-level="10.1.2" data-path="recapitulation-of-text-analysis-fundamentals.html"><a href="recapitulation-of-text-analysis-fundamentals.html#dictionary-based-methods"><i class="fa fa-check"></i><b>10.1.2</b> Dictionary-Based Methods</a></li>
+<li class="chapter" data-level="10.1.3" data-path="recapitulation-of-text-analysis-fundamentals.html"><a href="recapitulation-of-text-analysis-fundamentals.html#supervised-machine-learning-for-text-classification"><i class="fa fa-check"></i><b>10.1.3</b> Supervised Machine Learning for Text Classification</a></li>
+<li class="chapter" data-level="10.1.4" data-path="recapitulation-of-text-analysis-fundamentals.html"><a href="recapitulation-of-text-analysis-fundamentals.html#unsupervised-learning-for-topic-discovery"><i class="fa fa-check"></i><b>10.1.4</b> Unsupervised Learning for Topic Discovery</a></li>
+</ul></li>
+<li class="chapter" data-level="10.2" data-path="transitioning-to-deep-learning-for-text-analysis.html"><a href="transitioning-to-deep-learning-for-text-analysis.html"><i class="fa fa-check"></i><b>10.2</b> Transitioning to Deep Learning for Text Analysis</a>
+<ul>
+<li class="chapter" data-level="10.2.1" data-path="transitioning-to-deep-learning-for-text-analysis.html"><a href="transitioning-to-deep-learning-for-text-analysis.html#neural-networks-core-components"><i class="fa fa-check"></i><b>10.2.1</b> Neural Networks: Core Components</a></li>
+<li class="chapter" data-level="10.2.2" data-path="transitioning-to-deep-learning-for-text-analysis.html"><a href="transitioning-to-deep-learning-for-text-analysis.html#representing-words-word-embeddings"><i class="fa fa-check"></i><b>10.2.2</b> Representing Words: Word Embeddings</a></li>
+<li class="chapter" data-level="10.2.3" data-path="transitioning-to-deep-learning-for-text-analysis.html"><a href="transitioning-to-deep-learning-for-text-analysis.html#handling-sequences-recurrent-neural-networks-rnns"><i class="fa fa-check"></i><b>10.2.3</b> Handling Sequences: Recurrent Neural Networks (RNNs)</a></li>
+<li class="chapter" data-level="10.2.4" data-path="transitioning-to-deep-learning-for-text-analysis.html"><a href="transitioning-to-deep-learning-for-text-analysis.html#advanced-architectures-transformers-and-attention"><i class="fa fa-check"></i><b>10.2.4</b> Advanced Architectures: Transformers and Attention</a></li>
+<li class="chapter" data-level="10.2.5" data-path="transitioning-to-deep-learning-for-text-analysis.html"><a href="transitioning-to-deep-learning-for-text-analysis.html#evaluating-deep-learning-advantages-and-challenges"><i class="fa fa-check"></i><b>10.2.5</b> Evaluating Deep Learning: Advantages and Challenges</a></li>
+</ul></li>
+<li class="chapter" data-level="10.3" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><i class="fa fa-check"></i><b>10.3</b> Practical Exercise: Basic Text Classification with Deep Learning in Python</a>
+<ul>
+<li class="chapter" data-level="10.3.1" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html#setup-importing-libraries"><i class="fa fa-check"></i><b>10.3.1</b> 1. Setup: Importing Libraries</a></li>
+<li class="chapter" data-level="10.3.2" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html#load-data-imdb-movie-reviews"><i class="fa fa-check"></i><b>10.3.2</b> 2. Load Data: IMDB Movie Reviews</a></li>
+<li class="chapter" data-level="10.3.3" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html#preprocessing-padding-sequences"><i class="fa fa-check"></i><b>10.3.3</b> 3. Preprocessing: Padding Sequences</a></li>
+<li class="chapter" data-level="10.3.4" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html#build-the-model"><i class="fa fa-check"></i><b>10.3.4</b> 4. Build the Model</a></li>
+<li class="chapter" data-level="10.3.5" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html#compile-the-model"><i class="fa fa-check"></i><b>10.3.5</b> 5. Compile the Model</a></li>
+<li class="chapter" data-level="10.3.6" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html#train-the-model"><i class="fa fa-check"></i><b>10.3.6</b> 6. Train the Model</a></li>
+<li class="chapter" data-level="10.3.7" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html#evaluate-the-model"><i class="fa fa-check"></i><b>10.3.7</b> 7. Evaluate the Model</a></li>
+<li class="chapter" data-level="10.3.8" data-path="practical-exercise-basic-text-classification-with-deep-learning-in-python.html"><a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html#discussion-next-steps"><i class="fa fa-check"></i><b>10.3.8</b> 8. Discussion &amp; Next Steps</a></li>
+</ul></li>
+<li class="chapter" data-level="10.4" data-path="exercises-and-further-exploration.html"><a href="exercises-and-further-exploration.html"><i class="fa fa-check"></i><b>10.4</b> Exercises and Further Exploration</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="bastiaan.bruinsma@gmail.com" target="blank">Bastiaan Bruinsma</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to Quantitative Text Analysis</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="transitioning-to-deep-learning-for-text-analysis" class="section level2 hasAnchor" number="10.2">
+<h2><span class="header-section-number">10.2</span> Transitioning to Deep Learning for Text Analysis<a href="transitioning-to-deep-learning-for-text-analysis.html#transitioning-to-deep-learning-for-text-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>While traditional methods offer valuable tools for text analysis, they often face limitations. These include difficulty in capturing nuance and subtle meanings in text, struggling with contextual understanding (such as sarcasm or irony), having a limited capacity to grasp complex relationships between words and ideas, and the possibility that pre-defined categories in supervised learning might miss unexpected or emergent patterns[cite: 40]. Furthermore, many traditional approaches require significant manual effort, for instance, in creating dictionaries or engineering features for machine learning models[cite: 40]. These challenges motivate the exploration of more advanced techniques like deep learning.</p>
+<p>Deep learning, a subfield of machine learning (ML), focuses on algorithms inspired by the structure and function of the human brain, known as Artificial Neural Networks (ANNs)[cite: 41]. The term “deep” signifies the use of multiple layers within these networks, enabling them to learn complex patterns and hierarchical features from data[cite: 42]. This hierarchical learning can be analogized to features being learned in stages: an initial layer might detect simple patterns (e.g., specific words in text or edges in an image)[cite: 43], a subsequent layer could combine these to identify more complex patterns (like common phrases or shapes)[cite: 44], and deeper layers can then integrate these to recognize abstract concepts (such as topics, sentiment, or objects)[cite: 45].</p>
+<p>In the social sciences, deep learning offers compelling advantages, particularly for analyzing unstructured data like text from survey responses, social media, news articles, or political manifestos, and even image/video data from protest photos or satellite imagery[cite: 46]. Human behavior and social phenomena are rarely linear, and deep learning excels at modeling such complex non-linear relationships between variables[cite: 46]. A significant benefit is its capacity for <strong>feature learning</strong>, where the model automatically discovers relevant features from raw data, thereby reducing the need for extensive manual feature engineering—though domain knowledge remains crucial for interpretation and model design[cite: 46]. Deep learning models can also scale to predict social phenomena based on diverse and large data sources[cite: 46].</p>
+<p>The “deep” aspect refers to the multiple layers of processing[cite: 47]. Each layer learns to recognize different features of the data, building understanding incrementally[cite: 47]. This is analogous to how humans process text: from characters to words, then phrases, sentences, and finally to overall meaning[cite: 53]. Figure <a href="transitioning-to-deep-learning-for-text-analysis.html#fig:deep-layers-para">10.3</a> illustrates this layered abstraction.</p>
+<div class="figure"><span style="display:block;" id="fig:deep-layers-para"></span>
+&lt;img src=“Introduction-to-Quantitative-Text-Analysis_files/figure-html/deep-layers-para-1.png” alt=“The”Deep” in Deep Learning: Layers of Feature Abstraction, from raw text input through simple and complex features to abstract concepts and finally meaning or category. [cite: 48, 49, 50, 51, 52, 53]” width=“100%” /&gt;
+<p class="caption">
+Figure 10.3: The “Deep” in Deep Learning: Layers of Feature Abstraction, from raw text input through simple and complex features to abstract concepts and finally meaning or category. [cite: 48, 49, 50, 51, 52, 53]
+</p>
+</div>
+<div id="neural-networks-core-components" class="section level3 hasAnchor" number="10.2.1">
+<h3><span class="header-section-number">10.2.1</span> Neural Networks: Core Components<a href="transitioning-to-deep-learning-for-text-analysis.html#neural-networks-core-components" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Neural networks are constructed from basic units called “neurons” or “nodes”[cite: 54]. Each neuron receives one or more inputs, performs a simple computation, and then produces an output[cite: 54]. This structure is inspired by biological neurons but is fundamentally a simplified mathematical model[cite: 59]. Figure <a href="transitioning-to-deep-learning-for-text-analysis.html#fig:basic-neuron-para">10.4</a> shows a schematic of a single neuron.</p>
+<div class="figure"><span style="display:block;" id="fig:basic-neuron-para"></span>
+<img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/basic-neuron-para-1.png" alt="Basic Neuron Structure, receiving multiple inputs and producing an output. [cite: 54, 55, 56, 57, 58]" width="60%" />
+<p class="caption">
+Figure 10.4: Basic Neuron Structure, receiving multiple inputs and producing an output. [cite: 54, 55, 56, 57, 58]
+</p>
+</div>
+<p>These neurons are organized into layers[cite: 60]. An <strong>Input Layer</strong> receives the raw data, such as the words in a text[cite: 61]. <strong>Hidden Layers</strong> then process this data through multiple computational steps; these are central to the “deep” aspect of deep learning[cite: 62]. Finally, an <strong>Output Layer</strong> produces the model’s result, for instance, a sentiment classification or a topic label[cite: 63]. Figure <a href="transitioning-to-deep-learning-for-text-analysis.html#fig:simple-nn-para">10.5</a> depicts a simple network with input, hidden, and output layers.</p>
+<div class="figure"><span style="display:block;" id="fig:simple-nn-para"></span>
+<img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/simple-nn-para-1.png" alt="A Simple Multi-Layer Neural Network, showing an input layer, two hidden layers, and an output layer, with full connectivity between adjacent layers. [cite: 64, 65, 66, 67, 68, 69, 70]" width="80%" />
+<p class="caption">
+Figure 10.5: A Simple Multi-Layer Neural Network, showing an input layer, two hidden layers, and an output layer, with full connectivity between adjacent layers. [cite: 64, 65, 66, 67, 68, 69, 70]
+</p>
+</div>
+<p>The connections between neurons are associated with numerical values called <em>weights</em>[cite: 71]. These weights are fundamental as they determine the influence one neuron’s output has on another’s input[cite: 71]. The process of learning in a neural network is essentially the adjustment of these weights to improve performance[cite: 71]. One can think of these weights as representing the <strong>strength</strong> of the connection between neurons[cite: 71, 73].</p>
+<p>Learning occurs by training the network with a dataset containing examples and their corresponding correct labels[cite: 74]. The network makes predictions based on its current weights, compares these predictions to the true answers to calculate an “error,” and then slightly adjusts its weights to reduce this error[cite: 74]. This iterative process is repeated many times. For instance, if a network predicts a tweet like “Tax cuts for the rich are absurd. The gap is growing!” as being about ‘Policy’ when the correct label is ‘Concern’, it will adjust its weights to make ‘Concern’ a more likely prediction for similar tweets in the future[cite: 75, 74]. Figure <a href="transitioning-to-deep-learning-for-text-analysis.html#fig:learning-process-para">10.6</a> schematizes this iterative learning loop involving forward pass, error computation, and weight adjustment (backpropagation).</p>
+<div class="figure"><span style="display:block;" id="fig:learning-process-para"></span>
+<img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/learning-process-para-1.png" alt="The Learning Process in a Neural Network, illustrating the cycle of input, forward pass through the network, prediction, error computation against true labels, and weight adjustment via backpropagation. [cite: 76, 77, 78, 79, 80]" width="100%" />
+<p class="caption">
+Figure 10.6: The Learning Process in a Neural Network, illustrating the cycle of input, forward pass through the network, prediction, error computation against true labels, and weight adjustment via backpropagation. [cite: 76, 77, 78, 79, 80]
+</p>
+</div>
+</div>
+<div id="representing-words-word-embeddings" class="section level3 hasAnchor" number="10.2.2">
+<h3><span class="header-section-number">10.2.2</span> Representing Words: Word Embeddings<a href="transitioning-to-deep-learning-for-text-analysis.html#representing-words-word-embeddings" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Since computers do not understand words directly, words must be converted into a numerical format[cite: 81]. Deep learning models predominantly use <strong>Word Embeddings</strong> for this purpose, where words are represented as dense vectors—lists of numbers[cite: 81, 82, 83]. Figure <a href="transitioning-to-deep-learning-for-text-analysis.html#fig:word-embedding-vector-para">10.7</a> shows a word being mapped to such a vector.</p>
+<div class="figure"><span style="display:block;" id="fig:word-embedding-vector-para"></span>
+&lt;img src=“Introduction-to-Quantitative-Text-Analysis_files/figure-html/word-embedding-vector-para-1.png” alt=“A Word (e.g.,”equality”) being represented as a numerical vector through an embedding process. [cite: 81, 82, 83]” width=“70%” /&gt;
+<p class="caption">
+Figure 10.7: A Word (e.g., “equality”) being represented as a numerical vector through an embedding process. [cite: 81, 82, 83]
+</p>
+</div>
+<p>A key characteristic of effective word embeddings is that words with similar meanings are positioned closer to each other in the resulting multi-dimensional vector space[cite: 84]. This spatial arrangement allows the model to understand synonyms, related concepts, and even analogies, such as the classic “Man is to King as Woman is to Queen” relationship, which can be represented by vector arithmetic (e.g., vector(King) - vector(Man) + vector(Woman) <span class="math inline">\(\approx\)</span> vector(Queen))[cite: 84, 85, 86, 88, 89]. Figure <a href="transitioning-to-deep-learning-for-text-analysis.html#fig:embedding-space-para">10.8</a> provides a simplified 2D illustration of this concept.</p>
+<div class="figure"><span style="display:block;" id="fig:embedding-space-para"></span>
+<img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/embedding-space-para-1.png" alt="A simplified 2D word embedding space where semantically similar words (e.g., King/Queen, Man/Woman, Cat/Dog) are located near each other. Dashed arrows illustrate relational similarities. [cite: 84, 85, 86, 87, 88, 89]" width="70%" />
+<p class="caption">
+Figure 10.8: A simplified 2D word embedding space where semantically similar words (e.g., King/Queen, Man/Woman, Cat/Dog) are located near each other. Dashed arrows illustrate relational similarities. [cite: 84, 85, 86, 87, 88, 89]
+</p>
+</div>
+<p>The utility of word embeddings in social science research is increasingly recognized, with studies applying them to analyze ideological placement in parliamentary corpora, track the changing meanings of political concepts over time, investigate shifts in communication styles in political discourse, and provide guidance on their effective use in applied research[cite: 90].</p>
+</div>
+<div id="handling-sequences-recurrent-neural-networks-rnns" class="section level3 hasAnchor" number="10.2.3">
+<h3><span class="header-section-number">10.2.3</span> Handling Sequences: Recurrent Neural Networks (RNNs)<a href="transitioning-to-deep-learning-for-text-analysis.html#handling-sequences-recurrent-neural-networks-rnns" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>A significant challenge with simpler models like bag-of-words is their disregard for word order, yet the meaning of text heavily depends on the sequence of words (e.g., “High taxes stifle opportunity” vs. “Opportunity stifled by high taxes”)[cite: 91]. Recurrent Neural Networks (RNNs) are specifically designed to handle such sequential data[cite: 91]. They possess a form of <em>memory</em>, allowing information from previous words in a sequence to influence the processing of subsequent words[cite: 91, 99]. RNNs process words one by one, maintaining a state or “memory” that carries forward contextual information[cite: 91, 98, 99]. Figure <a href="transitioning-to-deep-learning-for-text-analysis.html#fig:rnn-diagram-para">10.9</a> shows how an RNN processes a sequence of words, with memory passed between units.</p>
+<p>However, basic RNNs can encounter difficulties, particularly with remembering information over very long sequences (the vanishing gradient problem) and capturing dependencies between words that are far apart in a sentence or document[cite: 92].</p>
+<div class="figure"><span style="display:block;" id="fig:rnn-diagram-para"></span>
+<img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/rnn-diagram-para-1.png" alt="Recurrent Neural Network (RNN) processing a sequence of words (Word 1 to Word N). Each RNN unit processes a word and passes its memory state to the next unit, allowing information to flow through the sequence. [cite: 93, 94, 95, 96, 97, 98, 99, 100]" width="100%" />
+<p class="caption">
+Figure 10.9: Recurrent Neural Network (RNN) processing a sequence of words (Word 1 to Word N). Each RNN unit processes a word and passes its memory state to the next unit, allowing information to flow through the sequence. [cite: 93, 94, 95, 96, 97, 98, 99, 100]
+</p>
+</div>
+</div>
+<div id="advanced-architectures-transformers-and-attention" class="section level3 hasAnchor" number="10.2.4">
+<h3><span class="header-section-number">10.2.4</span> Advanced Architectures: Transformers and Attention<a href="transitioning-to-deep-learning-for-text-analysis.html#advanced-architectures-transformers-and-attention" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>To address some limitations of RNNs and further improve performance on complex NLP tasks, Transformer models were introduced, with the key innovative idea being the <strong>Attention</strong> mechanism[cite: 101]. Attention allows the model to weigh the importance of different words in the input text when processing information, rather than relying solely on sequential processing or fixed-length context windows[cite: 101]. This is analogous to how humans, when reading a sentence, quickly identify and focus on the most important words to understand the overall meaning[cite: 101]. For example, when classifying the sentiment of “This system is utterly unfair,” an attention mechanism can help the network strongly link “unfair” and “utterly” to “system,” thereby achieving a better contextual understanding for classification[cite: 102, 103, 104, 105, 106, 107]. Figure <a href="transitioning-to-deep-learning-for-text-analysis.html#fig:attention-mechanism-para">10.10</a> illustrates this concept of words attending to other relevant words.</p>
+<div class="figure"><span style="display:block;" id="fig:attention-mechanism-para"></span>
+&lt;img src=“Introduction-to-Quantitative-Text-Analysis_files/figure-html/attention-mechanism-para-1.png” alt=“Conceptual illustration of an Attention Mechanism, where words like”system”, “utterly”, and “This” attend to the word “unfair” to understand its context and impact. [cite: 102, 103, 104, 105, 106]” width=“80%” /&gt;
+<p class="caption">
+Figure 10.10: Conceptual illustration of an Attention Mechanism, where words like “system”, “utterly”, and “This” attend to the word “unfair” to understand its context and impact. [cite: 102, 103, 104, 105, 106]
+</p>
+</div>
+<p>The seminal paper “Attention Is All You Need” by Vaswani et al. (2017) introduced the Transformer architecture, which relies heavily on attention mechanisms and has become foundational for many state-of-the-art NLP models.</p>
+<pre><code>## Placeholder for image: figures/transfomers.png</code></pre>
+<p>The development of NLP techniques, from early rule-based systems to modern deep learning architectures, represents a significant evolution in how machines process and understand human language.</p>
+<pre><code>## Placeholder for image: figures/timeline.png</code></pre>
+</div>
+<div id="evaluating-deep-learning-advantages-and-challenges" class="section level3 hasAnchor" number="10.2.5">
+<h3><span class="header-section-number">10.2.5</span> Evaluating Deep Learning: Advantages and Challenges<a href="transitioning-to-deep-learning-for-text-analysis.html#evaluating-deep-learning-advantages-and-challenges" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Deep learning models offer several advantages for text analysis. They can discover <strong>latent concepts</strong>, uncovering hidden themes and meanings within text that might not be apparent through other methods[cite: 108]. Their ability to model <strong>complexity</strong> allows them to uncover subtle patterns and interactions in large, unstructured text datasets[cite: 108]. These <strong>capabilities</strong> mean they can analyze sentiment, emotion, ideology, framing, and narratives in a more nuanced manner than traditional techniques and can learn highly complex, non-linear relationships in data[cite: 108]. Furthermore, deep learning often <strong>automates feature extraction</strong>, reducing the need for extensive manual feature engineering[cite: 108].</p>
+<p>Despite these strengths, deep learning also presents challenges. Models can act as a <strong>“black box,”</strong> making their decision-making processes difficult to interpret and understand[cite: 109]. They typically require <strong>large amounts of data</strong> for effective training[cite: 109]. The <strong>cost</strong> associated with training deep models can be substantial, requiring significant computing resources and time[cite: 109]. A critical concern is <strong>bias</strong>, as models can learn and even amplify biases present in the training data[cite: 109]. Finally, implementing and fine-tuning these models effectively often requires considerable technical expertise[cite: 109].</p>
+<hr />
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="recapitulation-of-text-analysis-fundamentals.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="practical-exercise-basic-text-classification-with-deep-learning-in-python.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="assets/gitbook-2.6.7/js/app.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="assets/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["Introduction to Quantitative Text Analysis.pdf", "Introduction to Quantitative Text Analysis.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  },
+  "toolbar": {
+    "position": "static"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

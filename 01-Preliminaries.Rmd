@@ -1,0 +1,272 @@
+# Preliminaries {#preliminaries}
+
+As all the analyses in this book will be carried out using R, this chapter will discuss what R is, how to install it and which packages are required. If you already have a functioning R environment on your system, you can safely skip this chapter, though be sure to check Section \@ref(required) to ensure that you have all the necessary packages.
+
+## Installing R
+
+**R** is free, open-source, maintained by a large [community](https://cran.r-project.org/), available for all major operating systems, including Windows, macOS, and Linux, and receives regular updates. In its most basic form, it runs in a simple command-line interface (CLI) that, while functional, can be less than intuitive. As a result, integrated development environments (IDEs) are popular, providing a graphical interface with helpful features such as code highlighting, auto-completion, built-in help, plotting windows, and file management. Several IDEs are available for R, including [Jupyter](https://jupyter.org/) (popular for notebooks), [R Commander](https://socialsciences.mcmaster.ca/jfox/Misc/Rcmdr/), and [RStudio](https://posit.co/products/rstudio/), the latter being the most popular and the one we recommend you use. In fact, we wrote this book with RStudio in mind, and wrote the book using it.
+
+The way you install R and RStudio depends on your system. Note that these instructions may change in the future (especially when it comes to dependencies).
+
+### Windows
+
+**Install R:**
+
+-   Go to the [CRAN download](https://cran.r-project.org/bin/windows/base/) page for Windows.
+-   Click the link to download the latest version of R.
+-   Run the downloaded `.exe` installer file.
+-   Accept the default installation settings regarding components and the destination folder, as this makes it easier for other programs (like RStudio) to find R. Modern R installers for Windows are 64-bit versions (as most modern Windows systems are 64-bit). If you want a 32-bit version, R Version 4.2.0 is the last that supported it, which you can download from the page containing all the [previous releases](https://cran.r-project.org/bin/windows/base/old/).
+
+**Install RStudio:**
+
+-   Go to the [RStudio Desktop](https://posit.co/download/rstudio-desktop/) download page.
+-   Scroll down to the *Installers for Supported Platforms* section.
+-   Download the version for Windows.
+-   Run the downloaded `.exe` installer file. Again, it is best to accept the default installation settings. RStudio should automatically detect your R installation.
+
+**A Note on File Paths in Windows:** Unlike Windows, which uses backslashes (`\`) in file paths (e.g., `C:\Users\Documents\data.csv`), R (like most Unix systems) uses forward slashes (`/`) (e.g., `C:/Users/Documents/data.csv`). Remember to use forward slashes when specifying file paths within R code, regardless of how they appear in your Windows file explorer.
+
+### Linux
+
+**Install R:**
+
+In most cases, R is already part of your Linux distribution. You can check this by opening a terminal and typing `R`, which will launch it in the terminal if installed. If R is not part of your system, you can install it using your distribution's package manager (such as APT or snap). However, the version of R in these default repositories may not be the latest. To get the latest version (recommended for compatibility with the latest packages), it's often best to add the official CRAN repository to your system's update sources (see [here](https://cran.r-project.org/bin/linux/ubuntu/fullREADME.html) for detailed instructions on how to do so). Alternatively, if you prefer a GUI, you can use the Synaptic Package Manager and look for the `r-base-dev` and `r-base` packages, select them, and install them.
+
+**Install RStudio:**
+
+-   Go to the [RStudio Desktop](https://posit.co/download/rstudio-desktop/) download page.
+-   Scroll down to the *Installers for Supported Platforms* section.
+-   Download the installer package appropriate for your distribution (e.g., `.deb` for Debian/Ubuntu, `.rpm` for Fedora/CentOS).
+-   Install the downloaded file using your distribution's package installer (e.g., double-clicking the `.deb` file or using `sudo install rstudio-*-amd64.deb` in the terminal, followed by `sudo apt --fix-broken install` if there are dependency issues).
+
+Once installed, you should find RStudio in your application menu or by typing `rstudio` in the terminal.
+
+### macOS
+
+**Install R:**
+
+-   Go to the [CRAN download](https://cran.r-project.org/) page for macOS.
+-   Download the latest `R-x.y.z.pkg` file.
+-   Run the downloaded `.pkg` installer file. Follow the prompts, and accept the default installation location.
+-   Go to the [CRAN macOS tools page](https://cran.r-project.org/bin/macosx/tools/).
+-   Download and install the recommended **Clang** compiler tools.
+-   Download and install the recommended **GNU Fortran** compiler tools.
+-   You may also need to install the **Xcode Command Line Tools**. Open the Terminal application (found in `/Applications/Utilities/`) and run `xcode-select --install`. Install all of these *after* installing R but *before* attempting to install packages that might require compilation (especially those from GitHub).
+
+**Install RStudio:**
+
+-   Go to the [RStudio Desktop](https://posit.co/download/rstudio-desktop/) download page.
+-   Scroll down to the *Installers for Supported Platforms* section.
+-   Download the recommended version for macOS (`.dmg` file).
+-   Open the downloaded `.dmg` file and drag the RStudio application icon into your Applications folder.
+-   You can then launch RStudio from your Applications folder or Launchpad.
+
+### Cloud
+
+An alternative to installing R and RStudio on your computer is a cloud-based service like **Posit Cloud** (formerly RStudio Cloud). This service provides access to an RStudio environment directly through your web browser.
+
+1.  **Access Posit Cloud:** Go to <https://posit.cloud/>.
+2.  **Sign Up/Log In:** Click the *Sign Up* or *Login* button. You can sign up for a free tier account using your Google or GitHub credentials or an email address.
+3.  **Create a Project:** Once logged in, you'll typically start by creating a *New Project*, which allocates a virtual machine instance running R and RStudio for you.
+4.  **Working in the Cloud:** The interface is essentially the same as the desktop version of RStudio. You can write code, install packages, and manage files within your project.
+
+Posit Cloud can be a good option for getting started quickly, working on projects that don't require extensive computing resources, or collaborating with others. However, a local installation is a better choice if you have adequate hardware, especially for more intensive tasks or long-term projects.
+
+## Installing Packages
+
+One of the strengths of R is its packages. Being bare bones on its own, these packages extend R's capabilities to virtually any task imaginable. These packages generally come in three forms: those with an official stable release hosted on the [*Comprehensive R Archive Network* (CRAN)](https://cran.r-project.org/), those still in development, often found on platforms like GitHub, and those we write ourselves. We will look at each of these in turn.
+
+### CRAN
+
+CRAN is the principal repository for stable, official R packages and is essentially a distributed network of servers hosting R distributions, contributed packages, documentation, and related materials. Before a package appears here, it has gone through a review process that helps ensure that it is stable, free of critical bugs, adheres to certain coding standards, includes essential documentation (such as README and NEWS files), and has a unique version number. Also, many of the packages here come with an accompanying article in journals like [*The R Journal*](https://journal.r-project.org/) or [*The Journal of Statistical Software*](https://www.jstatsoft.org/index), which provide the logic behind the package, practical explanations of the code, and illustrative examples.
+
+The standard function for installing packages from CRAN is `install.packages()`. To install a single package, provide its name within double quotes:
+
+```{r install-single, eval=FALSE}
+install.packages("ggplot2")
+```
+
+You can install multiple packages simultaneously by providing a character vector of package names using `c` and separating them with commas. Note that we also include `dependencies = TRUE` here. Doing so makes R automatically check for any other packages (dependencies) we need for our package to work correctly. We highly recommend including this to avoid errors caused by missing dependencies:
+
+```{r install-multiple, eval=FALSE}
+install.packages(c("dplyr", "tidyr", "readr"), dependencies = TRUE)
+```
+
+By default, R installs packages in a standard library location on our system. Use `.libPaths()` to see where this is. The default location is usually fine, but you can specify another location using the `lib` argument if needed.
+
+We should also keep our packages updated, as newer versions often provide us with new features, bug fixes, and performance enhancements. To check for and install updates for all our installed packages, run:
+
+```{r update-packages, eval=FALSE}
+update.packages()
+```
+
+This will scan all installed packages, compare their versions with those available from CRAN, and present us with a list of packages we can update. In RStudio, we can also click the *Update* button in the *Packages* tab, which will open a window listing all packages with available updates. It is good practice to update packages regularly (e.g. monthly) to minimise the chance of encountering bugs already fixed in newer versions. To see which packages are outdated without starting the update process, type `old.packages()` in the console.
+
+### GitHub
+
+If a package is still under active development or has not yet gone through the CRAN submission process, we can download it from platforms like GitHub. In addition, GitHub also hosts the latest versions of official packages before their official release, giving us access to the latest features and bug fixes, with the caveat that they may be less stable or more prone to problems than their CRAN counterparts. We cannot install these packages directly, but must use the `devtools` package to install them, which also allows us to install packages from other sources such as Bioconductor or GitLab:
+
+```{r install-devtools, eval=FALSE}
+install.packages("devtools", dependencies = TRUE)
+```
+
+As we are now installing packages from "source" (that is, they are not on CRAN), we need to have the necessary tools to build them before we can use them (compilers, libraries, etc.). What you need varies by operating system:
+
+-   **Windows**: From the [CRAN RTools](https://cran.r-project.org/bin/windows/Rtools/) page, download the latest recommended version of RTools that matches your R version and run it, making sure that you add RTools to your system's PATH.
+
+-   **macOS**: You need the Xcode Command Line Tools. To install this, open the Terminal application (found in `/Applications/Utilities/`) and enter `xcode-select --install.`A software update window should appear. Follow the prompts to install the tools and accept the license agreement.
+
+-   **Linux**: Depending on our Linux flavour, you need several development libraries and compilers. To install them, run the following in your console:
+
+    `sudo apt-get update`
+
+    `sudo apt-get upgrade`
+
+    `sudo apt install build-essential libcurl4-gnus-dev libxml2-dev libssl-dev`
+
+    These commands update the package lists, upgrade existing software, and install essential build tools (`build-essential`) and libraries (`libcurl`, `libxml2`, `libssl`) needed for compiling R packages from source. The package names can differ slightly between Linux distributions (like Fedora, CentOS, etc.).
+
+Once you have `devtools` and the necessary build tools, you can use `install_github()` to install the packages. You can find the *github_username* and *repository_name* on the GitHub page that hosts the package:
+
+```{r devtools-example, eval=FALSE}
+library(devtools) # Loads the devtools package
+install_github("github_username/repository_name", dependencies = TRUE)
+```
+
+### Writing Packages
+
+If no package does exactly what we need, we can write it ourselves. This can be a good idea if there are certain pieces of code that we need to run multiple times, or that we want to share with others. As the name suggests, packages are collections of *functions*, pieces of code that we define using the `function()` command:
+
+```{r function-example, eval=FALSE}
+my_function_name <- function(argument1, argument2, ...) {
+  result <- # Commands to be executed using the arguments
+  return(result)   # Returns the result
+}
+```
+
+Functions are invaluable for making your code modular and repeatable, and you will use them often while using R. However, once you have a collection of related functions (and possibly data) that you use frequently or want to share with others, you should consider organising them into a *package*. This involves structuring your code and documentation in a particular directory layout and including specific metadata files (such as `DESCRIPTION` and `NAMESPACE`) that aim to make your code easily installable, loadable, and discoverable by others. For more information, see Hadley Wickham's book [R Packages](https://r-pkgs.org/) or the guide by [Hilary Parker](https://hilaryparker.com/2014/04/29/writing-an-r-package-from-scratch/).
+
+## Required Packages {#required}
+
+R has several packages for text analysis, including `tm`, `tidytext`, `RTextTools`, `corpus` and `koRpus`. While each of these packages offers its own special features that may be useful in certain contexts, we will primarily rely on the `quanteda` package here [@Benoit2018a]. We do so because it is efficient, has a logical design, and communicates well with other packages. Although already hosted on CRAN, it is still under active development (see <https://quanteda.io/>) and has a well-maintained website with extensive documentation, tutorials and vignettes. To install it, run:
+
+```{r install-quanteda1, eval=FALSE}
+install.packages("quanteda", dependencies = TRUE)
+```
+
+The main idea of `quanteda` is that the package itself contains the basic tools, and other "helper" packages provide more specialised tasks. These are either already released on CRAN or are still under development:
+
+```{r install-quanteda2, eval=FALSE}
+install.packages("quanteda.textmodels", dependencies = TRUE)
+install.packages("quanteda.textstats", dependencies = TRUE)
+install.packages("quanteda.textplots", dependencies = TRUE)
+
+library(devtools)
+
+install_github("quanteda/quanteda.classifiers", dependencies = TRUE)
+install_github("kbenoit/quanteda.dictionaries", dependencies = TRUE) 
+install_github("quanteda/quanteda.corpora", dependencies = TRUE) 
+```
+
+Besides `quanteda`, we need several other packages before we can start. Note that writing `devtools::` is another way of telling R to load this package and run the command that follows it (which can be useful if we have several packages with the same commands):
+
+```{r install-required, eval=FALSE}
+
+# Install from GitHub
+
+devtools::install_github("mikegruz/kripp.boot", dependencies = TRUE)
+devtools::install_github("matthewjdenny/preText", dependencies = TRUE)
+
+# Install from CRAN
+install.packages(c(
+  "ca",           # Correspondence Analysis
+  "caret",        # Machine Learning
+  "combinat",     # Combinatorics
+  "coop",         # Cosine Similarity
+  "DescTools",    # Descriptive Statistics
+  "ggdendro",     # Dendrograms
+  "FactoMineR",   # Correspondence Analysis
+  "factoextra",   # Visualisations for FactoMineR
+  "Factoshiny",   # Shiny app for FactoMineR
+  "Hmisc",        # Collection of useful functions
+  "httr",         # Tools for working with URLs and HTTP
+  "irr",          # For Krippendorff's alpha
+  "jsonlite",     # Tools for working with JSON
+  "lsa",          # Latent Semantic Analysis
+  "manifestoR",   # Access Manifesto Project data
+  "readr",        # Read .csv files
+  "readtext",     # Read .txt files
+  "reshape2",     #  Reshape Data
+  "R.temis",      # Text Mining
+  "rvest",        # Scrape Web Pages
+  "seededlda",    # Semi-supervised Latent Dirichlet Allocation
+  "stm",          # Structural Topic Models
+  "tidyverse",    # Tools for data science
+  "topicmodels",  # Topic Models
+  "magick",       # Advanced Graphics
+  "vader"         # Vader Sentiment Analysis
+), dependencies = TRUE)
+```
+
+After successfully installing a package, we can find it in RStudio under the Packages tab. To use it, we can either select it there or run the `library()` command:
+
+```{r}
+library(quanteda)
+```
+
+## Troubleshooting
+
+It is perfectly normal to encounter errors when writing and running R code. First of all, **do not be discouraged!** Errors are just R's way of telling us that it could not understand or execute a command, and the error messages (often displayed in red text in the console) give us clues as to what went wrong. Sometimes the message is straightforward, telling us about a missing package or that we made a typo. Other times, it may be more cryptic. In this case, after carefully reading the error message (which, although technical, is essential as it is our primary source of information), we can ask ourselves the following questions:
+
+1.  **Are the necessary packages installed?** If the error says something like `Error: could not find function "some_function"`, this is a strong indication that the package containing some_function is not on our system. We can solve this by installing these packages using `install.packages()` or `devtools::install_github()`.
+
+2.  **Are the required packages loaded?** Even if we have installed all the required packages, we still need to load them with `library(packageName)` before R can use them. Forgetting to do this is one of the most common mistakes.
+
+3.  **Are the commands, function names and object names spelt correctly?** Remember that R is case-sensitive and `mydata` is different from `myData`. Typos in function names (`intall.packages` instead of `install.packages`) are also common.
+
+4.  **Is the data in the correct format?** Many R functions expect input data in a particular structure (e.g. a data frame, a vector, a matrix, or an object class such as a `quanteda` corpus or DFM). Use functions such as `class(), str(), summary()` or `dplyr::glimpse()` to inspect a data object and confirm that it matches what the function expects.
+
+5.  **Are the packages up-to-date?** Sometimes bugs are present in older versions of packages. Updating packages with `update.packages()` can fix these problems. We can also check if the bug occurred after updating R, as older packages may not be compatible with the latest version of R.
+
+If none of this works, it is time to look for help online. Copying the exact error message and pasting it into a search engine is often the quickest way to find solutions, as many other R users have probably encountered and solved the same problem. If that does not work, there are several other options:
+
+-   **Stack Overflow:** A widely used question-and-answer site for programmers. Search for any problem or error message. If you need to ask a new question, try to make it as easy as possible for others to help by providing a clear description, the code you ran, the exact error message, and a reproducible example.
+
+-   **RStudio Community**: This is mainly for problems with RStudio itself, although there are also many threads for package issues.
+
+-   **Package documentation and vignettes**: The official documentation for packages (accessible via `?functionName` or `help(packageName)`) and longer tutorials called "vignettes" (accessible via `vignette(package = "packageName")`) often contain solutions or examples that clarify how to use functions correctly.
+
+-   **Package websites and GitHub pages**: Many packages have dedicated websites or detailed READMEs on GitHub that provide additional information and troubleshooting tips.
+
+When asking for help online, the most helpful thing you can do is to provide a reproducible example. This example, or reprex, is a small, self-contained piece of code that produces the same error or unexpected behaviour you see when run by someone else. This allows others to understand your problem immediately, without needing access to your data or the whole project. The reprex package makes it easy to create these examples in three steps:
+
+1.  Install and load the `reprex` package
+2.  Write the minimal code that causes your problem.
+3.  Wrap your code inside the `reprex()` function and run it. The result (code, output, and error message) will be copied to your clipboard and formatted for pasting into forums like Stack Overflow.
+
+```{r example-reprex, eval=FALSE}
+
+# 1. Install and load the reprex package.
+
+install.packages("reprex") 
+library(reprex)
+
+# 2. Write the code that demonstrates your problem. Example: You are trying to use a function from a package that is not loaded.
+
+my_problem_code <- {
+  df <- data.frame(a = 1:3, b = c("X", "Y", "Z"))
+  dplyr::filter(df, a > 1)   # The issue occurs here as dplyr::filter requires library(dplyr)
+}
+
+# 3. Run the problematic code inside the reprex() function.
+
+reprex({
+  df <- data.frame(a = 1:3, b = c("X", "Y", "Z"))
+  dplyr::filter(df, a > 1)
+})
+
+```
+
+You can also include your `sessionInfo()` output at the end of your reprex or question. This command shows your version of R, your operating system, and the versions of all packages currently loaded, helping others to identify possible compatibility issues.
+
+Finally, before you ask, it is always a good idea to see if the problem has already been discussed. Searching Stack Overflow or other forums before posting can save time and help keep the community tidy.

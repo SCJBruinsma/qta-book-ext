@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>7.2 Logistic Regression | Introduction to Quantitative Text Analysis</title>
+  <meta name="description" content="7.2 Logistic Regression | Introduction to Quantitative Text Analysis" />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="7.2 Logistic Regression | Introduction to Quantitative Text Analysis" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="7.2 Logistic Regression | Introduction to Quantitative Text Analysis" />
+  
+  
+  
+
+<meta name="author" content="Kostas Gemenis and Bastiaan Bruinsma" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="support-vector-machines-svm.html"/>
+<link rel="next" href="naive-bayes-nb.html"/>
+<script src="assets/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="assets/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="assets/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="assets/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="assets/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 2em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Introduction to Quantitative Text Analysis</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome!</a></li>
+<li class="chapter" data-level="1" data-path="preliminaries.html"><a href="preliminaries.html"><i class="fa fa-check"></i><b>1</b> Preliminaries</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="installing-r.html"><a href="installing-r.html"><i class="fa fa-check"></i><b>1.1</b> Installing R</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="installing-r.html"><a href="installing-r.html#windows"><i class="fa fa-check"></i><b>1.1.1</b> Windows</a></li>
+<li class="chapter" data-level="1.1.2" data-path="installing-r.html"><a href="installing-r.html#linux"><i class="fa fa-check"></i><b>1.1.2</b> Linux</a></li>
+<li class="chapter" data-level="1.1.3" data-path="installing-r.html"><a href="installing-r.html#macos"><i class="fa fa-check"></i><b>1.1.3</b> macOS</a></li>
+<li class="chapter" data-level="1.1.4" data-path="installing-r.html"><a href="installing-r.html#cloud"><i class="fa fa-check"></i><b>1.1.4</b> Cloud</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="installing-packages.html"><a href="installing-packages.html"><i class="fa fa-check"></i><b>1.2</b> Installing Packages</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="installing-packages.html"><a href="installing-packages.html#cran"><i class="fa fa-check"></i><b>1.2.1</b> CRAN</a></li>
+<li class="chapter" data-level="1.2.2" data-path="installing-packages.html"><a href="installing-packages.html#github"><i class="fa fa-check"></i><b>1.2.2</b> GitHub</a></li>
+<li class="chapter" data-level="1.2.3" data-path="installing-packages.html"><a href="installing-packages.html#writing-packages"><i class="fa fa-check"></i><b>1.2.3</b> Writing Packages</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="required.html"><a href="required.html"><i class="fa fa-check"></i><b>1.3</b> Required Packages</a></li>
+<li class="chapter" data-level="1.4" data-path="troubleshooting.html"><a href="troubleshooting.html"><i class="fa fa-check"></i><b>1.4</b> Troubleshooting</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="background.html"><a href="background.html"><i class="fa fa-check"></i><b>2</b> Background</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="concepts.html"><a href="concepts.html"><i class="fa fa-check"></i><b>2.1</b> Concepts</a></li>
+<li class="chapter" data-level="2.2" data-path="workflow.html"><a href="workflow.html"><i class="fa fa-check"></i><b>2.2</b> Workflow</a></li>
+<li class="chapter" data-level="2.3" data-path="validation.html"><a href="validation.html"><i class="fa fa-check"></i><b>2.3</b> Validation</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="validation.html"><a href="validation.html#validity"><i class="fa fa-check"></i><b>2.3.1</b> Validity</a></li>
+<li class="chapter" data-level="2.3.2" data-path="validation.html"><a href="validation.html#reliability"><i class="fa fa-check"></i><b>2.3.2</b> Reliability</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="import.html"><a href="import.html"><i class="fa fa-check"></i><b>3</b> Text in R</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="basics.html"><a href="basics.html"><i class="fa fa-check"></i><b>3.1</b> Basics</a></li>
+<li class="chapter" data-level="3.2" data-path="import-.html"><a href="import-.html"><i class="fa fa-check"></i><b>3.2</b> Import .txt</a></li>
+<li class="chapter" data-level="3.3" data-path="import-.html"><a href="import-.html#import-.pdf"><i class="fa fa-check"></i><b>3.3</b> Import .pdf</a></li>
+<li class="chapter" data-level="3.4" data-path="import-.html"><a href="import-.html#import-.csv"><i class="fa fa-check"></i><b>3.4</b> Import .csv</a></li>
+<li class="chapter" data-level="3.5" data-path="import-from-an-api.html"><a href="import-from-an-api.html"><i class="fa fa-check"></i><b>3.5</b> Import from an API</a></li>
+<li class="chapter" data-level="3.6" data-path="import-using-web-scraping.html"><a href="import-using-web-scraping.html"><i class="fa fa-check"></i><b>3.6</b> Import using Web Scraping</a></li>
+<li class="chapter" data-level="3.7" data-path="import-json-and-xml.html"><a href="import-json-and-xml.html"><i class="fa fa-check"></i><b>3.7</b> Import JSON and XML</a></li>
+<li class="chapter" data-level="3.8" data-path="import-from-databases.html"><a href="import-from-databases.html"><i class="fa fa-check"></i><b>3.8</b> Import from Databases</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="describe.html"><a href="describe.html"><i class="fa fa-check"></i><b>4</b> Describe</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="corpus-and-dfm.html"><a href="corpus-and-dfm.html"><i class="fa fa-check"></i><b>4.1</b> Corpus and DFM</a></li>
+<li class="chapter" data-level="4.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html"><i class="fa fa-check"></i><b>4.2</b> Text Pre-processing</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="text-pre-processing.html"><a href="text-pre-processing.html#tokenisation-and-initial-cleaning"><i class="fa fa-check"></i><b>4.2.1</b> Tokenisation and Initial Cleaning</a></li>
+<li class="chapter" data-level="4.2.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html#lower-casing"><i class="fa fa-check"></i><b>4.2.2</b> Lower-casing</a></li>
+<li class="chapter" data-level="4.2.3" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stopword-removal"><i class="fa fa-check"></i><b>4.2.3</b> Stopword Removal</a></li>
+<li class="chapter" data-level="4.2.4" data-path="text-pre-processing.html"><a href="text-pre-processing.html#n-grams-and-collocations"><i class="fa fa-check"></i><b>4.2.4</b> N-grams and Collocations</a></li>
+<li class="chapter" data-level="4.2.5" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stemming-and-lemmatisation"><i class="fa fa-check"></i><b>4.2.5</b> Stemming and Lemmatisation</a></li>
+<li class="chapter" data-level="4.2.6" data-path="text-pre-processing.html"><a href="text-pre-processing.html#removing-sparse-features-dfm-trimming"><i class="fa fa-check"></i><b>4.2.6</b> Removing Sparse Features (DFM Trimming)</a></li>
+<li class="chapter" data-level="4.2.7" data-path="text-pre-processing.html"><a href="text-pre-processing.html#additional-pre-processing"><i class="fa fa-check"></i><b>4.2.7</b> Additional Pre-Processing</a></li>
+<li class="chapter" data-level="4.2.8" data-path="text-pre-processing.html"><a href="text-pre-processing.html#evaluating-pre-processing"><i class="fa fa-check"></i><b>4.2.8</b> Evaluating Pre-Processing</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="descriptives-and-visualisations.html"><a href="descriptives-and-visualisations.html"><i class="fa fa-check"></i><b>4.3</b> Descriptives and Visualisations</a></li>
+<li class="chapter" data-level="4.4" data-path="text-statistics.html"><a href="text-statistics.html"><i class="fa fa-check"></i><b>4.4</b> Text Statistics</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="text-statistics.html"><a href="text-statistics.html#summary"><i class="fa fa-check"></i><b>4.4.1</b> Summary</a></li>
+<li class="chapter" data-level="4.4.2" data-path="text-statistics.html"><a href="text-statistics.html#frequencies"><i class="fa fa-check"></i><b>4.4.2</b> Frequencies</a></li>
+<li class="chapter" data-level="4.4.3" data-path="text-statistics.html"><a href="text-statistics.html#lexical-diversity"><i class="fa fa-check"></i><b>4.4.3</b> Lexical diversity</a></li>
+<li class="chapter" data-level="4.4.4" data-path="text-statistics.html"><a href="text-statistics.html#readability"><i class="fa fa-check"></i><b>4.4.4</b> Readability</a></li>
+<li class="chapter" data-level="4.4.5" data-path="text-statistics.html"><a href="text-statistics.html#similarity-and-distance"><i class="fa fa-check"></i><b>4.4.5</b> Similarity and Distance</a></li>
+<li class="chapter" data-level="4.4.6" data-path="text-statistics.html"><a href="text-statistics.html#keyness"><i class="fa fa-check"></i><b>4.4.6</b> Keyness</a></li>
+<li class="chapter" data-level="4.4.7" data-path="text-statistics.html"><a href="text-statistics.html#entropy"><i class="fa fa-check"></i><b>4.4.7</b> Entropy</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="exercises.html"><a href="exercises.html"><i class="fa fa-check"></i><b>4.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="dictionary-analysis.html"><a href="dictionary-analysis.html"><i class="fa fa-check"></i><b>5</b> Dictionary Analysis</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="classical-dictionary-analysis.html"><a href="classical-dictionary-analysis.html"><i class="fa fa-check"></i><b>5.1</b> Classical Dictionary Analysis</a></li>
+<li class="chapter" data-level="5.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html"><i class="fa fa-check"></i><b>5.2</b> Sentiment Analysis</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#movie-reviews"><i class="fa fa-check"></i><b>5.2.1</b> Movie Reviews</a></li>
+<li class="chapter" data-level="5.2.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#twitter"><i class="fa fa-check"></i><b>5.2.2</b> Twitter</a></li>
+<li class="chapter" data-level="5.2.3" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#vader"><i class="fa fa-check"></i><b>5.2.3</b> VADER</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="exercises-1.html"><a href="exercises-1.html"><i class="fa fa-check"></i><b>5.3</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="scaling.html"><a href="scaling.html"><i class="fa fa-check"></i><b>6</b> Scaling Methods</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="wordscores.html"><a href="wordscores.html"><i class="fa fa-check"></i><b>6.1</b> Wordscores</a></li>
+<li class="chapter" data-level="6.2" data-path="wordfish.html"><a href="wordfish.html"><i class="fa fa-check"></i><b>6.2</b> Wordfish</a></li>
+<li class="chapter" data-level="6.3" data-path="correspondence-analysis.html"><a href="correspondence-analysis.html"><i class="fa fa-check"></i><b>6.3</b> Correspondence Analysis</a></li>
+<li class="chapter" data-level="6.4" data-path="exercises-2.html"><a href="exercises-2.html"><i class="fa fa-check"></i><b>6.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="supervised-methods.html"><a href="supervised-methods.html"><i class="fa fa-check"></i><b>7</b> Supervised Methods</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="support-vector-machines-svm.html"><a href="support-vector-machines-svm.html"><i class="fa fa-check"></i><b>7.1</b> Support Vector Machines (SVM)</a></li>
+<li class="chapter" data-level="7.2" data-path="logistic-regression.html"><a href="logistic-regression.html"><i class="fa fa-check"></i><b>7.2</b> Logistic Regression</a></li>
+<li class="chapter" data-level="7.3" data-path="naive-bayes-nb.html"><a href="naive-bayes-nb.html"><i class="fa fa-check"></i><b>7.3</b> Naive Bayes (NB)</a></li>
+<li class="chapter" data-level="7.4" data-path="exercises-3.html"><a href="exercises-3.html"><i class="fa fa-check"></i><b>7.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="unsupervised-methods.html"><a href="unsupervised-methods.html"><i class="fa fa-check"></i><b>8</b> Unsupervised Methods</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="latent-dirichlet-allocation-lda.html"><a href="latent-dirichlet-allocation-lda.html"><i class="fa fa-check"></i><b>8.1</b> Latent Dirichlet Allocation (LDA)</a></li>
+<li class="chapter" data-level="8.2" data-path="seeded-latent-dirichlet-allocation-slda.html"><a href="seeded-latent-dirichlet-allocation-slda.html"><i class="fa fa-check"></i><b>8.2</b> Seeded Latent Dirichlet Allocation (sLDA)</a></li>
+<li class="chapter" data-level="8.3" data-path="structural-topic-model-stm.html"><a href="structural-topic-model-stm.html"><i class="fa fa-check"></i><b>8.3</b> Structural Topic Model (STM)</a></li>
+<li class="chapter" data-level="8.4" data-path="latent-semantic-analysis-lsa.html"><a href="latent-semantic-analysis-lsa.html"><i class="fa fa-check"></i><b>8.4</b> Latent Semantic Analysis (LSA)</a></li>
+<li class="chapter" data-level="8.5" data-path="exercises-4.html"><a href="exercises-4.html"><i class="fa fa-check"></i><b>8.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="bastiaan.bruinsma@gmail.com" target="blank">Bastiaan Bruinsma</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to Quantitative Text Analysis</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="logistic-regression" class="section level2 hasAnchor" number="7.2">
+<h2><span class="header-section-number">7.2</span> Logistic Regression<a href="logistic-regression.html#logistic-regression" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Logistic Regression is one of the most well-known types of supervised models and is well-suited for classification because <code>textmodel_lr</code> is already built-in, it is practical to use in R. In addition, this implementation includes L2 regularisation by default to prevent overfitting in high-dimensional text feature spaces. For consistency, we will reuse the data loading, sampling, splitting, and preprocessing steps from the SVM example.</p>
+<p>First, ensure the necessary libraries are loaded:</p>
+<div class="sourceCode" id="cb230"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb230-1"><a href="logistic-regression.html#cb230-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)  <span class="co"># Set seed for reproducibility</span></span>
+<span id="cb230-2"><a href="logistic-regression.html#cb230-2" tabindex="-1"></a></span>
+<span id="cb230-3"><a href="logistic-regression.html#cb230-3" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb230-4"><a href="logistic-regression.html#cb230-4" tabindex="-1"></a><span class="fu">library</span>(quanteda.textmodels)  <span class="co"># For textmodel_lr</span></span>
+<span id="cb230-5"><a href="logistic-regression.html#cb230-5" tabindex="-1"></a><span class="fu">library</span>(caret)  <span class="co"># For evaluation metrics</span></span>
+<span id="cb230-6"><a href="logistic-regression.html#cb230-6" tabindex="-1"></a><span class="fu">library</span>(pROC)  <span class="co"># For ROC analysis (optional, but good for binary classification)</span></span>
+<span id="cb230-7"><a href="logistic-regression.html#cb230-7" tabindex="-1"></a><span class="fu">library</span>(ggplot2)  <span class="co"># For plotting (optional)</span></span>
+<span id="cb230-8"><a href="logistic-regression.html#cb230-8" tabindex="-1"></a></span>
+<span id="cb230-9"><a href="logistic-regression.html#cb230-9" tabindex="-1"></a><span class="co"># Load the movie review corpus and sample a subset (matching the SVM example)</span></span>
+<span id="cb230-10"><a href="logistic-regression.html#cb230-10" tabindex="-1"></a>corpus_reviews_lr <span class="ot">&lt;-</span> <span class="fu">corpus_sample</span>(data_corpus_LMRD, <span class="dv">2000</span>)  <span class="co"># Sample 2000 reviews</span></span></code></pre></div>
+<p>We will use the same data splitting logic as in the SVM example, ensuring a stratified split based on the <code>polarity</code> variable to maintain the proportion of positive and negative reviews in both the training and test sets.</p>
+<div class="sourceCode" id="cb231"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb231-1"><a href="logistic-regression.html#cb231-1" tabindex="-1"></a><span class="co"># Extract the polarity label as the target variable and convert it to a factor</span></span>
+<span id="cb231-2"><a href="logistic-regression.html#cb231-2" tabindex="-1"></a><span class="co"># Assuming the polarity variable is binary (&#39;neg&#39;, &#39;pos&#39;) in your corpus object</span></span>
+<span id="cb231-3"><a href="logistic-regression.html#cb231-3" tabindex="-1"></a>polarity_labels_lr <span class="ot">&lt;-</span> <span class="fu">factor</span>(corpus_reviews_lr<span class="sc">$</span>polarity)</span>
+<span id="cb231-4"><a href="logistic-regression.html#cb231-4" tabindex="-1"></a></span>
+<span id="cb231-5"><a href="logistic-regression.html#cb231-5" tabindex="-1"></a><span class="co"># Identify documents with valid polarity labels (not NA)</span></span>
+<span id="cb231-6"><a href="logistic-regression.html#cb231-6" tabindex="-1"></a>valid_docs_index_lr <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span><span class="fu">is.na</span>(polarity_labels_lr))</span>
+<span id="cb231-7"><a href="logistic-regression.html#cb231-7" tabindex="-1"></a></span>
+<span id="cb231-8"><a href="logistic-regression.html#cb231-8" tabindex="-1"></a><span class="co"># Subset the corpus and polarity labels to only include documents with valid</span></span>
+<span id="cb231-9"><a href="logistic-regression.html#cb231-9" tabindex="-1"></a><span class="co"># polarity</span></span>
+<span id="cb231-10"><a href="logistic-regression.html#cb231-10" tabindex="-1"></a>corpus_reviews_valid_lr <span class="ot">&lt;-</span> corpus_reviews_lr[valid_docs_index_lr]</span>
+<span id="cb231-11"><a href="logistic-regression.html#cb231-11" tabindex="-1"></a>polarity_valid_lr <span class="ot">&lt;-</span> polarity_labels_lr[valid_docs_index_lr]</span>
+<span id="cb231-12"><a href="logistic-regression.html#cb231-12" tabindex="-1"></a></span>
+<span id="cb231-13"><a href="logistic-regression.html#cb231-13" tabindex="-1"></a><span class="co"># Ensure polarity_valid_lr is a factor with levels &#39;neg&#39;, &#39;pos&#39; in that</span></span>
+<span id="cb231-14"><a href="logistic-regression.html#cb231-14" tabindex="-1"></a><span class="co"># specific order</span></span>
+<span id="cb231-15"><a href="logistic-regression.html#cb231-15" tabindex="-1"></a>polarity_valid_lr <span class="ot">&lt;-</span> <span class="fu">factor</span>(polarity_valid_lr, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;neg&quot;</span>, <span class="st">&quot;pos&quot;</span>))</span>
+<span id="cb231-16"><a href="logistic-regression.html#cb231-16" tabindex="-1"></a></span>
+<span id="cb231-17"><a href="logistic-regression.html#cb231-17" tabindex="-1"></a><span class="co"># Check if both levels (&#39;neg&#39;, &#39;pos&#39;) are present</span></span>
+<span id="cb231-18"><a href="logistic-regression.html#cb231-18" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">all</span>(<span class="fu">c</span>(<span class="st">&quot;neg&quot;</span>, <span class="st">&quot;pos&quot;</span>) <span class="sc">%in%</span> <span class="fu">levels</span>(polarity_valid_lr)) <span class="sc">||</span> <span class="fu">any</span>(<span class="fu">table</span>(polarity_valid_lr) <span class="sc">==</span></span>
+<span id="cb231-19"><a href="logistic-regression.html#cb231-19" tabindex="-1"></a>    <span class="dv">0</span>)) {</span>
+<span id="cb231-20"><a href="logistic-regression.html#cb231-20" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">&quot;The sampled corpus subset does not contain both &#39;neg&#39; and &#39;pos&#39; classes after filtering NA polarity. Please increase the sample size or check data.&quot;</span>)</span>
+<span id="cb231-21"><a href="logistic-regression.html#cb231-21" tabindex="-1"></a>}</span>
+<span id="cb231-22"><a href="logistic-regression.html#cb231-22" tabindex="-1"></a></span>
+<span id="cb231-23"><a href="logistic-regression.html#cb231-23" tabindex="-1"></a><span class="co"># Manually create stratified split indices (reusing the logic from the SVM</span></span>
+<span id="cb231-24"><a href="logistic-regression.html#cb231-24" tabindex="-1"></a><span class="co"># example) Get indices for each class</span></span>
+<span id="cb231-25"><a href="logistic-regression.html#cb231-25" tabindex="-1"></a>neg_indices_lr <span class="ot">&lt;-</span> <span class="fu">which</span>(polarity_valid_lr <span class="sc">==</span> <span class="st">&quot;neg&quot;</span>)</span>
+<span id="cb231-26"><a href="logistic-regression.html#cb231-26" tabindex="-1"></a>pos_indices_lr <span class="ot">&lt;-</span> <span class="fu">which</span>(polarity_valid_lr <span class="sc">==</span> <span class="st">&quot;pos&quot;</span>)</span>
+<span id="cb231-27"><a href="logistic-regression.html#cb231-27" tabindex="-1"></a></span>
+<span id="cb231-28"><a href="logistic-regression.html#cb231-28" tabindex="-1"></a><span class="co"># Determine the number of instances for train/test per class (70/30 split)</span></span>
+<span id="cb231-29"><a href="logistic-regression.html#cb231-29" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)  <span class="co"># for reproducibility</span></span>
+<span id="cb231-30"><a href="logistic-regression.html#cb231-30" tabindex="-1"></a>train_size_neg_lr <span class="ot">&lt;-</span> <span class="fu">floor</span>(<span class="fl">0.7</span> <span class="sc">*</span> <span class="fu">length</span>(neg_indices_lr))</span>
+<span id="cb231-31"><a href="logistic-regression.html#cb231-31" tabindex="-1"></a>train_size_pos_lr <span class="ot">&lt;-</span> <span class="fu">floor</span>(<span class="fl">0.7</span> <span class="sc">*</span> <span class="fu">length</span>(pos_indices_lr))</span>
+<span id="cb231-32"><a href="logistic-regression.html#cb231-32" tabindex="-1"></a></span>
+<span id="cb231-33"><a href="logistic-regression.html#cb231-33" tabindex="-1"></a><span class="co"># Sample indices for training set from each class</span></span>
+<span id="cb231-34"><a href="logistic-regression.html#cb231-34" tabindex="-1"></a>train_indices_neg_lr <span class="ot">&lt;-</span> <span class="fu">sample</span>(neg_indices_lr, <span class="at">size =</span> train_size_neg_lr, <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb231-35"><a href="logistic-regression.html#cb231-35" tabindex="-1"></a>train_indices_pos_lr <span class="ot">&lt;-</span> <span class="fu">sample</span>(pos_indices_lr, <span class="at">size =</span> train_size_pos_lr, <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb231-36"><a href="logistic-regression.html#cb231-36" tabindex="-1"></a></span>
+<span id="cb231-37"><a href="logistic-regression.html#cb231-37" tabindex="-1"></a><span class="co"># Combine training indices</span></span>
+<span id="cb231-38"><a href="logistic-regression.html#cb231-38" tabindex="-1"></a>train_index_lr <span class="ot">&lt;-</span> <span class="fu">c</span>(train_indices_neg_lr, train_indices_pos_lr)</span>
+<span id="cb231-39"><a href="logistic-regression.html#cb231-39" tabindex="-1"></a></span>
+<span id="cb231-40"><a href="logistic-regression.html#cb231-40" tabindex="-1"></a><span class="co"># The remaining indices are for the test set</span></span>
+<span id="cb231-41"><a href="logistic-regression.html#cb231-41" tabindex="-1"></a>all_valid_indices_lr <span class="ot">&lt;-</span> <span class="fu">seq_along</span>(polarity_valid_lr)</span>
+<span id="cb231-42"><a href="logistic-regression.html#cb231-42" tabindex="-1"></a>test_index_lr <span class="ot">&lt;-</span> all_valid_indices_lr[<span class="sc">!</span>all_valid_indices_lr <span class="sc">%in%</span> train_index_lr]</span>
+<span id="cb231-43"><a href="logistic-regression.html#cb231-43" tabindex="-1"></a></span>
+<span id="cb231-44"><a href="logistic-regression.html#cb231-44" tabindex="-1"></a><span class="co"># Split the corpus subset and polarity labels into training and testing sets</span></span>
+<span id="cb231-45"><a href="logistic-regression.html#cb231-45" tabindex="-1"></a>corpus_reviews_train_lr <span class="ot">&lt;-</span> corpus_reviews_valid_lr[train_index_lr]</span>
+<span id="cb231-46"><a href="logistic-regression.html#cb231-46" tabindex="-1"></a>corpus_reviews_test_lr <span class="ot">&lt;-</span> corpus_reviews_valid_lr[test_index_lr]</span>
+<span id="cb231-47"><a href="logistic-regression.html#cb231-47" tabindex="-1"></a></span>
+<span id="cb231-48"><a href="logistic-regression.html#cb231-48" tabindex="-1"></a>polarity_train_lr <span class="ot">&lt;-</span> polarity_valid_lr[train_index_lr]</span>
+<span id="cb231-49"><a href="logistic-regression.html#cb231-49" tabindex="-1"></a>polarity_test_lr <span class="ot">&lt;-</span> polarity_valid_lr[test_index_lr]</span>
+<span id="cb231-50"><a href="logistic-regression.html#cb231-50" tabindex="-1"></a></span>
+<span id="cb231-51"><a href="logistic-regression.html#cb231-51" tabindex="-1"></a><span class="co"># Check the distribution of the split</span></span>
+<span id="cb231-52"><a href="logistic-regression.html#cb231-52" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Training set class distribution (LR example):&quot;</span>)</span></code></pre></div>
+<pre><code>## [1] &quot;Training set class distribution (LR example):&quot;</code></pre>
+<div class="sourceCode" id="cb233"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb233-1"><a href="logistic-regression.html#cb233-1" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">table</span>(polarity_train_lr))</span></code></pre></div>
+<pre><code>## polarity_train_lr
+## neg pos 
+## 716 683</code></pre>
+<div class="sourceCode" id="cb235"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb235-1"><a href="logistic-regression.html#cb235-1" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Testing set class distribution (LR example):&quot;</span>)</span></code></pre></div>
+<pre><code>## [1] &quot;Testing set class distribution (LR example):&quot;</code></pre>
+<div class="sourceCode" id="cb237"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb237-1"><a href="logistic-regression.html#cb237-1" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">table</span>(polarity_test_lr))</span></code></pre></div>
+<pre><code>## polarity_test_lr
+## neg pos 
+## 307 294</code></pre>
+<p>Next, we preprocess the training and test corpus subsets to create DFMs, applying similar cleaning steps as before and matching the test DFM features to the training DFM.</p>
+<div class="sourceCode" id="cb239"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb239-1"><a href="logistic-regression.html#cb239-1" tabindex="-1"></a><span class="co"># Tokenise and preprocess the training corpus</span></span>
+<span id="cb239-2"><a href="logistic-regression.html#cb239-2" tabindex="-1"></a>tokens_train_lr <span class="ot">&lt;-</span> <span class="fu">tokens</span>(corpus_reviews_train_lr, <span class="at">what =</span> <span class="st">&quot;word&quot;</span>, <span class="at">remove_punct =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb239-3"><a href="logistic-regression.html#cb239-3" tabindex="-1"></a>    <span class="at">remove_symbols =</span> <span class="cn">TRUE</span>, <span class="at">remove_numbers =</span> <span class="cn">TRUE</span>, <span class="at">remove_url =</span> <span class="cn">TRUE</span>, <span class="at">remove_separators =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb239-4"><a href="logistic-regression.html#cb239-4" tabindex="-1"></a>    <span class="fu">tokens_tolower</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb239-5"><a href="logistic-regression.html#cb239-5" tabindex="-1"></a>    <span class="fu">tokens_select</span>(<span class="fu">stopwords</span>(<span class="st">&quot;english&quot;</span>), <span class="at">selection =</span> <span class="st">&quot;remove&quot;</span>)</span>
+<span id="cb239-6"><a href="logistic-regression.html#cb239-6" tabindex="-1"></a></span>
+<span id="cb239-7"><a href="logistic-regression.html#cb239-7" tabindex="-1"></a><span class="co"># Tokenise and preprocess the test corpus</span></span>
+<span id="cb239-8"><a href="logistic-regression.html#cb239-8" tabindex="-1"></a>tokens_test_lr <span class="ot">&lt;-</span> <span class="fu">tokens</span>(corpus_reviews_test_lr, <span class="at">what =</span> <span class="st">&quot;word&quot;</span>, <span class="at">remove_punct =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb239-9"><a href="logistic-regression.html#cb239-9" tabindex="-1"></a>    <span class="at">remove_symbols =</span> <span class="cn">TRUE</span>, <span class="at">remove_numbers =</span> <span class="cn">TRUE</span>, <span class="at">remove_url =</span> <span class="cn">TRUE</span>, <span class="at">remove_separators =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb239-10"><a href="logistic-regression.html#cb239-10" tabindex="-1"></a>    <span class="fu">tokens_tolower</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb239-11"><a href="logistic-regression.html#cb239-11" tabindex="-1"></a>    <span class="fu">tokens_select</span>(<span class="fu">stopwords</span>(<span class="st">&quot;english&quot;</span>), <span class="at">selection =</span> <span class="st">&quot;remove&quot;</span>)</span>
+<span id="cb239-12"><a href="logistic-regression.html#cb239-12" tabindex="-1"></a></span>
+<span id="cb239-13"><a href="logistic-regression.html#cb239-13" tabindex="-1"></a><span class="co"># Create dfms</span></span>
+<span id="cb239-14"><a href="logistic-regression.html#cb239-14" tabindex="-1"></a>dfm_train_lr <span class="ot">&lt;-</span> <span class="fu">dfm</span>(tokens_train_lr)</span>
+<span id="cb239-15"><a href="logistic-regression.html#cb239-15" tabindex="-1"></a>dfm_test_lr <span class="ot">&lt;-</span> <span class="fu">dfm</span>(tokens_test_lr)</span>
+<span id="cb239-16"><a href="logistic-regression.html#cb239-16" tabindex="-1"></a></span>
+<span id="cb239-17"><a href="logistic-regression.html#cb239-17" tabindex="-1"></a><span class="co"># Ensure the test dfm has the same features as the training dfm</span></span>
+<span id="cb239-18"><a href="logistic-regression.html#cb239-18" tabindex="-1"></a>dfm_test_matched_lr <span class="ot">&lt;-</span> <span class="fu">dfm_match</span>(dfm_test_lr, <span class="at">features =</span> <span class="fu">featnames</span>(dfm_train_lr))</span>
+<span id="cb239-19"><a href="logistic-regression.html#cb239-19" tabindex="-1"></a></span>
+<span id="cb239-20"><a href="logistic-regression.html#cb239-20" tabindex="-1"></a><span class="co"># Display DFM dimensions</span></span>
+<span id="cb239-21"><a href="logistic-regression.html#cb239-21" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Dimensions of Training DFM (LR example):&quot;</span>, <span class="fu">dim</span>(dfm_train_lr), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Dimensions of Training DFM (LR example): 1399 23543</code></pre>
+<div class="sourceCode" id="cb241"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb241-1"><a href="logistic-regression.html#cb241-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Dimensions of Matched Test DFM (LR example):&quot;</span>, <span class="fu">dim</span>(dfm_test_matched_lr), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Dimensions of Matched Test DFM (LR example): 601 23543</code></pre>
+<p>Now, we train the Regularized Logistic Regression model using <code>textmodel_lr</code>.</p>
+<div class="sourceCode" id="cb243"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb243-1"><a href="logistic-regression.html#cb243-1" tabindex="-1"></a><span class="co"># Train the textmodel_lr model for binary classification The training labels</span></span>
+<span id="cb243-2"><a href="logistic-regression.html#cb243-2" tabindex="-1"></a><span class="co"># are the polarity labels from the training corpus</span></span>
+<span id="cb243-3"><a href="logistic-regression.html#cb243-3" tabindex="-1"></a><span class="fu">library</span>(quanteda.textmodels)</span>
+<span id="cb243-4"><a href="logistic-regression.html#cb243-4" tabindex="-1"></a></span>
+<span id="cb243-5"><a href="logistic-regression.html#cb243-5" tabindex="-1"></a>model_lr_lmrd <span class="ot">&lt;-</span> <span class="fu">textmodel_lr</span>(dfm_train_lr, polarity_train_lr)</span>
+<span id="cb243-6"><a href="logistic-regression.html#cb243-6" tabindex="-1"></a></span>
+<span id="cb243-7"><a href="logistic-regression.html#cb243-7" tabindex="-1"></a><span class="co"># Print the model summary</span></span>
+<span id="cb243-8"><a href="logistic-regression.html#cb243-8" tabindex="-1"></a><span class="fu">summary</span>(model_lr_lmrd)</span></code></pre></div>
+<pre><code>## 
+## Call:
+## textmodel_lr.dfm(x = dfm_train_lr, y = polarity_train_lr)
+## 
+## Lambda Min:
+## [1] 0.009405
+## 
+## Lambda 1se:
+## [1] 0.01498
+## 
+## Estimated Feature Scores:
+##     (Intercept) just thought finish whole year without giving single movie bomb
+## pos      0.1042    0       0      0     0    0       0      0      0     0    0
+##     rating friend brought notorious turd house last night feared  worst knowing
+## pos      0      0       0         0    0     0    0     0      0 -1.281       0
+##     reputation god-awful anticipated mexican-made mess dubbed english produced
+## pos          0         0           0            0    0      0       0        0</code></pre>
+<p>We then use the trained model to predict the polarity labels for the documents in the test set.</p>
+<div class="sourceCode" id="cb245"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb245-1"><a href="logistic-regression.html#cb245-1" tabindex="-1"></a><span class="co"># Predict the classes for the matched test set</span></span>
+<span id="cb245-2"><a href="logistic-regression.html#cb245-2" tabindex="-1"></a>predictions_lr_lmrd <span class="ot">&lt;-</span> <span class="fu">predict</span>(model_lr_lmrd, <span class="at">newdata =</span> dfm_test_matched_lr)</span>
+<span id="cb245-3"><a href="logistic-regression.html#cb245-3" tabindex="-1"></a></span>
+<span id="cb245-4"><a href="logistic-regression.html#cb245-4" tabindex="-1"></a><span class="co"># Display the first few predictions</span></span>
+<span id="cb245-5"><a href="logistic-regression.html#cb245-5" tabindex="-1"></a><span class="fu">head</span>(predictions_lr_lmrd)</span></code></pre></div>
+<pre><code>##  test/neg/6932_2.txt train/neg/6580_4.txt  test/pos/1099_7.txt 
+##                  neg                  pos                  pos 
+## train/pos/9167_7.txt  test/neg/8064_1.txt  test/neg/4057_4.txt 
+##                  neg                  neg                  pos 
+## Levels: neg pos</code></pre>
+<p>Finally, we evaluate the model’s performance on the test set using a confusion matrix. Since this is a binary classification task, we can also compute metrics like ROC AUC, which is similar to the SVM evaluation.</p>
+<div class="sourceCode" id="cb247"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb247-1"><a href="logistic-regression.html#cb247-1" tabindex="-1"></a><span class="co"># Get the actual classes from the test corpus</span></span>
+<span id="cb247-2"><a href="logistic-regression.html#cb247-2" tabindex="-1"></a>actual_classes_lmrd <span class="ot">&lt;-</span> polarity_test_lr</span>
+<span id="cb247-3"><a href="logistic-regression.html#cb247-3" tabindex="-1"></a></span>
+<span id="cb247-4"><a href="logistic-regression.html#cb247-4" tabindex="-1"></a><span class="co"># Ensure actual and predicted classes are factors with the same levels for</span></span>
+<span id="cb247-5"><a href="logistic-regression.html#cb247-5" tabindex="-1"></a><span class="co"># comparison The levels should already be consistent (&#39;neg&#39;, &#39;pos&#39;) from the</span></span>
+<span id="cb247-6"><a href="logistic-regression.html#cb247-6" tabindex="-1"></a><span class="co"># splitting step</span></span>
+<span id="cb247-7"><a href="logistic-regression.html#cb247-7" tabindex="-1"></a>confusion_matrix_lr_lmrd <span class="ot">&lt;-</span> <span class="fu">confusionMatrix</span>(predictions_lr_lmrd, actual_classes_lmrd)</span>
+<span id="cb247-8"><a href="logistic-regression.html#cb247-8" tabindex="-1"></a></span>
+<span id="cb247-9"><a href="logistic-regression.html#cb247-9" tabindex="-1"></a><span class="co"># Print the confusion matrix and performance statistics</span></span>
+<span id="cb247-10"><a href="logistic-regression.html#cb247-10" tabindex="-1"></a><span class="fu">print</span>(confusion_matrix_lr_lmrd)</span></code></pre></div>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction neg pos
+##        neg 232  46
+##        pos  75 248
+##                                         
+##                Accuracy : 0.7987        
+##                  95% CI : (0.7643, 0.83)
+##     No Information Rate : 0.5108        
+##     P-Value [Acc &gt; NIR] : &lt; 2e-16       
+##                                         
+##                   Kappa : 0.598         
+##                                         
+##  Mcnemar&#39;s Test P-Value : 0.01091       
+##                                         
+##             Sensitivity : 0.7557        
+##             Specificity : 0.8435        
+##          Pos Pred Value : 0.8345        
+##          Neg Pred Value : 0.7678        
+##              Prevalence : 0.5108        
+##          Detection Rate : 0.3860        
+##    Detection Prevalence : 0.4626        
+##       Balanced Accuracy : 0.7996        
+##                                         
+##        &#39;Positive&#39; Class : neg           
+## </code></pre>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="support-vector-machines-svm.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="naive-bayes-nb.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="assets/gitbook-2.6.7/js/app.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="assets/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["Introduction to Quantitative Text Analysis.pdf", "Introduction to Quantitative Text Analysis.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  },
+  "toolbar": {
+    "position": "static"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

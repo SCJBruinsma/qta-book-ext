@@ -1,0 +1,752 @@
+# Advanced Quantitative Text Analysis: Day 1: Introduction & Fundamentals {#day1-intro-fundamentals}
+
+```{r, hide=TRUE}
+library(reticulate)
+use_virtualenv("~/python-r-env", required = TRUE)
+library(tensorflow)
+```
+
+This chapter serves as an introduction to the field of quantitative text analysis, beginning with fundamental concepts and traditional methods, then transitioning to the powerful capabilities of deep learning for textual data. We will explore the motivations for using computational methods, the common preprocessing steps, and an overview of established techniques such as manual coding, dictionary-based approaches, supervised machine learning, and unsupervised topic modelling. Subsequently, the chapter delves into the core ideas behind deep learning, including neural networks, word embeddings, and advanced architectures like RNNs and Transformers. The theoretical discussions are complemented by a practical, hands-on exercise in Python, where we will construct and train a basic neural network for sentiment classification, directly applying the concepts learned. This foundational knowledge is essential for social scientists looking to leverage computational tools for analysing large-scale text data in their research.
+
+The first session of the day, from 08:30 to 10:00, will cover a welcome, an outline of the course structure and logistics, an introduction round, and a recapitulation of foundational text analysis concepts[cite: 3]. After a coffee break between 10:00 and 10:30, the second session, from 10:30 to 12:00, will focus on the basics of neural networks, core training concepts, and an introduction to text classification[cite: 3].
+
+As part of today's learning, participants are encouraged to read "How To Make Causal Inferences Using Texts" by Egami et al. (2022), published in *Science Advances*[cite: 6]. When reading, it's beneficial to focus on the sections discussing text as data, understand the relationship between text representation and causal inference, and consider how deep learning methods might impact causal analysis[cite: 6]. It is recommended to attempt these readings *before* the lecture[cite: 6].
+
+For the practical components of this course, Python 3.10+ is recommended[cite: 7]. Essential libraries include `numpy`, `pandas`, and `sklearn` for general data handling and machine learning tasks; `nltk`, `spacy`, and `gensim` for traditional NLP tasks; `tensorflow`/`keras` or `pytorch` for building deep learning models; and `transformers` and `datasets` from HuggingFace for working with state-of-the-art transformer models[cite: 7]. Participants should check their environment setup using the `python check_env.py` script and ensure all libraries are installed and functional; Google Colab can be used as an alternative[cite: 7]. The workbooks for assignments will be provided as Jupyter Notebooks[cite: 7].
+
+## Recapitulation of Text Analysis Fundamentals
+
+Computational methods are increasingly employed in text analysis due to their ability to handle **scale**, ensuring **reliability and consistency** in analysis, and providing **speed** in processing large volumes of text[cite: 8]. These methods find common applications in diverse areas such as analyzing political communication (e.g., manifestos, speeches, social media content), media analysis (e.g., news framing, sentiment extraction), sociology (e.g., studying cultural trends, online communities), and survey analysis, particularly for open-ended questions[cite: 8, 9].
+
+At a fundamental level, computers interpret texts as numerical data, often as counts of words using a model known as the "bag-of-words"[cite: 10]. To manage the high dimensionality and inherent complexities of textual data—a challenge often termed the "Curse of Dimensionality"—several preprocessing steps are necessary[cite: 10]. These include **lowercasing** all text to ensure uniformity, **stemming or lemmatization** to reduce words to their root form (e.g., "running" becomes "run"), removing common **stop words** (like "the", "is") and punctuation, **tokenization** which involves splitting text into individual units or tokens, and finally, creating a **Document-Term Matrix (DTM)** which represents word frequencies across all documents in a corpus[cite: 10].
+
+### The Role of Manual Coding
+
+Manual content analysis, often considered the *gold standard*, remains crucial in many text analysis workflows[cite: 11]. It serves multiple purposes: generating labeled data essential for supervised machine learning models, validating the outputs of computational methods, and enabling in-depth qualitative analysis of smaller text samples[cite: 11]. The key steps in manual coding involve developing a clear **codebook** that outlines definitions and rules for annotation, training coders to ensure consistent application of the codebook, and assessing **inter-coder reliability** using statistical measures like Krippendorff's $\alpha$ or Cohen's $\kappa$ to quantify the level of agreement between coders[cite: 11, 12].
+
+### Dictionary-Based Methods
+
+Dictionary-based methods represent a common approach in quantitative text analysis. These methods utilize lists of words, phrases, or patterns that are associated with specific concepts or categories of interest[cite: 13]. The core mechanism involves counting the occurrences of these dictionary terms within documents to assign a score for the concept the dictionary represents[cite: 13]. The advantages of this approach lie in its simplicity, transparency, and the ability to be theory-driven[cite: 13]. However, it also has limitations, such as being insensitive to context, requiring a well-curated and validated dictionary, and potentially missing nuances in language[cite: 13].
+
+Dictionaries can be developed through two primary approaches: deductive, where one starts from existing theory or expert knowledge to define terms[cite: 14], or inductive, where terms are derived from manual coding or exploratory text analysis techniques like examining Keywords In Context (KWIC)[cite: 15]. Validating a dictionary is a critical step. **Face validity** assesses whether the terms intuitively make sense, often checked using KWIC analysis[cite: 16]. **Internal validity** involves checking the correlations between terms within the dictionary to ensure they collectively represent a coherent concept[cite: 17]. **External validity** is established by comparing the dictionary scores against manual codes or other external measures of the same concept[cite: 17].
+
+### Supervised Machine Learning for Text Classification
+
+Supervised machine learning aims to train a model that can automatically classify documents into pre-defined categories[cite: 18]. The general workflow begins with preparing labeled data, where each document has associated features (derived from text) and a known category[cite: 18]. This dataset is then split into a training set and a test set[cite: 18]. A classification algorithm is chosen and trained on the training set, learning a mapping from features to categories[cite: 18, 21, 22]. The trained model is subsequently applied to the unseen test set to predict categories[cite: 18, 26]. Finally, the model's performance is evaluated using metrics such as accuracy, precision, recall, and the F1-score, which assess how well its predictions match the actual categories in the test set[cite: 18]. Figure \@ref(fig:supervised-ml-diagram-para) visually outlines this process.
+
+```{r supervised-ml-diagram-para, echo=FALSE, engine='tikz', out.width='100%', fig.ext=if (knitr:::is_latex_output()) 'pdf' else 'png', fig.cap='Workflow of Supervised Machine Learning, depicting training and prediction phases. The learning algorithm uses training data and labels to produce a trained model, which then makes predictions on new data.'}
+\usetikzlibrary{positioning, arrows, decorations.pathreplacing, shapes, calc}
+
+\begin{tikzpicture}[
+  node distance=1cm and 1.5cm,
+  data/.style={rectangle, draw, thick, minimum width=2cm, minimum height=1cm, text centered},
+  algo/.style={draw, thick, fill=blue!20, shape=ellipse, minimum width=2.5cm, minimum height=1cm, text centered},
+  label/.style={rectangle, draw, dashed, thick, minimum width=1cm, minimum height=1cm, text centered},
+  arrow/.style={->, thick},
+  brace/.style={decorate, decoration={brace, amplitude=5pt}, thick},
+  textstyle/.style={align=center, font=\small},
+]
+
+% Training Phase
+\node (train_data) [data] {Training Data \\ (Features $X$)};
+\node (train_labels) [label, right=1.5cm of train_data] {Labels $Y$};
+\node (algorithm) [algo, below=1.2cm of train_data, xshift=0.75cm] {Learning \\ Algorithm};
+\node (model) [data, fill=green!20, below=1.2cm of algorithm] {Trained Model \\ ($f: X \rightarrow Y$)};
+
+\draw [arrow] (train_data) -- (algorithm);
+\draw [arrow] (train_labels) -- (algorithm);
+\draw [arrow] (algorithm) -- node[midway, right, textstyle] {Learns Mapping} (model);
+\draw[brace] ($(train_data.north west)+(-0.2,0.2)$) -- ($(train_labels.north east)+(0.2,0.2)$) node[midway, above=5pt, textstyle] {Training Phase};
+
+% Prediction Phase
+\node (new_data) [data, right=4.5cm of train_data] {New Data \\ (Features $X'$)};
+\node (predicted_labels) [label, fill=yellow!20, below=1.2cm of new_data] {Predicted Labels $Y'$};
+
+\draw [arrow] (new_data) -- node[midway, left, textstyle] {Input Features} (predicted_labels);
+\draw [arrow] (model.east) .. controls +(1,0) and +(0,1) .. node[midway, below, textstyle] {Applies Learned Mapping} (predicted_labels.west);
+\draw[brace] ($(new_data.north west)+(-0.2,0.2)$) -- ($(new_data.north east)+(0.2,0.2)$) node[midway, above=5pt, textstyle] {Prediction Phase};
+
+\end{tikzpicture}
+```
+
+### Unsupervised Learning for Topic Discovery
+
+In contrast to supervised methods, unsupervised learning aims to discover latent thematic structures within text data without relying on pre-defined labels or categories[cite: 29]. A prominent example is Latent Dirichlet Allocation (LDA). Simplified, LDA operates on the assumption that documents are composed of a mixture of topics, and each topic is characterized by a distribution of words[cite: 29]. The model's objective is to infer these topic-word distributions (often denoted $\beta$) and document-topic mixtures (often denoted $\gamma$) that best explain the observed text data[cite: 29, 33, 34]. A key parameter in LDA is the number of topics, $K$, which must be specified beforehand by the researcher[cite: 29]. The interpretation and validation of topics discovered through unsupervised methods like LDA are often subjective and require careful qualitative assessment[cite: 29]. Figure \@ref(fig:unsupervised-learning-diagram-para) illustrates how an unsupervised algorithm processes unlabeled documents to find underlying patterns, resulting in structures like topics as word mixtures and documents as topic mixtures.
+
+```{r unsupervised-learning-diagram-para, echo=FALSE, engine='tikz', out.width='100%', fig.cap='Unsupervised Learning Workflow (e.g., LDA), where an algorithm analyzes unlabeled input data to discover inherent structures, such as topics defined by word mixtures and documents represented by topic mixtures. [cite: 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]', fig.ext=if (knitr:::is_latex_output()) 'pdf' else 'png'}
+\usetikzlibrary{
+  positioning,
+  arrows.meta,          % <-- required for >=Latex
+  decorations.pathreplacing,
+  shapes
+}
+\definecolor{energy}{RGB}{255, 217, 102}
+\definecolor{leaf}{RGB}{180, 230, 180}
+\tikzset{
+    % General Styles
+    connect/.style={arrows=-{Triangle}, black, thick}, % [cite: 1]
+    arrow/.style={->, >=Latex, thick}, % Consolidated arrow style [cite: 2]
+    memory arrow/.style={->,thick, purple, densely dashed}, % [cite: 1]
+}
+\begin{tikzpicture}[
+  every node/.style={transform shape},
+  node distance=1.2cm and 1.8cm,
+  data/.style={rectangle, draw, thick, minimum width=2.2cm, minimum height=0.8cm, text centered},
+  algo/.style={draw, thick, fill=blue!20, shape=ellipse, minimum width=2.5cm, minimum height=1cm, text centered},
+  output/.style={rectangle, draw, thick, fill=leaf!40, minimum width=2.6cm, minimum height=0.8cm, text centered, text width=2.6cm},
+  arrow/.style={->, >=Latex, thick},
+  textstyle/.style={align=center, font=\small}
+]
+
+% Top layer
+\node (input_data) [data] {Input Data \\ (Unlabeled Documents $X$)};
+\node (algorithm) [algo, right of=input_data] {Unsupervised \\ Algorithm \\ (e.g., LDA)};
+
+% Middle layer (midpoint between input and algorithm)
+\path (input_data) -- (algorithm) coordinate[midway] (mid);
+\node (output_structure) [output, below=2.2cm of mid] {Discovered Structure};
+
+% Bottom layer
+\node (topics_words) [output, below left=1.3cm and 1.3cm of output_structure, fill=energy!20, text width=2.5cm] {Topics as Word Mixtures ($\beta$)};
+\node (docs_topics) [output, below right=1.3cm and 1.3cm of output_structure, fill=energy!20, text width=2.5cm] {Documents as Topic Mixtures ($\gamma$)};
+
+% Invisible helper nodes
+\node (topics_helper) [above=0.8cm of topics_words] {};
+\node (docs_helper) [above=0.8cm of docs_topics] {};
+
+% Arrows
+\draw [arrow] (input_data) -- (algorithm);
+\draw [arrow] (mid) -- node[midway, right, textstyle] {Finds Patterns} (output_structure);
+\draw [arrow, dashed] (output_structure.south) |- (topics_helper.center) -- (topics_words.north);
+\draw [arrow, dashed] (output_structure.south) |- (docs_helper.center) -- (docs_topics.north);
+
+\end{tikzpicture}
+```
+
+An overview of these traditional text analysis methods can often be visualized to show their relationships, as referenced by materials like Grimmer & Stewart.
+```{r grimmerstewart-overview-para, echo=FALSE, fig.cap='Placeholder: Overview from Grimmer & Stewart.', out.width='70%'}
+# This is a placeholder for the image. 
+# In a real RMarkdown book, you'd ensure 'figures/1_grimmerstewart.png' is in the correct path.
+cat("Placeholder for image: figures/1_grimmerstewart.png")
+```
+
+## Transitioning to Deep Learning for Text Analysis
+
+While traditional methods offer valuable tools for text analysis, they often face limitations. These include difficulty in capturing nuance and subtle meanings in text, struggling with contextual understanding (such as sarcasm or irony), having a limited capacity to grasp complex relationships between words and ideas, and the possibility that pre-defined categories in supervised learning might miss unexpected or emergent patterns[cite: 40]. Furthermore, many traditional approaches require significant manual effort, for instance, in creating dictionaries or engineering features for machine learning models[cite: 40]. These challenges motivate the exploration of more advanced techniques like deep learning.
+
+Deep learning, a subfield of machine learning (ML), focuses on algorithms inspired by the structure and function of the human brain, known as Artificial Neural Networks (ANNs)[cite: 41]. The term "deep" signifies the use of multiple layers within these networks, enabling them to learn complex patterns and hierarchical features from data[cite: 42]. This hierarchical learning can be analogized to features being learned in stages: an initial layer might detect simple patterns (e.g., specific words in text or edges in an image)[cite: 43], a subsequent layer could combine these to identify more complex patterns (like common phrases or shapes)[cite: 44], and deeper layers can then integrate these to recognize abstract concepts (such as topics, sentiment, or objects)[cite: 45].
+
+In the social sciences, deep learning offers compelling advantages, particularly for analyzing unstructured data like text from survey responses, social media, news articles, or political manifestos, and even image/video data from protest photos or satellite imagery[cite: 46]. Human behavior and social phenomena are rarely linear, and deep learning excels at modeling such complex non-linear relationships between variables[cite: 46]. A significant benefit is its capacity for **feature learning**, where the model automatically discovers relevant features from raw data, thereby reducing the need for extensive manual feature engineering—though domain knowledge remains crucial for interpretation and model design[cite: 46]. Deep learning models can also scale to predict social phenomena based on diverse and large data sources[cite: 46].
+
+The "deep" aspect refers to the multiple layers of processing[cite: 47]. Each layer learns to recognize different features of the data, building understanding incrementally[cite: 47]. This is analogous to how humans process text: from characters to words, then phrases, sentences, and finally to overall meaning[cite: 53]. Figure \@ref(fig:deep-layers-para) illustrates this layered abstraction.
+
+```{r deep-layers-para, echo=FALSE, engine='tikz', out.width='100%', fig.cap='The "Deep" in Deep Learning: Layers of Feature Abstraction, from raw text input through simple and complex features to abstract concepts and finally meaning or category. [cite: 48, 49, 50, 51, 52, 53]', fig.ext=if (knitr:::is_latex_output()) 'pdf' else 'png'}
+\usetikzlibrary{
+  positioning,
+  arrows.meta,          % <-- required for >=Latex
+  decorations.pathreplacing,
+  shapes
+}
+\definecolor{energy}{RGB}{255, 217, 102}
+\definecolor{leaf}{RGB}{180, 230, 180}
+\definecolor{sky}{cmyk}{0.59, 0.23, 0, 0.10} 
+\definecolor{bricklight}{cmyk}{0, 0.19, 0.26, 0.02} % [cite: 1]
+\begin{tikzpicture}[
+    node distance=1.2cm,
+    every node/.style={transform shape},
+    neuron/.style={circle, draw, minimum size=0.9cm, text centered, font=\scriptsize},
+    labeltext/.style={font=\small, align=center},
+    >=Latex
+  ]
+
+  % Nodes
+  \node[neuron, fill=sky!40] (input) {Input}; %
+  \node[neuron, fill=leaf!40, right=of input] (hidden1) {Layer 1}; %
+  \node[neuron, fill=leaf!40, right=of hidden1] (hidden2) {Layer 2}; %
+  \node[neuron, fill=leaf!40, right=of hidden2] (hidden3) {Layer 3}; %
+  \node[neuron, fill=bricklight, right=of hidden3] (output) {Output}; %
+  % Arrows
+  \foreach \from/\to in {input/hidden1, hidden1/hidden2, hidden2/hidden3, hidden3/output} %
+    \draw[->] (\from) -- (\to); %
+  % Text Labels
+  \node[labeltext, below=0.6cm of input] {Raw\\Text}; %
+  \node[labeltext, below=0.6cm of hidden1] {Simple\\Features}; %
+  \node[labeltext, below=0.6cm of hidden2] {Complex\\Features}; %
+  \node[labeltext, below=0.6cm of hidden3] {Abstract\\Concepts}; %
+  \node[labeltext, below=0.6cm of output] {Meaning/\\Category}; %
+\end{tikzpicture}
+```
+
+### Neural Networks: Core Components
+
+Neural networks are constructed from basic units called "neurons" or "nodes"[cite: 54]. Each neuron receives one or more inputs, performs a simple computation, and then produces an output[cite: 54]. This structure is inspired by biological neurons but is fundamentally a simplified mathematical model[cite: 59]. Figure \@ref(fig:basic-neuron-para) shows a schematic of a single neuron.
+
+```{r basic-neuron-para, echo=FALSE, engine='tikz', out.width='60%', fig.cap='Basic Neuron Structure, receiving multiple inputs and producing an output. [cite: 54, 55, 56, 57, 58]', fig.ext=if (knitr:::is_latex_output()) 'pdf' else 'png'}
+\usetikzlibrary{
+  positioning,
+  arrows.meta,          % <-- required for >=Latex
+  decorations.pathreplacing,
+  shapes
+}
+\definecolor{energy}{RGB}{255, 217, 102}
+\definecolor{leaf}{RGB}{180, 230, 180}
+\definecolor{sky}{cmyk}{0.59, 0.23, 0, 0.10} 
+\definecolor{bricklight}{cmyk}{0, 0.19, 0.26, 0.02} % [cite: 1]
+\begin{tikzpicture}[
+    node distance=1.2cm and 1.5cm,
+    every node/.style={transform shape}, %
+    inputnode/.style={circle, draw, minimum size=0.8cm},
+    neuron/.style={circle, draw, fill=sky!40, minimum size=1.2cm, font=\scriptsize},
+    outputnode/.style={circle, draw, minimum size=0.8cm},
+    >=Latex
+  ]
+
+  % Input Nodes
+  \node[inputnode] (in1) at (0,1) {}; %
+  \node[inputnode] (in2) at (0,0) {}; %
+  \node[inputnode] (in3) at (0,-1) {}; %
+
+  % Neuron
+  \node[neuron, right=of in2] (neuron) {Neuron}; %
+  % Output Node
+  \node[outputnode, right=of neuron] (out) {}; %
+
+  % Connections
+  \foreach \i in {1,2,3} %
+    \draw[->] (in\i) -- (neuron); %
+  \draw[->] (neuron) -- (out); %
+
+  % Labels
+  \node[align=center, left=0.8cm of in2, font=\scriptsize] {Inputs}; %
+  \node[align=center, right=0.8cm of out, font=\scriptsize] {Output}; %
+\end{tikzpicture}
+```
+
+These neurons are organized into layers[cite: 60]. An **Input Layer** receives the raw data, such as the words in a text[cite: 61]. **Hidden Layers** then process this data through multiple computational steps; these are central to the "deep" aspect of deep learning[cite: 62]. Finally, an **Output Layer** produces the model's result, for instance, a sentiment classification or a topic label[cite: 63]. Figure \@ref(fig:simple-nn-para) depicts a simple network with input, hidden, and output layers.
+
+```{r simple-nn-para, echo=FALSE, engine='tikz', out.width='80%', fig.cap='A Simple Multi-Layer Neural Network, showing an input layer, two hidden layers, and an output layer, with full connectivity between adjacent layers. [cite: 64, 65, 66, 67, 68, 69, 70]', fig.ext=if (knitr:::is_latex_output()) 'pdf' else 'png'}
+\usetikzlibrary{
+  positioning,
+  arrows.meta,          % <-- required for >=Latex
+  decorations.pathreplacing,
+  shapes
+}
+\definecolor{energy}{RGB}{255, 217, 102}
+\definecolor{leaf}{RGB}{180, 230, 180}
+\definecolor{sky}{cmyk}{0.59, 0.23, 0, 0.10} 
+\definecolor{bricklight}{cmyk}{0, 0.19, 0.26, 0.02} % [cite: 1]
+\begin{tikzpicture}[
+    node distance=1cm and 1cm,
+    every node/.style={transform shape},
+    layer/.style={circle, draw, fill=sky!40, minimum size=0.9cm},
+    hidden/.style={circle, draw, fill=leaf!40, minimum size=0.9cm},
+    output/.style={circle, draw, fill=bricklight, minimum size=0.9cm},
+    >=Latex
+  ]
+
+  % Input Layer
+  \foreach \i [count=\y] in {1,2,3} { %
+    \node (input\i) at (0, -\y*1.5) [layer] {}; %
+  }
+  \node[align=center] at (0, -6) {Input}; %
+
+  % Hidden Layer 1
+  \foreach \i [count=\y] in {1,2,3,4} { %
+    \node (hiddenA\i) at (2, -\y*1.2) [hidden] {}; %
+  }
+  \node[align=center] at (2, -6) {Hidden 1}; %
+
+  % Hidden Layer 2
+  \foreach \i [count=\y] in {1,2,3} { %
+    \node (hiddenB\i) at (4, -\y*1.5) [hidden] {}; %
+  }
+  \node[align=center] at (4, -6) {Hidden 2}; %
+
+  % Output Layer
+  \node (output1) at (6, -3) [output] {}; %
+  \node[align=center] at (6, -6) {Output}; %
+
+  % Connections
+  \foreach \i in {1,2,3} %
+    \foreach \j in {1,2,3,4} %
+      \draw[->] (input\i) -- (hiddenA\j); %
+  \foreach \i in {1,2,3,4} %
+    \foreach \j in {1,2,3} %
+      \draw[->] (hiddenA\i) -- (hiddenB\j); %
+  \foreach \i in {1,2,3} %
+    \draw[->] (hiddenB\i) -- (output1); %
+\end{tikzpicture}
+```
+
+The connections between neurons are associated with numerical values called *weights*[cite: 71]. These weights are fundamental as they determine the influence one neuron's output has on another's input[cite: 71]. The process of learning in a neural network is essentially the adjustment of these weights to improve performance[cite: 71]. One can think of these weights as representing the **strength** of the connection between neurons[cite: 71, 73].
+
+Learning occurs by training the network with a dataset containing examples and their corresponding correct labels[cite: 74]. The network makes predictions based on its current weights, compares these predictions to the true answers to calculate an "error," and then slightly adjusts its weights to reduce this error[cite: 74]. This iterative process is repeated many times. For instance, if a network predicts a tweet like "Tax cuts for the rich are absurd. The gap is growing!" as being about 'Policy' when the correct label is 'Concern', it will adjust its weights to make 'Concern' a more likely prediction for similar tweets in the future[cite: 75, 74]. Figure \@ref(fig:learning-process-para) schematizes this iterative learning loop involving forward pass, error computation, and weight adjustment (backpropagation).
+
+```{r learning-process-para, echo=FALSE, engine='tikz', out.width='100%', fig.cap='The Learning Process in a Neural Network, illustrating the cycle of input, forward pass through the network, prediction, error computation against true labels, and weight adjustment via backpropagation. [cite: 76, 77, 78, 79, 80]', fig.ext=if (knitr:::is_latex_output()) 'pdf' else 'png'}
+\usetikzlibrary{
+  positioning,
+  arrows.meta,          % <-- required for >=Latex
+  decorations.pathreplacing,
+  shapes
+}
+\definecolor{energy}{RGB}{255, 217, 102}
+\definecolor{leaf}{RGB}{180, 230, 180}
+\definecolor{sky}{cmyk}{0.59, 0.23, 0, 0.10} 
+\definecolor{bricklight}{cmyk}{0, 0.19, 0.26, 0.02} % [cite: 1]
+\begin{tikzpicture}[
+    node distance=1.4cm and 1.2cm,
+    every node/.style={transform shape},
+    data/.style={rectangle, draw, thick, minimum width=2.6cm, minimum height=0.8cm, align=center, font=\scriptsize},
+    process/.style={rectangle, draw, thick, fill=sky!40, minimum width=2.6cm, minimum height=0.8cm, align=center, font=\scriptsize},
+    decision/.style={diamond, draw, thick, fill=energy!40, text centered, aspect=2, font=\scriptsize},
+    arrow/.style={->, >=Latex, thick},
+    feedback/.style={->, >=Latex, thick, dashed}
+  ]
+
+  % Nodes
+  \node[data] (input) {Input Data\\(e.g., Image, Text)}; %
+  \node[process, right=of input] (network) {Neural Network\\(Forward Pass)}; %
+  \node[data, right=of network] (prediction) {Prediction}; %
+  \node[data, below=of prediction] (true) {True Label}; %
+  \node[process, below=of network] (error) {Compute Error}; %
+  \node[process, below=of input] (update) {Adjust Weights\\(Backpropagation)}; %
+
+  % Arrows
+  \draw[arrow] (input) -- (network); %
+  \draw[arrow] (network) -- (prediction); %
+  \draw[arrow] (prediction) -- (error); %
+  \draw[arrow] (true) -- (error); %
+  \draw[arrow] (error) -- (update); %
+  \draw[feedback] (update.west) -- ++(-1,0) |- (input.west); %
+\end{tikzpicture}
+```
+
+### Representing Words: Word Embeddings
+
+Since computers do not understand words directly, words must be converted into a numerical format[cite: 81]. Deep learning models predominantly use **Word Embeddings** for this purpose, where words are represented as dense vectors—lists of numbers[cite: 81, 82, 83]. Figure \@ref(fig:word-embedding-vector-para) shows a word being mapped to such a vector.
+
+```{r word-embedding-vector-para, echo=FALSE, engine='tikz', out.width='70%', fig.cap='A Word (e.g., "equality") being represented as a numerical vector through an embedding process. [cite: 81, 82, 83]', fig.ext=if (knitr:::is_latex_output()) 'pdf' else 'png'}
+\usetikzlibrary{
+  positioning,
+  arrows.meta,          % <-- required for >=Latex
+  decorations.pathreplacing,
+  shapes
+}
+\definecolor{energy}{RGB}{255, 217, 102}
+\definecolor{leaf}{RGB}{180, 230, 180}
+\definecolor{sky}{cmyk}{0.59, 0.23, 0, 0.10} 
+\definecolor{bricklight}{cmyk}{0, 0.19, 0.26, 0.02} % [cite: 1]
+\begin{tikzpicture}[node distance=1cm, auto]
+    % Nodes
+    \node (word) at (0,0) {Word (``equality'')}; %
+    \node (vector) at (4,0) [draw, rectangle, fill=energy!40] {Vector [0.15, -0.4, 0.7, ...]}; %
+    % Arrow
+    \draw[->] (word) -- (vector); %
+\end{tikzpicture}
+```
+
+A key characteristic of effective word embeddings is that words with similar meanings are positioned closer to each other in the resulting multi-dimensional vector space[cite: 84]. This spatial arrangement allows the model to understand synonyms, related concepts, and even analogies, such as the classic "Man is to King as Woman is to Queen" relationship, which can be represented by vector arithmetic (e.g., vector(King) - vector(Man) + vector(Woman) $\approx$ vector(Queen))[cite: 84, 85, 86, 88, 89]. Figure \@ref(fig:embedding-space-para) provides a simplified 2D illustration of this concept.
+
+```{r embedding-space-para, echo=FALSE, engine='tikz', out.width='70%', fig.cap='A simplified 2D word embedding space where semantically similar words (e.g., King/Queen, Man/Woman, Cat/Dog) are located near each other. Dashed arrows illustrate relational similarities. [cite: 84, 85, 86, 87, 88, 89]', fig.ext=if (knitr:::is_latex_output()) 'pdf' else 'png'}
+\usetikzlibrary{
+  positioning,
+  arrows.meta,          % <-- required for >=Latex
+  decorations.pathreplacing,
+  shapes
+}
+\definecolor{energy}{RGB}{255, 217, 102}
+\definecolor{leaf}{RGB}{180, 230, 180}
+\definecolor{sky}{cmyk}{0.59, 0.23, 0, 0.10} 
+\definecolor{bricklight}{cmyk}{0, 0.19, 0.26, 0.02} % [cite: 1]
+\begin{tikzpicture}[scale=0.8]
+    % Axes
+    \draw[->] (-3,0) -- (3,0) node[right] {Dimension 1}; %
+    \draw[->] (0,-3) -- (0,3) node[above] {Dimension 2}; %
+
+    % Points
+    \fill[sky] (2, 1.5) circle (2pt) node[above right] {King}; %
+    \fill[sky] (0.5, 1) circle (2pt) node[below right] {Queen}; %
+    \fill[bricklight] (2, -1) circle (2pt) node[below right] {Man}; %
+    \fill[bricklight] (0.5, -1.5) circle (2pt) node[above right] {Woman}; %
+    \fill[leaf] (-2, 0.5) circle (2pt) node[above left] {Cat}; %
+    \fill[leaf] (-1.5, -0.5) circle (2pt) node[below left] {Dog}; %
+
+    % Arrows (analogy)
+    \draw[->, dashed] (2,-1) -- (2,1.5); % % Man to King
+    \draw[->, dashed] (0.5,-1.5) -- (0.5,1); % % Woman to Queen
+\end{tikzpicture}
+```
+
+The utility of word embeddings in social science research is increasingly recognized, with studies applying them to analyze ideological placement in parliamentary corpora, track the changing meanings of political concepts over time, investigate shifts in communication styles in political discourse, and provide guidance on their effective use in applied research[cite: 90].
+
+### Handling Sequences: Recurrent Neural Networks (RNNs)
+
+A significant challenge with simpler models like bag-of-words is their disregard for word order, yet the meaning of text heavily depends on the sequence of words (e.g., "High taxes stifle opportunity" vs. "Opportunity stifled by high taxes")[cite: 91]. Recurrent Neural Networks (RNNs) are specifically designed to handle such sequential data[cite: 91]. They possess a form of *memory*, allowing information from previous words in a sequence to influence the processing of subsequent words[cite: 91, 99]. RNNs process words one by one, maintaining a state or "memory" that carries forward contextual information[cite: 91, 98, 99]. Figure \@ref(fig:rnn-diagram-para) shows how an RNN processes a sequence of words, with memory passed between units.
+
+However, basic RNNs can encounter difficulties, particularly with remembering information over very long sequences (the vanishing gradient problem) and capturing dependencies between words that are far apart in a sentence or document[cite: 92].
+
+```{r rnn-diagram-para, echo=FALSE, engine='tikz', out.width='100%', fig.cap='Recurrent Neural Network (RNN) processing a sequence of words (Word 1 to Word N). Each RNN unit processes a word and passes its memory state to the next unit, allowing information to flow through the sequence. [cite: 93, 94, 95, 96, 97, 98, 99, 100]', fig.ext=if (knitr:::is_latex_output()) 'pdf' else 'png'}
+\usetikzlibrary{
+  positioning,
+  arrows.meta,          % <-- required for >=Latex
+  decorations.pathreplacing,
+  shapes
+}
+\tikzset{textnode/.style={rectangle, draw=none, text centered, node distance=0.5cm},
+rnn/.style={circle, draw, fill=leaf!40, minimum size=1.5cm, text centered},
+arrow/.style={->, >=Latex, thick},
+memory arrow/.style={->,thick, purple, densely dashed},
+word/.style={rectangle, draw, fill=sky!40, minimum width=1.5cm, minimum height=0.8cm, text centered}}
+\definecolor{energy}{RGB}{255, 217, 102}
+\definecolor{leaf}{RGB}{180, 230, 180}
+\definecolor{sky}{cmyk}{0.59, 0.23, 0, 0.10} 
+\definecolor{bricklight}{cmyk}{0, 0.19, 0.26, 0.02} % [cite: 1]
+\begin{tikzpicture}[node distance=2.8cm and 2.2cm]
+    % Nodes for words
+    \node[word] (w1) {Word 1}; %
+    \node[word, right of=w1] (w2) {Word 2}; %
+    \node[word, right of=w2] (w3) {Word 3}; %
+    \node[textnode, right of=w3, node distance=1.4cm] (dots) {...}; %
+    \node[word, right of=dots, node distance=1.4cm] (wn) {Word N}; %
+
+    % Nodes for RNN units
+    \node[rnn, below of=w1, align=center] (rnn1) {RNN\\Unit}; %
+    \node[rnn, below of=w2, align=center] (rnn2) {RNN\\Unit}; %
+    \node[rnn, below of=w3, align=center] (rnn3) {RNN\\Unit}; %
+    \node[rnn, below of=wn, align=center] (rnnn) {RNN\\Unit}; %
+    % Arrows - Input to RNN unit
+    \draw[arrow] (w1) -- (rnn1); %
+    \draw[arrow] (w2) -- (rnn2); %
+    \draw[arrow] (w3) -- (rnn3); %
+    \draw[arrow] (wn) -- (rnnn); %
+    % Arrows - Recurrent connection (Memory)
+    \draw[memory arrow] (rnn1) -- (rnn2) node[above=0.1cm,midway] {Memory}; %
+    \draw[memory arrow] (rnn2) -- (rnn3) node[above=0.1cm,midway] {Memory}; %
+    \draw[memory arrow, dotted] (rnn3) -- (dots); %
+    \draw[memory arrow, dotted] (dots) -- (rnnn); %
+    \node[textnode, below of=rnnn, node distance=2cm] {Final representation of tweet}; %
+\end{tikzpicture}
+```
+
+### Advanced Architectures: Transformers and Attention
+
+To address some limitations of RNNs and further improve performance on complex NLP tasks, Transformer models were introduced, with the key innovative idea being the **Attention** mechanism[cite: 101]. Attention allows the model to weigh the importance of different words in the input text when processing information, rather than relying solely on sequential processing or fixed-length context windows[cite: 101]. This is analogous to how humans, when reading a sentence, quickly identify and focus on the most important words to understand the overall meaning[cite: 101]. For example, when classifying the sentiment of "This system is utterly unfair," an attention mechanism can help the network strongly link "unfair" and "utterly" to "system," thereby achieving a better contextual understanding for classification[cite: 102, 103, 104, 105, 106, 107]. Figure \@ref(fig:attention-mechanism-para) illustrates this concept of words attending to other relevant words.
+
+```{r attention-mechanism-para, echo=FALSE, engine='tikz', out.width='80%', fig.cap='Conceptual illustration of an Attention Mechanism, where words like "system", "utterly", and "This" attend to the word "unfair" to understand its context and impact. [cite: 102, 103, 104, 105, 106]', fig.ext=if (knitr:::is_latex_output()) 'pdf' else 'png'}
+\usetikzlibrary{
+  positioning,
+  arrows.meta,          % <-- required for >=Latex
+  decorations.pathreplacing,
+  shapes
+}
+\tikzset{textnode/.style={rectangle, draw=none, text centered, node distance=0.5cm},
+rnn/.style={circle, draw, fill=leaf!40, minimum size=1.5cm, text centered},
+arrow/.style={->, >=Latex, thick},
+memory arrow/.style={->,thick, purple, densely dashed},
+word/.style={rectangle, draw, fill=sky!40, minimum width=1.5cm, minimum height=0.8cm, text centered}}
+\definecolor{energy}{RGB}{255, 217, 102}
+\definecolor{leaf}{RGB}{180, 230, 180}
+\definecolor{sky}{cmyk}{0.59, 0.23, 0, 0.10} 
+\definecolor{bricklight}{cmyk}{0, 0.19, 0.26, 0.02} % [cite: 1]
+\begin{tikzpicture}[node distance=1cm, auto, textnode/.style={rectangle, draw=none, text centered}]
+    % Words
+    \node[textnode] (word1) at (0,0) {This}; %
+    \node[textnode] (word2) at (1.5,0) {system}; %
+    \node[textnode] (word3) at (3,0) {is}; %
+    \node[textnode] (word4) at (4.5,0) {utterly}; %
+    \node[textnode] (word5) at (6,0) {unfair}; %
+    \draw[->, sky, thick, shorten >= 2pt, shorten <= 2pt] (word2) edge[bend left=30] (word5); %
+    \draw[->, bricklight, thick, shorten >= 2pt, shorten <= 2pt] (word4) edge[bend left=0] (word5); %
+    \draw[->, leaf, thick, shorten >= 2pt, shorten <= 2pt] (word1) edge[bend left=40] (word5); %
+\end{tikzpicture}
+```
+
+The seminal paper "Attention Is All You Need" by Vaswani et al. (2017) introduced the Transformer architecture, which relies heavily on attention mechanisms and has become foundational for many state-of-the-art NLP models.
+```{r transformers-paper-para, echo=FALSE, fig.cap='Placeholder: Transformer Model Architecture (Vaswani et al., 2017).', out.width='80%'}
+cat("Placeholder for image: figures/transfomers.png")
+```
+
+The development of NLP techniques, from early rule-based systems to modern deep learning architectures, represents a significant evolution in how machines process and understand human language.
+```{r nlp-timeline-para, echo=FALSE, fig.cap='Placeholder: Timeline of NLP Developments.', out.width='70%'}
+cat("Placeholder for image: figures/timeline.png")
+```
+
+### Evaluating Deep Learning: Advantages and Challenges
+
+Deep learning models offer several advantages for text analysis. They can discover **latent concepts**, uncovering hidden themes and meanings within text that might not be apparent through other methods[cite: 108]. Their ability to model **complexity** allows them to uncover subtle patterns and interactions in large, unstructured text datasets[cite: 108]. These **capabilities** mean they can analyze sentiment, emotion, ideology, framing, and narratives in a more nuanced manner than traditional techniques and can learn highly complex, non-linear relationships in data[cite: 108]. Furthermore, deep learning often **automates feature extraction**, reducing the need for extensive manual feature engineering[cite: 108].
+
+Despite these strengths, deep learning also presents challenges. Models can act as a **"black box,"** making their decision-making processes difficult to interpret and understand[cite: 109]. They typically require **large amounts of data** for effective training[cite: 109]. The **cost** associated with training deep models can be substantial, requiring significant computing resources and time[cite: 109]. A critical concern is **bias**, as models can learn and even amplify biases present in the training data[cite: 109]. Finally, implementing and fine-tuning these models effectively often requires considerable technical expertise[cite: 109].
+
+---
+
+## Practical Exercise: Basic Text Classification with Deep Learning in Python
+
+Having discussed the theoretical foundations of deep learning for text, we now transition to a practical application. This exercise will guide you through implementing a simple deep learning model, specifically a feedforward neural network, to classify text sentiment using the Keras API within TensorFlow. While we use a standard dataset of movie reviews for its clarity and pre-labeled nature[cite: 116], the techniques and workflow are directly transferable to a wide array of social science text analysis tasks[cite: 110]. For instance, these methods can be adapted for analyzing sentiment in political tweets or news articles, detecting stances in parliamentary debates or online forum discussions, coding open-ended survey responses, or identifying thematic content in interview transcripts[cite: 111]. Understanding how to numerically represent text and build classifiers is a crucial skill for analyzing large text corpora in social research[cite: 111].
+
+### 1. Setup: Importing Libraries
+
+Our first step is to import the necessary Python libraries. We will use `tensorflow` and its high-level API `keras` for building and training our deep learning model[cite: 112]. `numpy` will be employed for numerical operations[cite: 113], and `pandas` could be used for more complex data manipulation, though Keras datasets often load directly in a usable format[cite: 113]. `scikit-learn` offers tools for tasks like splitting data and evaluating model metrics[cite: 114], although for this specific exercise, Keras functionalities will cover most needs. Optionally, `matplotlib` can be used for visualizing results, such as training progress[cite: 114].
+
+```{python setup-libraries-para, eval=FALSE}
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras.datasets import imdb
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Embedding, Flatten, Dense
+# from sklearn.model_selection import train_test_split # Listed in preamble, not used in the script body [cite: 114]
+# Optional: for plotting
+# import matplotlib.pyplot as plt
+
+print("TensorFlow Version:", tf.__version__)
+```
+
+### 2. Load Data: IMDB Movie Reviews
+
+For this exercise, we will use the well-known IMDB movie review dataset, which Keras conveniently provides[cite: 116]. This dataset comprises 50,000 movie reviews, each pre-labeled as either positive (represented by 1) or negative (represented by 0)[cite: 116]. When loading the data, we specify `num_words=VOCAB_SIZE` (e.g., 10,000) to limit our vocabulary to the top `VOCAB_SIZE` most frequent words in the dataset[cite: 117, 118]. Words that fall outside this selected vocabulary will be treated as "unknown" tokens[cite: 118]. This is a common preprocessing step to manage vocabulary size and focus on more informative words.
+
+```{python load-data-para, eval=FALSE}
+# --- Parameters ---
+VOCAB_SIZE = 10000  # How many unique words to consider [cite: 118]
+# --- End Parameters ---
+
+print(f"Loading IMDB dataset, keeping top {VOCAB_SIZE} words...")
+(train_data, train_labels), (test_data, test_labels) = imdb.load_data(num_words=VOCAB_SIZE)
+
+print("--------------------")
+print(f"Training entries: {len(train_data)}, labels: {len(train_labels)}")
+print(f"Test entries: {len(test_data)}, labels: {len(test_labels)}")
+print("--------------------")
+print("Example review (sequence of word indices):")
+print(train_data[0])
+print("--------------------")
+print("Example label (0=Negative, 1=Positive):")
+print(train_labels[0])
+```
+
+It is important to understand the format of this data. Each review is already preprocessed into a sequence of integers[cite: 119]. Each integer corresponds to a specific word in a pre-defined dictionary or vocabulary[cite: 119]. For exploration, we can decode these integer sequences back into human-readable words, although this step is not required for model training itself[cite: 120]. The `imdb.get_word_index()` function provides the word-to-index mapping, to which we add special tokens like `<PAD>` (for padding), `<START>` (to mark the beginning), `<UNK>` (for unknown words), and an unused token[cite: 120].
+
+```{python decode-review-para, eval=FALSE}
+# A dictionary mapping words to an integer index [cite: 120]
+word_index = imdb.get_word_index()
+
+# The first indices are reserved; shift original indices by 3 [cite: 120]
+word_index = {k:(v+3) for k,v in word_index.items()}
+word_index["<PAD>"] = 0  # Padding token [cite: 120]
+word_index["<START>"] = 1 # Start token [cite: 120]
+word_index["<UNK>"] = 2  # Unknown token [cite: 120]
+word_index["<UNUSED>"] = 3 # [cite: 120]
+
+reverse_word_index = dict([(value, key) for (key, value) in word_index.items()])
+
+def decode_review(text_indices):
+    return ' '.join([reverse_word_index.get(i, '?') for i in text_indices])
+
+print("Decoded first review:")
+print(decode_review(train_data[0]))
+```
+
+### 3. Preprocessing: Padding Sequences
+
+Neural networks generally require inputs to have a consistent shape and size[cite: 121]. However, our movie reviews naturally vary in length (i.e., they have different numbers of words)[cite: 121]. To address this, we must standardize the length of each review sequence using a technique called **padding**[cite: 121, 122]. We select a `MAX_SEQUENCE_LENGTH` (e.g., 250 words)[cite: 126]. Reviews shorter than this maximum length will be padded with a special value (0, which we mapped to the `<PAD>` token) to reach the desired length[cite: 123]. Conversely, reviews longer than `MAX_SEQUENCE_LENGTH` will be truncated, meaning words beyond this limit will be removed[cite: 124]. We can choose to apply padding and truncation either at the beginning (`padding='pre'`, `truncating='pre'`) or at the end (`padding='post'`, `truncating='post'`) of the sequences[cite: 125]. While post-padding is used here, pre-padding is often slightly preferred for certain sequence models that we might encounter later in the course[cite: 125].
+
+```{python pad-sequences-para, eval=FALSE}
+# --- Parameters ---
+MAX_SEQUENCE_LENGTH = 250  # Max number of words per review to consider [cite: 126]
+PADDING_TYPE = 'post'      # Pad/truncate at the 'pre' or 'post' end [cite: 125, 127]
+TRUNCATING_TYPE = 'post'   # Truncate from 'pre' or 'post' [cite: 125, 127]
+# --- End Parameters ---
+
+print("Padding/Truncating sequences...")
+train_data_padded = pad_sequences(train_data,
+                                  maxlen=MAX_SEQUENCE_LENGTH,
+                                  padding=PADDING_TYPE,
+                                  truncating=TRUNCATING_TYPE) # [cite: 127]
+
+test_data_padded = pad_sequences(test_data,
+                                 maxlen=MAX_SEQUENCE_LENGTH,
+                                 padding=PADDING_TYPE,
+                                 truncating=TRUNCATING_TYPE) # [cite: 128]
+
+print("--------------------")
+print("Shape of original train data entry:", train_data[0].shape) # Example to show change
+print("Shape of padded train data entry:", train_data_padded[0].shape)
+print("--------------------")
+print("Example Padded Review (scroll right to see potential padding):")
+print(train_data_padded[0])
+```
+
+As a good practice, we should also ensure our labels (positive/negative sentiment) are in the correct data type, typically NumPy arrays of type `float32`, for compatibility with loss functions used during model training[cite: 129].
+
+```{python set-data-types-para, eval=FALSE}
+train_labels = np.asarray(train_labels).astype('float32') # [cite: 129]
+test_labels = np.asarray(test_labels).astype('float32') # [cite: 129]
+
+print("--------------------")
+print("Data types check:")
+print("Padded Train Data:", train_data_padded.dtype)
+print("Train Labels:", train_labels.dtype)
+```
+
+### 4. Build the Model
+
+Now, we define the architecture of our neural network using the Keras Sequential API, which allows us to build models layer-by-layer[cite: 130]. For this exercise, we will construct a simple feedforward network consisting of an embedding layer, a flatten layer, a hidden dense layer, and an output dense layer[cite: 130].
+
+1.  The **Embedding Layer** is a crucial component for NLP tasks[cite: 131]. It takes the integer-encoded vocabulary (with `VOCAB_SIZE` unique words) as input[cite: 131]. Its primary function is to learn a dense vector representation, known as an "embedding," for each word in the vocabulary[cite: 132]. The dimensionality of these learned vectors is specified by `EMBEDDING_DIM` (e.g., 16)[cite: 133, 143]. The output of this layer for a batch of sequences will have a shape of `(batch_size, MAX_SEQUENCE_LENGTH, EMBEDDING_DIM)`[cite: 134]. Instead of using sparse representations like one-hot encoding or TF-IDF vectors, embeddings learn meaningful, lower-dimensional representations where words with similar meanings tend to have similar vector representations[cite: 134]. We will explore embeddings in more detail later[cite: 135].
+
+2.  The **Flatten Layer** follows the embedding layer. Its purpose is to transform the 3D output of the Embedding layer (which is `sequence_length * embedding_dim` for each review) into a 1D vector[cite: 136]. This flattening is necessary to make the data suitable for input into standard Dense (fully connected) layers[cite: 136]. It's important to note that this layer discards any sequence information present in the embeddings by collapsing the sequence dimension[cite: 136]. Alternatives like `GlobalAveragePooling1D` or `GlobalMaxPooling1D` layers are often better choices as they aggregate information across the sequence dimension, thereby retaining some information regardless of word position, and you might experiment with these later[cite: 137].
+
+3.  Next is a **Dense Layer**, serving as a hidden layer in our network. This is a standard fully connected layer. We use the ReLU (Rectified Linear Unit) activation function, which is a common choice for hidden layers[cite: 138, 139]. This layer learns higher-level combinations of features from the flattened word embeddings[cite: 139]. The number of neurons in this layer is set by `HIDDEN_LAYER_UNITS`[cite: 143].
+
+4.  Finally, the **Output Dense Layer** consists of a single neuron and uses a sigmoid activation function[cite: 140, 141]. The sigmoid function squashes its input into a range between 0 and 1, making it ideal for binary classification tasks like ours[cite: 141]. The output can be interpreted as the probability of the review being positive[cite: 141].
+
+Connecting this to social science applications, one can conceptualize the Embedding layer as learning the 'meaning' of words within the context of the data, and the subsequent Dense layers as learning how combinations of these learned word meanings relate to the outcome variable (e.g., positive or negative sentiment)[cite: 142].
+
+```{python build-model-para, eval=FALSE}
+# --- Parameters ---
+EMBEDDING_DIM = 16       # Dimension of the word vectors learned by Embedding layer [cite: 143]
+HIDDEN_LAYER_UNITS = 16  # Number of neurons in the hidden Dense layer [cite: 143]
+# --- End Parameters ---
+
+print("Building the model...")
+
+model = Sequential([
+    # 1. Embedding Layer
+    Embedding(input_dim=VOCAB_SIZE,           # Size of the vocabulary [cite: 131]
+              output_dim=EMBEDDING_DIM,       # Dimension of the embedding vector for each word [cite: 133]
+              input_length=MAX_SEQUENCE_LENGTH # Length of input sequences [cite: 144]
+             ),
+    # 2. Flatten Layer (or try GlobalAveragePooling1D()) [cite: 136]
+    Flatten(),
+    # GlobalAveragePooling1D(), # Alternative to Flatten [cite: 137]
+
+    # 3. Hidden Dense Layer
+    Dense(units=HIDDEN_LAYER_UNITS, activation='relu'), # [cite: 138, 139]
+
+    # 4. Output Dense Layer
+    Dense(units=1, activation='sigmoid') # Sigmoid for binary classification [cite: 140, 141]
+])
+
+print("--------------------")
+model.summary() # Print a summary of the model architecture
+```
+
+### 5. Compile the Model
+
+Before we can train our network, we need to configure its learning process using the `model.compile()` method[cite: 145]. This involves specifying three key components:
+
+* **Optimizer:** This is the algorithm that will be used to update the model's weights based on the training data and the calculated loss. `adam` (Adaptive Moment Estimation) is a widely used and generally effective optimizer that often provides good results with default settings[cite: 146]. This relates to the concept of Gradient Descent discussed in the lectures[cite: 146].
+* **Loss Function:** This function measures how inaccurate the model's predictions are compared to the true labels during training[cite: 147]. For binary (0/1) classification problems where the output layer uses a sigmoid activation function, `binary_crossentropy` is the standard and appropriate loss function[cite: 148].
+* **Metrics:** These are used to monitor the training and testing steps. While the loss function is used to guide the learning process (weight updates), metrics provide a human-understandable measure of model performance. We will use `accuracy`, which calculates the proportion of correctly classified reviews[cite: 149].
+
+```{python compile-model-para, eval=FALSE}
+print("Compiling the model...")
+model.compile(optimizer='adam',              # [cite: 146]
+              loss='binary_crossentropy',    # [cite: 148]
+              metrics=['accuracy'])          # [cite: 149]
+print("Model compiled.")
+```
+
+### 6. Train the Model
+
+With the model architecture defined and compiled, we can now train it using the `model.fit()` method[cite: 151]. This method takes our padded training data (`train_data_padded`) and corresponding training labels (`train_labels`) as input[cite: 151].
+
+Several parameters control the training process:
+* `epochs`: This specifies the number of times the model will iterate over the entire training dataset[cite: 152]. One epoch means every sample in the training data has been used once to update the model's weights.
+* `batch_size`: This defines the number of training samples that are processed before the model's weights are updated within each epoch[cite: 153]. For example, if the batch size is 512, the model processes 512 reviews, calculates the average loss, and then updates its weights.
+* `validation_data`: This is crucial for monitoring the model's performance on data it has not been trained on[cite: 154]. We provide our padded test data (`test_data_padded`) and test labels (`test_labels`) here. At the end of each epoch, the model evaluates its loss and any specified metrics (like accuracy) on this validation set[cite: 154]. Importantly, the model *does not train* on this validation data; it is only used for evaluation[cite: 155]. This helps us detect a common issue known as **overfitting**[cite: 155].
+
+Overfitting occurs when the model performs very well on the training data but poorly on unseen data (like the validation set or, later, the test set)[cite: 156]. It essentially means the model has learned the training data "too well," including its noise and specific quirks, rather than generalizable patterns. Signs of overfitting include the training accuracy continuing to increase while the validation accuracy plateaus or even starts to decrease[cite: 157].
+
+```{python train-model-para, eval=FALSE}
+# --- Parameters ---
+NUM_EPOCHS = 10    # Number of times to iterate over the entire training dataset [cite: 152, 158]
+BATCH_SIZE = 512   # Number of samples processed before weight update [cite: 153, 158]
+# --- End Parameters ---
+
+print("Training the model...")
+history = model.fit(train_data_padded,
+                    train_labels,                    # [cite: 151]
+                    epochs=NUM_EPOCHS,               # [cite: 152]
+                    batch_size=BATCH_SIZE,           # [cite: 153]
+                    validation_data=(test_data_padded, test_labels), # [cite: 154]
+                    verbose=1 # Set to 1 for progress bar, 2 for less output per epoch, 0 for silent [cite: 159]
+                   )
+print("Model training finished.")
+```
+
+Visualizing the training process by plotting the training and validation loss, as well as training and validation accuracy, over epochs is a highly recommended practice[cite: 160]. These plots make it much easier to understand how the training is progressing and to spot overfitting or other training issues[cite: 160].
+
+```{python plot-training-para, eval=FALSE}
+# # Optional: Plotting - uncomment to run [cite: 160]
+# import matplotlib.pyplot as plt
+
+# history_dict = history.history
+# acc = history_dict['accuracy']
+# val_acc = history_dict['val_accuracy']
+# loss = history_dict['loss']
+# val_loss = history_dict['val_loss']
+
+# epochs_range = range(1, NUM_EPOCHS + 1)
+
+# plt.figure(figsize=(12, 5))
+
+# plt.subplot(1, 2, 1)
+# plt.plot(epochs_range, loss, 'bo', label='Training loss')
+# plt.plot(epochs_range, val_loss, 'b', label='Validation loss')
+# plt.title('Training and validation loss')
+# plt.xlabel('Epochs')
+# plt.ylabel('Loss')
+# plt.legend()
+
+# plt.subplot(1, 2, 2)
+# plt.plot(epochs_range, acc, 'bo', label='Training acc')
+# plt.plot(epochs_range, val_acc, 'b', label='Validation acc')
+# plt.title('Training and validation accuracy')
+# plt.xlabel('Epochs')
+# plt.ylabel('Accuracy')
+# plt.legend()
+
+# plt.tight_layout()
+# plt.show()
+```
+
+### 7. Evaluate the Model
+
+After training, the final step is to evaluate the model's performance on the test set (`test_data_padded` and `test_labels`). This dataset has been kept separate throughout the training process and provides an unbiased estimate of how well the model is likely to perform on new, unseen data[cite: 161].
+
+```{python evaluate-model-para, eval=FALSE}
+print("Evaluating model on test data...")
+loss, accuracy = model.evaluate(test_data_padded, test_labels, verbose=0) # [cite: 161]
+
+print("--------------------")
+print(f"Test Loss: {loss:.4f}")
+print(f"Test Accuracy: {accuracy:.4f}")
+print("--------------------")
+```
+
+### 8. Discussion & Next Steps
+
+Having completed this exercise, you have successfully trained your first deep learning model for text classification[cite: 162, 163]. This achievement forms a solid foundation for tackling more complex NLP tasks using deep learning.
+
+## Exercises and Further Exploration
+
+The completion of this initial model opens up several avenues for discussion and further experimentation, which are crucial for deepening your understanding.
+
+1.  **Baseline Comparison:** How did the achieved test accuracy compare to a simple baseline, such as random guessing (which would be 50% for a balanced binary classification task)? [cite: 163]
+2.  **Overfitting Assessment:** If you generated and examined the training plots, did you observe signs of overfitting? [cite: 164] Recall that a classic sign is when validation accuracy peaks and then potentially decreases, even as training accuracy continues to rise[cite: 165]. What strategies could be employed to mitigate overfitting if it was observed?
+3.  **Hyperparameter Sensitivity:** Consider the impact of `VOCAB_SIZE` and `MAX_SEQUENCE_LENGTH`[cite: 166]. How might changing these parameters affect model performance, training time, and memory usage? For instance, would a significantly larger `VOCAB_SIZE` always be beneficial?
+4.  **Model Architecture Limitations:** Reflect on the limitations of this relatively simple model[cite: 167]. The `Flatten` layer, for example, discards word order information[cite: 136, 167]. How might this affect its ability to understand more nuanced text where word order is critical?
+5.  **Application to Social Science Data:**
+    * Outline how this workflow (data loading, preprocessing, model building, compilation, training, and evaluation) could be adapted for a specific social science dataset you are familiar with or interested in (e.g., classifying political manifestos by ideology, detecting frames in news articles, or categorizing open-ended survey responses for themes)[cite: 168].
+    * What specific challenges might arise when working with real-world social science text data? Consider issues such as data cleanliness (noise, misspellings), variations in text length and style, the potential for more numerous or complex labels (multiclass or multilabel classification), and class imbalance in categorical data[cite: 169].
+6.  **Experimentation and Model Improvement:**
+    * Modify the `EMBEDDING_DIM` parameter[cite: 170]. Does increasing or decreasing the embedding dimension significantly impact performance? Is there a point of diminishing returns?
+    * Adjust the `HIDDEN_LAYER_UNITS` or experiment with adding another `Dense` hidden layer[cite: 171]. How does model complexity affect performance and the risk of overfitting?
+    * Replace the `Flatten()` layer with `keras.layers.GlobalAveragePooling1D()`[cite: 172]. Does this change improve accuracy? Why might `GlobalAveragePooling1D` be a better choice for some text classification tasks? (Hint: It aggregates embedding vectors across the sequence, which can be more robust to variations in sequence length and word position than simply flattening [cite: 137, 172]).
+    * Vary the `NUM_EPOCHS` for training[cite: 173]. Observe the impact on both training and validation accuracy. How does this relate to overfitting or underfitting?
+    * Experiment with different values for `VOCAB_SIZE` and `MAX_SEQUENCE_LENGTH`[cite: 174]. How do these choices trade off information retention versus computational efficiency?
+
+This exercise provides a crucial stepping stone. The understanding gained here will be invaluable as we progress to more sophisticated architectures like Recurrent Neural Networks (RNNs), Long Short-Term Memory networks (LSTMs), and Transformers, which are specifically designed to better capture sequential information and long-range dependencies in text[cite: 174].

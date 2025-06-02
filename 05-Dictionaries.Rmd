@@ -1,0 +1,424 @@
+# Dictionary Analysis{#dictionary-analysis}
+
+One of the simplest forms of quantitative text analysis is dictionary analysis. The idea here is to count the presence of pre-defined categories of words or phrases within texts to classify documents or measure the extent to which documents relate to particular topics or sentiments. By relying on a fixed set of terms and associated categories, dictionary methods provide a transparent and computationally efficient approach to text analysis. Unlike statistical or machine learning methods that learn patterns from data, dictionary methods are *non-statistical* and depend entirely on the quality and relevance of the dictionary used. A well-known application is measuring the tone of newspaper articles, speeches, children's writing, etc., using sentiment analysis dictionaries. These dictionaries categorise words as positive, negative or sometimes neutral, allowing a sentiment score to be calculated for a text. Another example is measuring the policy content of different documents, as illustrated by the Policy Agendas Project dictionary [@Albaugh2013a], which assigns words to various policy domains.
+
+While straightforward, dictionary analysis has limitations. To begin with, it relies on the assumption that the meaning of a word is relatively stable across different contexts and documents. This can be a strong assumption, as the same word can have different meanings (polysemy), or its meaning can be negated or altered by surrounding words (e.g. sarcasm). Besides, they also cannot identify concepts or themes not explicitly included in the dictionary. Despite these limitations, dictionary analysis remains a valuable tool, especially for exploratory analysis, when validated dictionaries are available or combined with other methods.
+
+Here, we will conduct three analyses using dictionaries: the first is a standard content analysis approach using a political dictionary, and the other two focus on sentiment. For the former, we will use the same political party manifestos we used in the previous chapter, while for the latter, we will use film reviews and Twitter data.
+
+## Classical Dictionary Analysis
+
+We start with the classical version of dictionary analysis. As for these dictionaries, we can either create them ourselves or use an off-the-shelf version. As with the data, ``quanteda`` provides access to several off-the-shelf dictionaries relevant to the social sciences:
+
+```{r package-quanteda-dictionaries, message=FALSE}
+library(quanteda.dictionaries)
+```
+
+We then apply one of these dictionaries to a document feature matrix (DFM), which is typically created from our corpus after appropriate pre-processing steps, such as tokenisation and lowercase and stopword removal, as we discussed in the previous chapter. As a dictionary, we will use the one created by @Laver2000a, which is designed to estimate political positions from political texts. We first load this dictionary into R and then run it on the DFM using the `dfm_lookup` command. Here, you can use the DFM we created in the previous chapter, though, for this example, we make it from scratch (without any pre-processing):
+
+```{r lookup-lavergarry-1, results='hide', message=FALSE}
+library(quanteda)
+library(quanteda.corpora)
+library(quanteda.dictionaries)
+
+data(data_corpus_ukmanifestos)
+data_corpus_ukmanifestos
+
+data_tokens <- tokens(data_corpus_ukmanifestos)
+data_dfm <- dfm(data_tokens)
+```
+
+First, let us have a look at the dictionary:
+
+```{r lookup-lavergarry-2}
+data_dictionary_LaverGarry # Display information about the dictionary object
+```
+
+Then, we apply it to the DFM:
+
+```{r lookup-lavergarry-3}
+dictionary_results <- dfm_lookup(data_dfm, data_dictionary_LaverGarry)
+dictionary_results
+```
+
+Here, we see that -- for example -- the 1945 Conservative Party manifesto -- contained 5 words related to High Culture while it contained none for Popular Culture. Overall, the `dfm_lookup()` function takes a DFM and a dictionary object as input and returns a new DFM where the features are the categories defined in the dictionary and the values are the aggregated counts of terms belonging to each category within each document.
+
+We can create our own dictionaries that better suit our research question or context. For this, we draw on our theoretical framework to develop different categories and their associated words. Another approach is using reference texts or expert knowledge to identify relevant category terms. We can also combine different dictionaries, as illustrated by @Young2012a, or integrate keywords from manual coding schemes [@Lind2019a]. In addition, we can use techniques involving expert or crowd-coding assessments to refine dictionaries or determine the words that best fit different categories [@Haselmayer2017a].
+
+If we want to create our dictionary in `quanteda`, we use the `dictionary()` command. To do this, we specify the words in a named list. This list contains keys (the names of the categories) and the values, which are character vectors containing the words or phrases belonging to each category. We can use wildcard characters (such as `*` for glob matching) to include word variations. We then convert this list into a dictionary object. Here, we choose some words that we think will allow us to identify different political stances or issues:
+
+```{r owndictionary-inaugural}
+dic_list <- list(
+    economy = c("tax*", "invest*", "trade", "fiscal policy"), # Include a multi-word phrase
+    war = c("army", "troops", "fight*", "military"),
+    diplomacy = c("nato", "un", "international relations"), 
+    government = c("london", "commons", "downing street", "westminster")
+)
+
+# tolower = TRUE is often recommended unless you have a specific reason not to lowercase
+
+dic_created <- dictionary(dic_list, tolower = TRUE)
+dic_created
+```
+
+If you compare the structure of `dic_list` and the resulting `dic_created` object with that of `data_dictionary_LaverGarry`, you will see that they have a similar structure, defining categories and associated terms. To then apply our created dictionary to the dfm, we use the same `dfm_lookup' command:
+
+```{r lookup-owndictionary}
+# Ensure the dfm used here is preprocessed with tolower = TRUE if the dictionary is lowercased
+
+dictionary_dfm <- dfm_lookup(data_dfm, dic_created)
+dictionary_dfm
+```
+
+Note that `dfm_lookup()` matches individual features (words) in the dfm to the dictionary entries. This means that it will correctly match `"tax"`, `"taxes"`, `"taxation"` to the "economy" category if `"tax*"` is in the dictionary. However, if our dictionary contains multi-word expressions (like `"fiscal policy"` or `"international relations"` in our example `dic_list`), `dfm_lookup()` will not find them because the dfm loses word order information.
+
+To correctly count multi-word expressions defined in a dictionary, we should apply the dictionary *before* creating the dfm directly to the `tokens' object using the `tokens_lookup()` function. tokens_lookup()` preserves the order of the tokens and can therefore match multi-word phrases. The output of `tokens_lookup()` is a `tokens` object where the original tokens are replaced by their dictionary categories. We can then convert the resulting token object into a dfm if necessary:
+
+```{r tokens-lookup-owndictionary}
+
+# Use tokens_lookup to handle multi-word expressions
+
+dictionary_tokens <- tokens_lookup(data_tokens, dic_created, exclusive = FALSE) # exclusive=FALSE allows tokens to match multiple categories if applicable
+
+dictionary_tokens_dfm <- dfm(dictionary_tokens)
+```
+
+Comparing `dictionary_created_dfm` and `dictionary_created_dfm_from_tokens` shows that the latter correctly identifies and counts the multi-word expressions defined in `dic_created`. Using `tokens_lookup()` with `exclusive = FALSE` means a token can be assigned to multiple categories if it matches entries in more than one. Setting `exclusive = TRUE` would assign a token to only one category (the first found match). Furthermore, while we can view the resulting dfm by calling it in the console or viewing it in the environment, we can also convert this dfm into a regular data frame for easier manipulation and visualisation. For this, we can use the `convert` command included in `quanteda`:
+
+```{r convert-owndictionary}
+dictionary_df <- convert(dictionary_tokens_dfm, to = "data.frame")
+```
+
+You can then use this data frame to normalise these raw counts and compare dictionary results across documents of different lengths by dividing the category counts by either the total number of tokens or the total number of dictionary words in each document.
+
+## Sentiment Analysis
+
+The logic of dictionaries extends beyond simple words, as we saw above; we can also use them to provide measures related to scaling, such as the degree of positive or negative sentiment and look at whether a text expresses happiness, anger, positivity, negativity, etc. This can be particularly useful for analysing subjective content such as movie reviews, which we will look at in the first example.
+
+### Movie Reviews
+
+Movie reviews often describe a film alongside an explicit opinion or rating. Here, we will use a sample from the Large Movie Review Dataset (`data_corpus_LMRD`), which contains reviews labelled as either positive or negative and which sometimes have ratings associated with them. As the dataset is large, we will work with a smaller sample of 30 reviews for demonstration purposes. We will sample the corpus using the `corpus_sample()` function and then preprocess it by tokenising, lowercasing, and removing stop words before creating a document feature matrix (DFM):
+
+```{r, moviereviews-sample, tidy=TRUE}
+library(quanteda.classifiers)
+library(quanteda)
+
+# Load the large movie review dataset and sample 30 reviews 
+data(data_corpus_LMRD)
+set.seed(42) # Set seed for reproducibility
+reviews <- corpus_sample(data_corpus_LMRD, 30)
+
+reviews_tokens <- tokens(reviews, remove_punct = TRUE, remove_symbols = TRUE, remove_numbers = TRUE, remove_url = TRUE)
+reviews_tokens <- tokens_tolower(reviews_tokens)
+reviews_tokens <- tokens_select(reviews_tokens, stopwords("english"), selection = "remove")
+reviews_dfm <- dfm(reviews_tokens)
+```
+
+The next step is to load a sentiment analysis dictionary and apply it to our film review dfm. Here, we will use the Lexicoder Sentiment Dictionary (LSD2015), which is included in `quanteda.dictionaries`. This dictionary categorises words as positive or negative. We use the dictionary with `dfm_lookup()`:
+
+```{r moviereviews-dfm, results=FALSE, tidy=TRUE}
+library(quanteda.dictionaries)
+data_dictionary_LSD2015
+
+results_dfm <- dfm_lookup(reviews_dfm, data_dictionary_LSD2015)
+results_dfm
+```
+
+The resulting `results_dfm` has features corresponding to the categories in the LSD2015 dictionary (e.g., "positive" and "negative"), and the values are the number of words in each category found in each film review. The next step then is to convert the results into a data frame for easier analysis and display:
+
+```{r moviereviews-convert}
+sentiment <- convert(results_dfm, to="data.frame")
+head(sentiment)
+```
+
+Often, movie reviews have an external rating (often in the form of stars or a positive/negative label). In that case, we can see if the dictionary-based sentiment is related to that rating. As the `data_corpus_LMRD` sample contains these ratings as document variables (docvars), we can extract this easily:
+
+```{r moviereviews-stars}
+star_data <- docvars(reviews, field = "rating")
+
+# Combine the rating with the dictionary sentiment scores
+
+stargraph <- as.data.frame(cbind(star_data, sentiment$negative, sentiment$positive))
+names(stargraph) <- c("stars", "negative", "positive")
+head(stargraph)
+```
+
+Now, we can combine the positive and negative counts into a single sentiment score to compare dictionary-based sentiment with star ratings. For this, we take the ratio of positive words to the total number of sentiment words ($positive / (positive + negative)$) to avoid division by zero if there are no positive or negative words:
+
+```{r moviereviews-stars-bind}
+sentiment_ratio <-  stargraph$positive / (stargraph$positive + stargraph$negative)
+
+stargraph <- cbind(stargraph, sentiment_ratio)
+head(stargraph)
+```
+
+Using `ggplot2`, we can plot the star ratings against these scaled sentiment measures to assess the relationship visually:
+
+```{r ggplot-moviereviews-stars}
+library(ggplot2)
+
+ggplot(stargraph, aes(x = sentiment_ratio, y = stars)) +
+ geom_point(shape = 1) +
+ geom_smooth(method = lm, se = FALSE, color = "black") +
+ scale_y_continuous(name = "Star Rating", limits = c(0, 10.5), expand = c(0, 0)) +
+ scale_x_continuous(name = "Ratio of Positive to Total Sentiment Words", limits = c(0, 1), expand = c(0, 0)) +
+ ggtitle("Sentiment Ratio vs. Star Rating") +
+ theme_classic()
+```
+
+Finally, we consider how to estimate the uncertainty around our dictionary-based sentiment scores, particularly the percentages of positive or negative words. For this, we use bootstrapping, a statistical technique that calculates the sampling variability of a statistic by resampling the observed data. In the context of text analysis and dictionary methods, bootstrapping can help us quantify the uncertainty in the estimated proportion of words falling into particular dictionary categories within each document. This is particularly useful for understanding the reliability of scores for shorter documents with limited word counts.
+
+The following code demonstrates a bootstrapping approach to estimating confidence intervals for the percentage of positive and negative words in each review. This method involves resampling the word counts within each document based on a multinomial distribution derived from the observed counts. While the code may appear complex, it essentially simulates drawing new sets of words for each document many times based on the proportions of positive and negative words found initially. The core logic is that the `apply` function with `rmultinom` simulates drawing new counts for the negative and positive categories based on their observed proportions and the total number of sentiment words in each document. We repeat this process `nrepl` several times to obtain a distribution of possible percentages for each document under resampling. The standard deviation of these simulated percentages estimates the standard error, which is then used to calculate confidence intervals.
+
+```{r moviereviews-bootstrap, message=FALSE}
+library(ggplot2) # For plotting
+library(dplyr) 
+
+# Prepare data for bootstrapping: include doc_id and sentiment counts
+
+reviews_bootstrap_data <- sentiment[, c("doc_id", "negative", "positive")]
+
+# Remove rows with zero total sentiment words to avoid division by zero issues later
+reviews_bootstrap_data <- reviews_bootstrap_data %>%
+  filter(negative + positive > 0)
+
+# Get the number of documents remaining
+nman <- nrow(reviews_bootstrap_data)
+
+# Set parameters for bootstrapping
+nrepl <- 1000 # Number of bootstrap replications
+
+# --- Perform Bootstrapping ---
+# We will store the results of each bootstrap replication in a list
+bootstrap_reps <- vector("list", nrepl)
+
+for (i in 1:nrepl) {
+  # For each document, simulate drawing word counts from a multinomial distribution
+  # The number of trials is the total sentiment words in the document
+  # The probabilities are the observed proportions of negative/positive words
+  boot_counts <- t(apply(reviews_bootstrap_data[, c("negative", "positive")], 1,
+                         function(x) {
+                           total_words <- sum(x)
+                           # Use rmultinom to draw new counts
+                           rmultinom(1, size = total_words, prob = x/total_words)[, 1]
+                         }))
+
+  # Calculate the percentage of negative and positive words for this replication
+  total_sentiment_words <- apply(reviews_bootstrap_data[, c("negative", "positive")], 1, sum)
+  percent_negative <- boot_counts[, "negative"] / total_sentiment_words * 100
+  percent_positive <- boot_counts[, "positive"] / total_sentiment_words * 100
+
+  # Store the percentages for this replication along with doc_id
+  bootstrap_reps[[i]] <- data.frame(
+    doc_id = reviews_bootstrap_data$doc_id,
+    percent_negative = percent_negative,
+    percent_positive = percent_positive
+  )
+}
+
+# Aggregate Bootstrapping Results and combine results from all replications into a single data frame
+
+all_bootstrap_results <- bind_rows(bootstrap_reps)
+
+# Calculate the mean percentage and standard error (SD of replicates) for each document
+
+summary_dataBS <- all_bootstrap_results %>%
+  group_by(doc_id) %>%
+  summarise(
+    perNegative = mean(percent_negative),
+    NegativeSE = sd(percent_negative),
+    perPositive = mean(percent_positive),
+    PositiveSE = sd(percent_positive),
+    .groups = 'drop' # Avoid grouping warning
+  )
+
+# Join with original counts for completeness
+dataBS <- reviews_bootstrap_data %>%
+  left_join(summary_dataBS, by = "doc_id")
+
+# Calculate the 95% confidence intervals (using 1.96 * Standard Error)
+
+dataBS$pos_hi <- dataBS$perPositive + (1.96 * dataBS$PositiveSE)
+dataBS$pos_lo <- dataBS$perPositive - (1.96 * dataBS$PositiveSE)
+dataBS$neg_lo <- dataBS$perNegative - (1.96 * dataBS$NegativeSE)
+dataBS$neg_hi <- dataBS$perNegative + (1.96 * dataBS$NegativeSE)
+
+# Ensure confidence intervals are within the valid range for percentages [0, 100]
+
+dataBS$pos_hi <- pmin(dataBS$pos_hi, 100)
+dataBS$pos_lo <- pmax(dataBS$pos_lo, 0)
+dataBS$neg_hi <- pmin(dataBS$neg_hi, 100)
+dataBS$neg_lo <- pmax(dataBS$neg_lo, 0)
+
+head(dataBS)
+```
+
+We can then produce a graph showing each review's estimated percentages of positive and negative words overlaid with their 95% confidence intervals:
+
+```{r ggplot-moviereviews-posneg}
+ggplot() +
+ geom_point(data = dataBS, aes(x = perPositive, y = doc_id), shape = 0) + # Plot mean positive percentage
+ geom_point(data = dataBS, aes(x = perNegative, y = doc_id), shape = 2) + # Plot mean negative percentage
+ geom_errorbarh(data = dataBS, aes(xmax = pos_hi, xmin = pos_lo, y = doc_id)) + # Error bars for positive
+ geom_errorbarh(data = dataBS, aes(xmax = neg_hi, xmin = neg_lo, y = doc_id)) + # Error bars for negative
+ scale_x_continuous(name = "Percent positive/negative with 95% CIs") +
+ scale_y_discrete(name = "Review Document ID") + 
+ ggtitle("Bootstrapped Sentiment Percentage with 95% Confidence Intervals") +
+ theme_classic()
+```
+
+Note that the fact that some documents are shorter than others and contain fewer dictionary words introduces more uncertainty to the estimates of the percentages. As can be seen from the overlapping confidence intervals for many documents, the estimated rate of negative words is not statistically different from that of positive words at the 95% confidence level for these reviews. Based on this dictionary and bootstrapping method, the sentiment for these reviews appears to be mixed or uncertain. The width of the error bars provides a visual indication of this uncertainty for each document. While bootstrapping quantifies this uncertainty, its interpretation requires careful consideration of the underlying assumptions.
+
+### Twitter
+
+Now, let us turn to another example of sentiment analysis using Twitter/X data. Due to its informal nature and use of slang, hashtags and emoticons, this type of text presents unique challenges, especially when cleaning. Here, we examine sentiment towards several major US airlines based on a dataset of tweets. In this case, researchers scraped data from Twitter and asked participants to classify the sentiment of each tweet as negative, positive or neutral, and if negative, to explain why. The data also includes information about the coders' confidence levels, the airline in question and the tweets' metadata. We can download this data from platforms such as Kaggle (e.g. the 'Airline Sentiment' dataset), but for ease of use in this example, we will load it directly from GitHub via a URL:
+
+```{r tweets-defineurl}
+urlfile = "https://raw.githubusercontent.com/SCJBruinsma/qta-files/master/Tweets.csv"
+tweets <- read.csv(url(urlfile), stringsAsFactors = FALSE) # Use stringsAsFactors = FALSE to keep text as character
+head(tweets)
+```
+
+After cleaning the text data in the data frame, we transform it into a `quanteda` corpus object, specifying that our text is in the `text` field. We then proceed with the standard `quanteda` preprocessing steps: transforming our corpus into a tokens object and removing stop words:
+
+```{r tweets-dfm, results="hide"}
+corpus_tweets <- corpus(tweets, text_field = "text")
+
+data_tweets_tokens <- tokens(corpus_tweets, 
+remove_punct = TRUE, 
+remove_symbols = TRUE,
+remove_numbers = TRUE,
+remove_url = TRUE,
+remove_separators = TRUE,
+split_hyphens = FALSE,
+split_tags = FALSE)
+
+data_tweets_tokens <- tokens_select(data_tweets_tokens, stopwords("english"), selection = "remove")
+
+data_tweets_dfm <- dfm(data_tweets_tokens)
+```
+
+Now, we can apply our sentiment dictionary. As discussed earlier, we can do this in two ways: by applying it to the dfm using `dfm_lookup()` or to the tokens object using `tokens_lookup()`. Both should give similar results for single-word entries, but we have to use `tokens_lookup()` to correctly identify multi-word expressions. As the LSD2015 dictionary contains some multi-word expressions, using `tokens_lookup()` and then converting the result to a dfm is the preferred approach to ensure that all dictionary entries are captured:
+
+```{r tweets-lookup}
+results_tokens <- tokens_lookup(data_tweets_tokens, data_dictionary_LSD2015)
+
+# Convert the resulting tokens object (with categories) to a dfm
+results_dfm <- dfm(results_tokens)
+
+# Convert the dfm to a data frame for analysis
+results_df <- convert(results_dfm, to = "data.frame")
+```
+
+Now, let us see how well our dictionary-based sentiment matches the human-assigned sentiment labels in the original dataset. We recode the human-assigned `airline_sentiment` labels from our original dataset into numerical values for easier comparison (e.g. positive = 1, negative = -1, neutral = 0):
+
+```{r tweets-recode, results=FALSE, warning=FALSE, message=FALSE}
+library(car)
+
+labels <- tweets$airline_sentiment
+sentiment_numeric <- car::recode(labels, "'positive'=1; 'negative'=-1; 'neutral'=0")
+print(table(sentiment_numeric))
+```
+
+A quick look at the table shows how human-assigned sentiment is distributed. Perhaps not unexpected, negative tweets about airlines are more common than positive ones. We now want to combine this data with the output of our dictionary analysis to calculate an overall sentiment score for each tweet. One common method is subtracting the negative score from the positive score (positive minus negative). A higher resulting score indicates a more positive dictionary-based sentiment:
+
+```{r tweets-cbind}
+comparison_df <- as.data.frame(cbind(results_df$positive, results_df$negative, sentiment_numeric))
+names(comparison_df) <- c("positive_dict", "negative_dict", "human_sentiment")
+
+# Calculate the sentiment difference from dictionary counts
+comparison_df$sentiment_difference_dict <- comparison_df$positive_dict - comparison_df$negative_dict
+
+head(comparison_df)
+```
+
+Finally, we can visualise the relationship between human-assigned and dictionary-based sentiment scores using a scatter plot. Since human sentiment is categorical (or comprises a small set of numerical values), adding jitter to the scores can help to visualise density. A simple linear regression line can illustrate the overall trend. We will use the results from the `tokens_lookup()` function, as this handles multi-word expressions correctly.
+
+```{r ggplot-tweets-comparison, warning=FALSE, message=FALSE}
+library(ggplot2)
+
+ggplot(comparison_df,
+       aes(x = sentiment_difference_dict, y = human_sentiment)) +
+  geom_jitter(shape = 1, alpha = 0.5) + # Add jitter and transparency
+  geom_smooth(method = lm, se = FALSE) + # Add linear regression line
+  scale_x_continuous(name = "Dictionary Sentiment Score (Positive - Negative)") +
+  scale_y_continuous(name = "Human Judgment (Recoded)") +
+  ggtitle("Dictionary Sentiment vs. Human Judgment for Tweets") +
+  theme_classic()
+```
+
+This graph visually shows the correlation between dictionary-based and human-assigned sentiment scores. A positive slope suggests that human coders rate tweets with higher positive-minus-negative dictionary scores as more positive. The strength of this relationship (e.g., measured by the correlation coefficient or $R^2$ from the linear model) indicates how well the dictionary captures the sentiment as perceived by humans in that particular domain.
+
+### VADER
+
+Another popular dictionary-based approach for sentiment analysis in social media contexts is VADER [@Hutto2014a] (Valence Aware Dictionary and sEntiment Reasoner). Unlike a simple dictionary lookup, VADER is a rule-based model that considers punctuation, capitalisation, emojis, and negation to determine sentiment intensity. It provides a continuous sentiment score ranging from -1 (most negative) to +1 (most positive) and scores for the proportions of positive, negative and neutral sentiment. Unlike most dictionaries, which rely on the judgement of a single expert or small group, the VADER dictionary was developed and validated using crowdsourced human judgements.
+
+We can use the `vader` package to use VADER in R; let's test it again using the airline tweet data. First, we reload the data and select a subset of tweets to work with to speed up processing, converting the text into a character vector:
+
+```{r tweets-reload, warning=FALSE, message=FALSE}
+urlfile = "https://raw.githubusercontent.com/SCJBruinsma/qta-files/master/Tweets.csv"
+tweets_vader <- read.csv(url(urlfile), stringsAsFactors = FALSE)
+# Select a sample of 1000 tweets for demonstration
+set.seed(42)
+tweets_sample_vader <- tweets_vader[sample(nrow(tweets_vader), 1000), ]
+text_vader <- tweets_sample_vader$text # Extract the text column
+```
+
+We then apply VADER to our tweets using the `vader_df()` function, which is designed to work with a character vector or data frame of text.
+
+```{r tweets-vader, warning=FALSE, message=FALSE}
+library(vader)
+
+results_vader <- vader_df(text_vader) # Apply vader_df to the extracted text vector
+```
+
+VADER then provides us with a data frame consisting of several variables. The most important ones are:
+
+* `text`: The original text of the tweet.
+* `compound`: A single, aggregated sentiment score ranging from -1 to +1. This is often the primary score we would use
+* `pos`, `neg`, `neu`: The proportion of the text that falls into positive, negative, and neutral categories, respectively.
+* `word_scores`: (If requested) Individual sentiment scores for each word.
+
+To get a better idea of the output, we can look at the distribution of the `compound` sentiment scores using a histogram:
+
+```{r tweets-vader-outputs, warning=FALSE, message=FALSE}
+library(ggplot2)
+
+ggplot(data = results_vader, aes(x = compound)) +
+ geom_histogram(bins = 30) +
+ scale_x_continuous(name = "Compound Sentiment Score", expand = c(0,0)) +
+ scale_y_continuous(name = "Frequency", expand = c(0,0)) +
+ ggtitle("Distribution of VADER Compound Sentiment Scores") +
+ theme_classic()
+```
+
+The histogram illustrates the frequency of tweets across the range of composite sentiment scores. In this dataset, a significant proportion of tweets tend to cluster around a neutral score ($0$), potentially due to the presence of purely informative tweets or the absence of strong emotional language. Examining tweets with scores close to zero can help us understand why they are classified as neutral by VADER. Tweets such as '\@JetBlue Counting on your flight $989$ to get to DC!' may lack explicit positive or negative language and, therefore, receive a neutral or near-neutral composite score. As before, we can compare the VADER composite score with the human-assigned sentiment labels:
+
+```{r tweets-vader-comparison}
+
+vader_comparison_df <- data.frame(vader_compound = results_vader$compound, human_sentiment = sentiment_numeric[as.numeric(rownames(tweets_sample_vader))])
+
+vader_comparison_df <- na.omit(vader_comparison_df)
+
+ggplot(vader_comparison_df, aes(x = vader_compound, y = human_sentiment)) +
+    geom_jitter(shape = 1, alpha = 0.5) + # Add jitter and transparency
+    geom_smooth(method = lm, se = FALSE) + # Add linear regression line
+    scale_x_continuous(name = "VADER Compound Sentiment Score") +
+    scale_y_continuous(name = "Human Judgment (Recoded)") +
+    ggtitle("VADER Compound Sentiment vs. Human Judgment for Tweets") +
+    theme_classic()
+```
+
+Comparing this plot with the previous one using LSD2015 provides us with some additional insight into which dictionary/approach better matches human judgement for this dataset.
+
+## Exercises
+
+1. Using a sentiment analysis dictionary such as LSD2015, analyse the sentiment expressed in the Wikipedia article on the Cold War from the previous chapter. Are there differences in sentiment between the paragraphs, and if so, what might the reasons for these differences be? Consider plotting the sentiment score against the document index.
+
+2. How did the Cold War influence culture, as reflected in textual data? Create your own dictionary of words or phrases representing cultural aspects influenced by the Cold War (e.g. terms related to fear, propaganda and specific cultural phenomena). Apply this dictionary to a relevant corpus (e.g. articles about the Cold War or cultural texts from the period) and analyse the frequency of these terms. Discuss your findings based on the dictionary counts.
+
+3. Explore the different sentiment scores provided by the `vader` package (pos, neg, neu and compound). Plot the distribution of the 'pos', 'neg' and 'neu' scores. How do these relate to the 'compound' score and the human-assigned labels?
+
+4. Research other sentiment dictionaries available in R, for example, in packages such as `syuzhet` or `tidytext` that can work with `quanteda` outputs. Apply one of these dictionaries to the film review or tweet data, then compare the results with those obtained using LSD2015 or VADER. What similarities and differences are there in the sentiment scores?
+
+5. Consider the limitations of dictionary analysis, especially with regard to context and negation. Find examples in the tweet data where a simple dictionary lookup might misclassify the sentiment due to negation ('not happy') or sarcasm. How might these cases be handled in a more advanced approach to sentiment analysis?

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>5.1 Classical Dictionary Analysis | Introduction to Quantitative Text Analysis</title>
+  <meta name="description" content="5.1 Classical Dictionary Analysis | Introduction to Quantitative Text Analysis" />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="5.1 Classical Dictionary Analysis | Introduction to Quantitative Text Analysis" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="5.1 Classical Dictionary Analysis | Introduction to Quantitative Text Analysis" />
+  
+  
+  
+
+<meta name="author" content="Kostas Gemenis and Bastiaan Bruinsma" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="dictionary-analysis.html"/>
+<link rel="next" href="sentiment-analysis.html"/>
+<script src="assets/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="assets/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="assets/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="assets/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="assets/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 2em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Introduction to Quantitative Text Analysis</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome!</a></li>
+<li class="chapter" data-level="1" data-path="preliminaries.html"><a href="preliminaries.html"><i class="fa fa-check"></i><b>1</b> Preliminaries</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="installing-r.html"><a href="installing-r.html"><i class="fa fa-check"></i><b>1.1</b> Installing R</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="installing-r.html"><a href="installing-r.html#windows"><i class="fa fa-check"></i><b>1.1.1</b> Windows</a></li>
+<li class="chapter" data-level="1.1.2" data-path="installing-r.html"><a href="installing-r.html#linux"><i class="fa fa-check"></i><b>1.1.2</b> Linux</a></li>
+<li class="chapter" data-level="1.1.3" data-path="installing-r.html"><a href="installing-r.html#macos"><i class="fa fa-check"></i><b>1.1.3</b> macOS</a></li>
+<li class="chapter" data-level="1.1.4" data-path="installing-r.html"><a href="installing-r.html#cloud"><i class="fa fa-check"></i><b>1.1.4</b> Cloud</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="installing-packages.html"><a href="installing-packages.html"><i class="fa fa-check"></i><b>1.2</b> Installing Packages</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="installing-packages.html"><a href="installing-packages.html#cran"><i class="fa fa-check"></i><b>1.2.1</b> CRAN</a></li>
+<li class="chapter" data-level="1.2.2" data-path="installing-packages.html"><a href="installing-packages.html#github"><i class="fa fa-check"></i><b>1.2.2</b> GitHub</a></li>
+<li class="chapter" data-level="1.2.3" data-path="installing-packages.html"><a href="installing-packages.html#writing-packages"><i class="fa fa-check"></i><b>1.2.3</b> Writing Packages</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="required.html"><a href="required.html"><i class="fa fa-check"></i><b>1.3</b> Required Packages</a></li>
+<li class="chapter" data-level="1.4" data-path="troubleshooting.html"><a href="troubleshooting.html"><i class="fa fa-check"></i><b>1.4</b> Troubleshooting</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="background.html"><a href="background.html"><i class="fa fa-check"></i><b>2</b> Background</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="concepts.html"><a href="concepts.html"><i class="fa fa-check"></i><b>2.1</b> Concepts</a></li>
+<li class="chapter" data-level="2.2" data-path="workflow.html"><a href="workflow.html"><i class="fa fa-check"></i><b>2.2</b> Workflow</a></li>
+<li class="chapter" data-level="2.3" data-path="validation.html"><a href="validation.html"><i class="fa fa-check"></i><b>2.3</b> Validation</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="validation.html"><a href="validation.html#validity"><i class="fa fa-check"></i><b>2.3.1</b> Validity</a></li>
+<li class="chapter" data-level="2.3.2" data-path="validation.html"><a href="validation.html#reliability"><i class="fa fa-check"></i><b>2.3.2</b> Reliability</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="import.html"><a href="import.html"><i class="fa fa-check"></i><b>3</b> Text in R</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="basics.html"><a href="basics.html"><i class="fa fa-check"></i><b>3.1</b> Basics</a></li>
+<li class="chapter" data-level="3.2" data-path="import-.html"><a href="import-.html"><i class="fa fa-check"></i><b>3.2</b> Import .txt</a></li>
+<li class="chapter" data-level="3.3" data-path="import-.html"><a href="import-.html#import-.pdf"><i class="fa fa-check"></i><b>3.3</b> Import .pdf</a></li>
+<li class="chapter" data-level="3.4" data-path="import-.html"><a href="import-.html#import-.csv"><i class="fa fa-check"></i><b>3.4</b> Import .csv</a></li>
+<li class="chapter" data-level="3.5" data-path="import-from-an-api.html"><a href="import-from-an-api.html"><i class="fa fa-check"></i><b>3.5</b> Import from an API</a></li>
+<li class="chapter" data-level="3.6" data-path="import-using-web-scraping.html"><a href="import-using-web-scraping.html"><i class="fa fa-check"></i><b>3.6</b> Import using Web Scraping</a></li>
+<li class="chapter" data-level="3.7" data-path="import-json-and-xml.html"><a href="import-json-and-xml.html"><i class="fa fa-check"></i><b>3.7</b> Import JSON and XML</a></li>
+<li class="chapter" data-level="3.8" data-path="import-from-databases.html"><a href="import-from-databases.html"><i class="fa fa-check"></i><b>3.8</b> Import from Databases</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="describe.html"><a href="describe.html"><i class="fa fa-check"></i><b>4</b> Describe</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="corpus-and-dfm.html"><a href="corpus-and-dfm.html"><i class="fa fa-check"></i><b>4.1</b> Corpus and DFM</a></li>
+<li class="chapter" data-level="4.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html"><i class="fa fa-check"></i><b>4.2</b> Text Pre-processing</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="text-pre-processing.html"><a href="text-pre-processing.html#tokenisation-and-initial-cleaning"><i class="fa fa-check"></i><b>4.2.1</b> Tokenisation and Initial Cleaning</a></li>
+<li class="chapter" data-level="4.2.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html#lower-casing"><i class="fa fa-check"></i><b>4.2.2</b> Lower-casing</a></li>
+<li class="chapter" data-level="4.2.3" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stopword-removal"><i class="fa fa-check"></i><b>4.2.3</b> Stopword Removal</a></li>
+<li class="chapter" data-level="4.2.4" data-path="text-pre-processing.html"><a href="text-pre-processing.html#n-grams-and-collocations"><i class="fa fa-check"></i><b>4.2.4</b> N-grams and Collocations</a></li>
+<li class="chapter" data-level="4.2.5" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stemming-and-lemmatisation"><i class="fa fa-check"></i><b>4.2.5</b> Stemming and Lemmatisation</a></li>
+<li class="chapter" data-level="4.2.6" data-path="text-pre-processing.html"><a href="text-pre-processing.html#removing-sparse-features-dfm-trimming"><i class="fa fa-check"></i><b>4.2.6</b> Removing Sparse Features (DFM Trimming)</a></li>
+<li class="chapter" data-level="4.2.7" data-path="text-pre-processing.html"><a href="text-pre-processing.html#additional-pre-processing"><i class="fa fa-check"></i><b>4.2.7</b> Additional Pre-Processing</a></li>
+<li class="chapter" data-level="4.2.8" data-path="text-pre-processing.html"><a href="text-pre-processing.html#evaluating-pre-processing"><i class="fa fa-check"></i><b>4.2.8</b> Evaluating Pre-Processing</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="descriptives-and-visualisations.html"><a href="descriptives-and-visualisations.html"><i class="fa fa-check"></i><b>4.3</b> Descriptives and Visualisations</a></li>
+<li class="chapter" data-level="4.4" data-path="text-statistics.html"><a href="text-statistics.html"><i class="fa fa-check"></i><b>4.4</b> Text Statistics</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="text-statistics.html"><a href="text-statistics.html#summary"><i class="fa fa-check"></i><b>4.4.1</b> Summary</a></li>
+<li class="chapter" data-level="4.4.2" data-path="text-statistics.html"><a href="text-statistics.html#frequencies"><i class="fa fa-check"></i><b>4.4.2</b> Frequencies</a></li>
+<li class="chapter" data-level="4.4.3" data-path="text-statistics.html"><a href="text-statistics.html#lexical-diversity"><i class="fa fa-check"></i><b>4.4.3</b> Lexical diversity</a></li>
+<li class="chapter" data-level="4.4.4" data-path="text-statistics.html"><a href="text-statistics.html#readability"><i class="fa fa-check"></i><b>4.4.4</b> Readability</a></li>
+<li class="chapter" data-level="4.4.5" data-path="text-statistics.html"><a href="text-statistics.html#similarity-and-distance"><i class="fa fa-check"></i><b>4.4.5</b> Similarity and Distance</a></li>
+<li class="chapter" data-level="4.4.6" data-path="text-statistics.html"><a href="text-statistics.html#keyness"><i class="fa fa-check"></i><b>4.4.6</b> Keyness</a></li>
+<li class="chapter" data-level="4.4.7" data-path="text-statistics.html"><a href="text-statistics.html#entropy"><i class="fa fa-check"></i><b>4.4.7</b> Entropy</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="exercises.html"><a href="exercises.html"><i class="fa fa-check"></i><b>4.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="dictionary-analysis.html"><a href="dictionary-analysis.html"><i class="fa fa-check"></i><b>5</b> Dictionary Analysis</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="classical-dictionary-analysis.html"><a href="classical-dictionary-analysis.html"><i class="fa fa-check"></i><b>5.1</b> Classical Dictionary Analysis</a></li>
+<li class="chapter" data-level="5.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html"><i class="fa fa-check"></i><b>5.2</b> Sentiment Analysis</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#movie-reviews"><i class="fa fa-check"></i><b>5.2.1</b> Movie Reviews</a></li>
+<li class="chapter" data-level="5.2.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#twitter"><i class="fa fa-check"></i><b>5.2.2</b> Twitter</a></li>
+<li class="chapter" data-level="5.2.3" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#vader"><i class="fa fa-check"></i><b>5.2.3</b> VADER</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="exercises-1.html"><a href="exercises-1.html"><i class="fa fa-check"></i><b>5.3</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="scaling.html"><a href="scaling.html"><i class="fa fa-check"></i><b>6</b> Scaling Methods</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="wordscores.html"><a href="wordscores.html"><i class="fa fa-check"></i><b>6.1</b> Wordscores</a></li>
+<li class="chapter" data-level="6.2" data-path="wordfish.html"><a href="wordfish.html"><i class="fa fa-check"></i><b>6.2</b> Wordfish</a></li>
+<li class="chapter" data-level="6.3" data-path="correspondence-analysis.html"><a href="correspondence-analysis.html"><i class="fa fa-check"></i><b>6.3</b> Correspondence Analysis</a></li>
+<li class="chapter" data-level="6.4" data-path="exercises-2.html"><a href="exercises-2.html"><i class="fa fa-check"></i><b>6.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="supervised-methods.html"><a href="supervised-methods.html"><i class="fa fa-check"></i><b>7</b> Supervised Methods</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="support-vector-machines-svm.html"><a href="support-vector-machines-svm.html"><i class="fa fa-check"></i><b>7.1</b> Support Vector Machines (SVM)</a></li>
+<li class="chapter" data-level="7.2" data-path="logistic-regression.html"><a href="logistic-regression.html"><i class="fa fa-check"></i><b>7.2</b> Logistic Regression</a></li>
+<li class="chapter" data-level="7.3" data-path="naive-bayes-nb.html"><a href="naive-bayes-nb.html"><i class="fa fa-check"></i><b>7.3</b> Naive Bayes (NB)</a></li>
+<li class="chapter" data-level="7.4" data-path="exercises-3.html"><a href="exercises-3.html"><i class="fa fa-check"></i><b>7.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="unsupervised-methods.html"><a href="unsupervised-methods.html"><i class="fa fa-check"></i><b>8</b> Unsupervised Methods</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="latent-dirichlet-allocation-lda.html"><a href="latent-dirichlet-allocation-lda.html"><i class="fa fa-check"></i><b>8.1</b> Latent Dirichlet Allocation (LDA)</a></li>
+<li class="chapter" data-level="8.2" data-path="seeded-latent-dirichlet-allocation-slda.html"><a href="seeded-latent-dirichlet-allocation-slda.html"><i class="fa fa-check"></i><b>8.2</b> Seeded Latent Dirichlet Allocation (sLDA)</a></li>
+<li class="chapter" data-level="8.3" data-path="structural-topic-model-stm.html"><a href="structural-topic-model-stm.html"><i class="fa fa-check"></i><b>8.3</b> Structural Topic Model (STM)</a></li>
+<li class="chapter" data-level="8.4" data-path="latent-semantic-analysis-lsa.html"><a href="latent-semantic-analysis-lsa.html"><i class="fa fa-check"></i><b>8.4</b> Latent Semantic Analysis (LSA)</a></li>
+<li class="chapter" data-level="8.5" data-path="exercises-4.html"><a href="exercises-4.html"><i class="fa fa-check"></i><b>8.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="bastiaan.bruinsma@gmail.com" target="blank">Bastiaan Bruinsma</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to Quantitative Text Analysis</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="classical-dictionary-analysis" class="section level2 hasAnchor" number="5.1">
+<h2><span class="header-section-number">5.1</span> Classical Dictionary Analysis<a href="classical-dictionary-analysis.html#classical-dictionary-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>We start with the classical version of dictionary analysis. As for these dictionaries, we can either create them ourselves or use an off-the-shelf version. As with the data, <code>quanteda</code> provides access to several off-the-shelf dictionaries relevant to the social sciences:</p>
+<div class="sourceCode" id="cb109"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb109-1"><a href="classical-dictionary-analysis.html#cb109-1" tabindex="-1"></a><span class="fu">library</span>(quanteda.dictionaries)</span></code></pre></div>
+<p>We then apply one of these dictionaries to a document feature matrix (DFM), which is typically created from our corpus after appropriate pre-processing steps, such as tokenisation and lowercase and stopword removal, as we discussed in the previous chapter. As a dictionary, we will use the one created by <span class="citation">Laver &amp; Garry (<a href="#ref-Laver2000a">2000</a>)</span>, which is designed to estimate political positions from political texts. We first load this dictionary into R and then run it on the DFM using the <code>dfm_lookup</code> command. Here, you can use the DFM we created in the previous chapter, though, for this example, we make it from scratch (without any pre-processing):</p>
+<div class="sourceCode" id="cb110"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb110-1"><a href="classical-dictionary-analysis.html#cb110-1" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb110-2"><a href="classical-dictionary-analysis.html#cb110-2" tabindex="-1"></a><span class="fu">library</span>(quanteda.corpora)</span>
+<span id="cb110-3"><a href="classical-dictionary-analysis.html#cb110-3" tabindex="-1"></a><span class="fu">library</span>(quanteda.dictionaries)</span>
+<span id="cb110-4"><a href="classical-dictionary-analysis.html#cb110-4" tabindex="-1"></a></span>
+<span id="cb110-5"><a href="classical-dictionary-analysis.html#cb110-5" tabindex="-1"></a><span class="fu">data</span>(data_corpus_ukmanifestos)</span>
+<span id="cb110-6"><a href="classical-dictionary-analysis.html#cb110-6" tabindex="-1"></a>data_corpus_ukmanifestos</span>
+<span id="cb110-7"><a href="classical-dictionary-analysis.html#cb110-7" tabindex="-1"></a></span>
+<span id="cb110-8"><a href="classical-dictionary-analysis.html#cb110-8" tabindex="-1"></a>data_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(data_corpus_ukmanifestos)</span>
+<span id="cb110-9"><a href="classical-dictionary-analysis.html#cb110-9" tabindex="-1"></a>data_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(data_tokens)</span></code></pre></div>
+<p>First, let us have a look at the dictionary:</p>
+<div class="sourceCode" id="cb111"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb111-1"><a href="classical-dictionary-analysis.html#cb111-1" tabindex="-1"></a>data_dictionary_LaverGarry  <span class="co"># Display information about the dictionary object</span></span></code></pre></div>
+<pre><code>## Dictionary object with 9 primary key entries and 2 nested levels.
+## - [CULTURE]:
+##   - people, war_in_iraq, civil_war
+##   - [CULTURE-HIGH]:
+##     - art, artistic, dance, galler*, museum*, music*, opera*, theatre*
+##   - [CULTURE-POPULAR]:
+##     - media
+##   - [SPORT]:
+##     - angler*
+## - [ECONOMY]:
+##   - [+STATE+]:
+##     - accommodation, age, ambulance, assist, benefit, care, carer*, child*, class, classes, clinics, collective*, contribution*, cooperative*, co-operative*, deprivation, disabilities, disadvantaged, educat*, elderly [ ... and 30 more ]
+##   - [=STATE=]:
+##     - accountant, accounting, accounts, advert*, airline*, airport*, audit*, bank*, bargaining, breadwinner*, budget*, buy*, cartel*, cash*, charge*, commerce*, compensat*, consum*, cost*, credit* [ ... and 51 more ]
+##   - [-STATE-]:
+##     - assets, autonomy, barrier*, bid, bidders, bidding, burden*, charit*, choice*, compet*, confidence, confiscatory, constrain*, contracting*, contractor*, controlled, controlling, controls, corporate, corporation* [ ... and 42 more ]
+## - [ENVIRONMENT]:
+##   - [CON ENVIRONMENT]:
+##     - produc*
+##   - [PRO ENVIRONMENT]:
+##     - car, catalytic, chemical*, chimney*, clean*, congestion, cyclist*, deplet*, ecolog*, emission*, energy-saving, environment*, fur, green, habitat*, hedgerow*, husbanded, litter*, opencast, open-cast* [ ... and 8 more ]
+## - [GROUPS]:
+##   - [ETHNIC]:
+##     - asian*, buddhist*, ethnic*, race, raci*
+##   - [WOMEN]:
+##     - girls, woman, women
+## - [INSTITUTIONS]:
+##   - [CONSERVATIVE]:
+##     - authority, continu*, disrupt*, inspect*, jurisdiction*, legitimate, manag*, moratorium, rul*, strike*, whitehall
+##   - [NEUTRAL]:
+##     - administr*, advis*, agenc*, amalgamat*, appoint*, assembly, chair*, commission*, committee*, constituen*, council*, department*, directorate*, executive*, headquarters, legislat*, mechanism*, minister*, office, offices [ ... and 18 more ]
+##   - [RADICAL]:
+##     - abolition, accountable, answerable, consult*, corrupt*, democratic*, elect*, implement*, modern*, monitor*, rebuild*, reexamine*, reform*, re-organi*, repeal*, replace*, representat*, scandal*, scrap, scrap* [ ... and 3 more ]
+## - [LAW_AND_ORDER]:
+##   - [LAW-CONSERVATIVE]:
+##     - assaults, bail, burglar*, constab*, convict*, court, courts, custod*, dealing, delinquen*, deter, deter*, disorder, drug*, fine, fines, firmness, force*, fraud*, guard* [ ... and 32 more ]
+##   - [LAW-LIBERAL]:
+##     - harassment, non-custodial
+## [ reached max_nkey ... 3 more keys ]</code></pre>
+<p>Then, we apply it to the DFM:</p>
+<div class="sourceCode" id="cb113"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb113-1"><a href="classical-dictionary-analysis.html#cb113-1" tabindex="-1"></a>dictionary_results <span class="ot">&lt;-</span> <span class="fu">dfm_lookup</span>(data_dfm, data_dictionary_LaverGarry)</span>
+<span id="cb113-2"><a href="classical-dictionary-analysis.html#cb113-2" tabindex="-1"></a>dictionary_results</span></code></pre></div>
+<pre><code>## Document-feature matrix of: 101 documents, 20 features (17.23% sparse) and 6 docvars.
+##                      features
+## docs                  CULTURE.CULTURE-HIGH CULTURE.CULTURE-POPULAR
+##   UK_natl_1945_en_Con                    5                       0
+##   UK_natl_1945_en_Lab                    3                       0
+##   UK_natl_1945_en_Lib                    5                       0
+##   UK_natl_1950_en_Con                    2                       0
+##   UK_natl_1950_en_Lab                    1                       0
+##   UK_natl_1950_en_Lib                    2                       0
+##                      features
+## docs                  CULTURE.SPORT CULTURE ECONOMY.+STATE+ ECONOMY.=STATE=
+##   UK_natl_1945_en_Con             0      14              66             119
+##   UK_natl_1945_en_Lab             0      24              61             150
+##   UK_natl_1945_en_Lib             0       8              43             106
+##   UK_natl_1950_en_Con             0      11              74             217
+##   UK_natl_1950_en_Lab             0      23              56             146
+##   UK_natl_1950_en_Lib             0       3              44              99
+##                      features
+## docs                  ECONOMY.-STATE- ENVIRONMENT.CON ENVIRONMENT
+##   UK_natl_1945_en_Con              61                          12
+##   UK_natl_1945_en_Lab              67                          18
+##   UK_natl_1945_en_Lib              42                           6
+##   UK_natl_1950_en_Con              86                          22
+##   UK_natl_1950_en_Lab              77                          15
+##   UK_natl_1950_en_Lib              48                          11
+##                      features
+## docs                  ENVIRONMENT.PRO ENVIRONMENT GROUPS.ETHNIC
+##   UK_natl_1945_en_Con                           0             0
+##   UK_natl_1945_en_Lab                           1             0
+##   UK_natl_1945_en_Lib                           4             0
+##   UK_natl_1950_en_Con                           3             0
+##   UK_natl_1950_en_Lab                           2             0
+##   UK_natl_1950_en_Lib                           0             0
+## [ reached max_ndoc ... 95 more documents, reached max_nfeat ... 10 more features ]</code></pre>
+<p>Here, we see that – for example – the 1945 Conservative Party manifesto – contained 5 words related to High Culture while it contained none for Popular Culture. Overall, the <code>dfm_lookup()</code> function takes a DFM and a dictionary object as input and returns a new DFM where the features are the categories defined in the dictionary and the values are the aggregated counts of terms belonging to each category within each document.</p>
+<p>We can create our own dictionaries that better suit our research question or context. For this, we draw on our theoretical framework to develop different categories and their associated words. Another approach is using reference texts or expert knowledge to identify relevant category terms. We can also combine different dictionaries, as illustrated by <span class="citation">Young &amp; Soroka (<a href="#ref-Young2012a">2012</a>)</span>, or integrate keywords from manual coding schemes <span class="citation">(<a href="#ref-Lind2019a">Lind et al., 2019</a>)</span>. In addition, we can use techniques involving expert or crowd-coding assessments to refine dictionaries or determine the words that best fit different categories <span class="citation">(<a href="#ref-Haselmayer2017a">Haselmayer &amp; Jenny, 2017</a>)</span>.</p>
+<p>If we want to create our dictionary in <code>quanteda</code>, we use the <code>dictionary()</code> command. To do this, we specify the words in a named list. This list contains keys (the names of the categories) and the values, which are character vectors containing the words or phrases belonging to each category. We can use wildcard characters (such as <code>*</code> for glob matching) to include word variations. We then convert this list into a dictionary object. Here, we choose some words that we think will allow us to identify different political stances or issues:</p>
+<div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb115-1"><a href="classical-dictionary-analysis.html#cb115-1" tabindex="-1"></a>dic_list <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb115-2"><a href="classical-dictionary-analysis.html#cb115-2" tabindex="-1"></a>    <span class="at">economy =</span> <span class="fu">c</span>(<span class="st">&quot;tax*&quot;</span>, <span class="st">&quot;invest*&quot;</span>, <span class="st">&quot;trade&quot;</span>, <span class="st">&quot;fiscal policy&quot;</span>), <span class="co"># Include a multi-word phrase</span></span>
+<span id="cb115-3"><a href="classical-dictionary-analysis.html#cb115-3" tabindex="-1"></a>    <span class="at">war =</span> <span class="fu">c</span>(<span class="st">&quot;army&quot;</span>, <span class="st">&quot;troops&quot;</span>, <span class="st">&quot;fight*&quot;</span>, <span class="st">&quot;military&quot;</span>),</span>
+<span id="cb115-4"><a href="classical-dictionary-analysis.html#cb115-4" tabindex="-1"></a>    <span class="at">diplomacy =</span> <span class="fu">c</span>(<span class="st">&quot;nato&quot;</span>, <span class="st">&quot;un&quot;</span>, <span class="st">&quot;international relations&quot;</span>), </span>
+<span id="cb115-5"><a href="classical-dictionary-analysis.html#cb115-5" tabindex="-1"></a>    <span class="at">government =</span> <span class="fu">c</span>(<span class="st">&quot;london&quot;</span>, <span class="st">&quot;commons&quot;</span>, <span class="st">&quot;downing street&quot;</span>, <span class="st">&quot;westminster&quot;</span>)</span>
+<span id="cb115-6"><a href="classical-dictionary-analysis.html#cb115-6" tabindex="-1"></a>)</span>
+<span id="cb115-7"><a href="classical-dictionary-analysis.html#cb115-7" tabindex="-1"></a></span>
+<span id="cb115-8"><a href="classical-dictionary-analysis.html#cb115-8" tabindex="-1"></a><span class="co"># tolower = TRUE is often recommended unless you have a specific reason not to lowercase</span></span>
+<span id="cb115-9"><a href="classical-dictionary-analysis.html#cb115-9" tabindex="-1"></a></span>
+<span id="cb115-10"><a href="classical-dictionary-analysis.html#cb115-10" tabindex="-1"></a>dic_created <span class="ot">&lt;-</span> <span class="fu">dictionary</span>(dic_list, <span class="at">tolower =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb115-11"><a href="classical-dictionary-analysis.html#cb115-11" tabindex="-1"></a>dic_created</span></code></pre></div>
+<pre><code>## Dictionary object with 4 key entries.
+## - [economy]:
+##   - tax*, invest*, trade, fiscal policy
+## - [war]:
+##   - army, troops, fight*, military
+## - [diplomacy]:
+##   - nato, un, international relations
+## - [government]:
+##   - london, commons, downing street, westminster</code></pre>
+<p>If you compare the structure of <code>dic_list</code> and the resulting <code>dic_created</code> object with that of <code>data_dictionary_LaverGarry</code>, you will see that they have a similar structure, defining categories and associated terms. To then apply our created dictionary to the dfm, we use the same `dfm_lookup’ command:</p>
+<div class="sourceCode" id="cb117"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb117-1"><a href="classical-dictionary-analysis.html#cb117-1" tabindex="-1"></a><span class="co"># Ensure the dfm used here is preprocessed with tolower = TRUE if the</span></span>
+<span id="cb117-2"><a href="classical-dictionary-analysis.html#cb117-2" tabindex="-1"></a><span class="co"># dictionary is lowercased</span></span>
+<span id="cb117-3"><a href="classical-dictionary-analysis.html#cb117-3" tabindex="-1"></a></span>
+<span id="cb117-4"><a href="classical-dictionary-analysis.html#cb117-4" tabindex="-1"></a>dictionary_dfm <span class="ot">&lt;-</span> <span class="fu">dfm_lookup</span>(data_dfm, dic_created)</span>
+<span id="cb117-5"><a href="classical-dictionary-analysis.html#cb117-5" tabindex="-1"></a>dictionary_dfm</span></code></pre></div>
+<pre><code>## Document-feature matrix of: 101 documents, 4 features (16.58% sparse) and 6 docvars.
+##                      features
+## docs                  economy war diplomacy government
+##   UK_natl_1945_en_Con      24   4         0          0
+##   UK_natl_1945_en_Lab      13   5         0          0
+##   UK_natl_1945_en_Lib      12   5         0          1
+##   UK_natl_1950_en_Con      31   4         0          4
+##   UK_natl_1950_en_Lab      11   1         0          0
+##   UK_natl_1950_en_Lib      20   3         0          1
+## [ reached max_ndoc ... 95 more documents ]</code></pre>
+<p>Note that <code>dfm_lookup()</code> matches individual features (words) in the dfm to the dictionary entries. This means that it will correctly match <code>"tax"</code>, <code>"taxes"</code>, <code>"taxation"</code> to the “economy” category if <code>"tax*"</code> is in the dictionary. However, if our dictionary contains multi-word expressions (like <code>"fiscal policy"</code> or <code>"international relations"</code> in our example <code>dic_list</code>), <code>dfm_lookup()</code> will not find them because the dfm loses word order information.</p>
+<p>To correctly count multi-word expressions defined in a dictionary, we should apply the dictionary <em>before</em> creating the dfm directly to the <code>tokens' object using the</code>tokens_lookup()<code>function. tokens_lookup()</code> preserves the order of the tokens and can therefore match multi-word phrases. The output of <code>tokens_lookup()</code> is a <code>tokens</code> object where the original tokens are replaced by their dictionary categories. We can then convert the resulting token object into a dfm if necessary:</p>
+<div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb119-1"><a href="classical-dictionary-analysis.html#cb119-1" tabindex="-1"></a><span class="co"># Use tokens_lookup to handle multi-word expressions</span></span>
+<span id="cb119-2"><a href="classical-dictionary-analysis.html#cb119-2" tabindex="-1"></a></span>
+<span id="cb119-3"><a href="classical-dictionary-analysis.html#cb119-3" tabindex="-1"></a>dictionary_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_lookup</span>(data_tokens, dic_created, <span class="at">exclusive =</span> <span class="cn">FALSE</span>)  <span class="co"># exclusive=FALSE allows tokens to match multiple categories if applicable</span></span>
+<span id="cb119-4"><a href="classical-dictionary-analysis.html#cb119-4" tabindex="-1"></a></span>
+<span id="cb119-5"><a href="classical-dictionary-analysis.html#cb119-5" tabindex="-1"></a>dictionary_tokens_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(dictionary_tokens)</span></code></pre></div>
+<p>Comparing <code>dictionary_created_dfm</code> and <code>dictionary_created_dfm_from_tokens</code> shows that the latter correctly identifies and counts the multi-word expressions defined in <code>dic_created</code>. Using <code>tokens_lookup()</code> with <code>exclusive = FALSE</code> means a token can be assigned to multiple categories if it matches entries in more than one. Setting <code>exclusive = TRUE</code> would assign a token to only one category (the first found match). Furthermore, while we can view the resulting dfm by calling it in the console or viewing it in the environment, we can also convert this dfm into a regular data frame for easier manipulation and visualisation. For this, we can use the <code>convert</code> command included in <code>quanteda</code>:</p>
+<div class="sourceCode" id="cb120"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb120-1"><a href="classical-dictionary-analysis.html#cb120-1" tabindex="-1"></a>dictionary_df <span class="ot">&lt;-</span> <span class="fu">convert</span>(dictionary_tokens_dfm, <span class="at">to =</span> <span class="st">&quot;data.frame&quot;</span>)</span></code></pre></div>
+<p>You can then use this data frame to normalise these raw counts and compare dictionary results across documents of different lengths by dividing the category counts by either the total number of tokens or the total number of dictionary words in each document.</p>
+</div>
+<h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="2">
+<div id="ref-Haselmayer2017a" class="csl-entry">
+Haselmayer, M., &amp; Jenny, M. (2017). Sentiment analysis of political communication: Combining a dictionary approach with crowdcoding. <em>Quality &amp; Quantity</em>, <em>51</em>(6), 2623–2646. <a href="https://doi.org/10.1007/s11135-016-0412-4">https://doi.org/10.1007/s11135-016-0412-4</a>
+</div>
+<div id="ref-Laver2000a" class="csl-entry">
+Laver, M., &amp; Garry, J. (2000). Estimating policy positions from political texts. <em>American Journal of Political Science</em>, <em>44</em>(3), 619–634. <a href="https://doi.org/10.2307/2669268">https://doi.org/10.2307/2669268</a>
+</div>
+<div id="ref-Lind2019a" class="csl-entry">
+Lind, F., Eberl, J.-M., Heidenreich, T., &amp; Boomgaarden, H. G. (2019). When the journey is as important as the goal: A roadmap to multilingual dictionary construction. <em>International Journal of Communication</em>, <em>13</em>, 4000–4020.
+</div>
+<div id="ref-Young2012a" class="csl-entry">
+Young, L., &amp; Soroka, S. (2012). <em>Lexicoder sentiment dictionary</em>. <a href="http://www.snsoroka.com/data-lexicoder/">http://www.snsoroka.com/data-lexicoder/</a>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="dictionary-analysis.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="sentiment-analysis.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="assets/gitbook-2.6.7/js/app.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="assets/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["Introduction to Quantitative Text Analysis.pdf", "Introduction to Quantitative Text Analysis.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  },
+  "toolbar": {
+    "position": "static"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

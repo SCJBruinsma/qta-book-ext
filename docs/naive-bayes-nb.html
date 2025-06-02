@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>7.3 Naive Bayes (NB) | Introduction to Quantitative Text Analysis</title>
+  <meta name="description" content="7.3 Naive Bayes (NB) | Introduction to Quantitative Text Analysis" />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="7.3 Naive Bayes (NB) | Introduction to Quantitative Text Analysis" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="7.3 Naive Bayes (NB) | Introduction to Quantitative Text Analysis" />
+  
+  
+  
+
+<meta name="author" content="Kostas Gemenis and Bastiaan Bruinsma" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="logistic-regression.html"/>
+<link rel="next" href="exercises-3.html"/>
+<script src="assets/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="assets/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="assets/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="assets/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="assets/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 2em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Introduction to Quantitative Text Analysis</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome!</a></li>
+<li class="chapter" data-level="1" data-path="preliminaries.html"><a href="preliminaries.html"><i class="fa fa-check"></i><b>1</b> Preliminaries</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="installing-r.html"><a href="installing-r.html"><i class="fa fa-check"></i><b>1.1</b> Installing R</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="installing-r.html"><a href="installing-r.html#windows"><i class="fa fa-check"></i><b>1.1.1</b> Windows</a></li>
+<li class="chapter" data-level="1.1.2" data-path="installing-r.html"><a href="installing-r.html#linux"><i class="fa fa-check"></i><b>1.1.2</b> Linux</a></li>
+<li class="chapter" data-level="1.1.3" data-path="installing-r.html"><a href="installing-r.html#macos"><i class="fa fa-check"></i><b>1.1.3</b> macOS</a></li>
+<li class="chapter" data-level="1.1.4" data-path="installing-r.html"><a href="installing-r.html#cloud"><i class="fa fa-check"></i><b>1.1.4</b> Cloud</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="installing-packages.html"><a href="installing-packages.html"><i class="fa fa-check"></i><b>1.2</b> Installing Packages</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="installing-packages.html"><a href="installing-packages.html#cran"><i class="fa fa-check"></i><b>1.2.1</b> CRAN</a></li>
+<li class="chapter" data-level="1.2.2" data-path="installing-packages.html"><a href="installing-packages.html#github"><i class="fa fa-check"></i><b>1.2.2</b> GitHub</a></li>
+<li class="chapter" data-level="1.2.3" data-path="installing-packages.html"><a href="installing-packages.html#writing-packages"><i class="fa fa-check"></i><b>1.2.3</b> Writing Packages</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="required.html"><a href="required.html"><i class="fa fa-check"></i><b>1.3</b> Required Packages</a></li>
+<li class="chapter" data-level="1.4" data-path="troubleshooting.html"><a href="troubleshooting.html"><i class="fa fa-check"></i><b>1.4</b> Troubleshooting</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="background.html"><a href="background.html"><i class="fa fa-check"></i><b>2</b> Background</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="concepts.html"><a href="concepts.html"><i class="fa fa-check"></i><b>2.1</b> Concepts</a></li>
+<li class="chapter" data-level="2.2" data-path="workflow.html"><a href="workflow.html"><i class="fa fa-check"></i><b>2.2</b> Workflow</a></li>
+<li class="chapter" data-level="2.3" data-path="validation.html"><a href="validation.html"><i class="fa fa-check"></i><b>2.3</b> Validation</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="validation.html"><a href="validation.html#validity"><i class="fa fa-check"></i><b>2.3.1</b> Validity</a></li>
+<li class="chapter" data-level="2.3.2" data-path="validation.html"><a href="validation.html#reliability"><i class="fa fa-check"></i><b>2.3.2</b> Reliability</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="import.html"><a href="import.html"><i class="fa fa-check"></i><b>3</b> Text in R</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="basics.html"><a href="basics.html"><i class="fa fa-check"></i><b>3.1</b> Basics</a></li>
+<li class="chapter" data-level="3.2" data-path="import-.html"><a href="import-.html"><i class="fa fa-check"></i><b>3.2</b> Import .txt</a></li>
+<li class="chapter" data-level="3.3" data-path="import-.html"><a href="import-.html#import-.pdf"><i class="fa fa-check"></i><b>3.3</b> Import .pdf</a></li>
+<li class="chapter" data-level="3.4" data-path="import-.html"><a href="import-.html#import-.csv"><i class="fa fa-check"></i><b>3.4</b> Import .csv</a></li>
+<li class="chapter" data-level="3.5" data-path="import-from-an-api.html"><a href="import-from-an-api.html"><i class="fa fa-check"></i><b>3.5</b> Import from an API</a></li>
+<li class="chapter" data-level="3.6" data-path="import-using-web-scraping.html"><a href="import-using-web-scraping.html"><i class="fa fa-check"></i><b>3.6</b> Import using Web Scraping</a></li>
+<li class="chapter" data-level="3.7" data-path="import-json-and-xml.html"><a href="import-json-and-xml.html"><i class="fa fa-check"></i><b>3.7</b> Import JSON and XML</a></li>
+<li class="chapter" data-level="3.8" data-path="import-from-databases.html"><a href="import-from-databases.html"><i class="fa fa-check"></i><b>3.8</b> Import from Databases</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="describe.html"><a href="describe.html"><i class="fa fa-check"></i><b>4</b> Describe</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="corpus-and-dfm.html"><a href="corpus-and-dfm.html"><i class="fa fa-check"></i><b>4.1</b> Corpus and DFM</a></li>
+<li class="chapter" data-level="4.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html"><i class="fa fa-check"></i><b>4.2</b> Text Pre-processing</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="text-pre-processing.html"><a href="text-pre-processing.html#tokenisation-and-initial-cleaning"><i class="fa fa-check"></i><b>4.2.1</b> Tokenisation and Initial Cleaning</a></li>
+<li class="chapter" data-level="4.2.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html#lower-casing"><i class="fa fa-check"></i><b>4.2.2</b> Lower-casing</a></li>
+<li class="chapter" data-level="4.2.3" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stopword-removal"><i class="fa fa-check"></i><b>4.2.3</b> Stopword Removal</a></li>
+<li class="chapter" data-level="4.2.4" data-path="text-pre-processing.html"><a href="text-pre-processing.html#n-grams-and-collocations"><i class="fa fa-check"></i><b>4.2.4</b> N-grams and Collocations</a></li>
+<li class="chapter" data-level="4.2.5" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stemming-and-lemmatisation"><i class="fa fa-check"></i><b>4.2.5</b> Stemming and Lemmatisation</a></li>
+<li class="chapter" data-level="4.2.6" data-path="text-pre-processing.html"><a href="text-pre-processing.html#removing-sparse-features-dfm-trimming"><i class="fa fa-check"></i><b>4.2.6</b> Removing Sparse Features (DFM Trimming)</a></li>
+<li class="chapter" data-level="4.2.7" data-path="text-pre-processing.html"><a href="text-pre-processing.html#additional-pre-processing"><i class="fa fa-check"></i><b>4.2.7</b> Additional Pre-Processing</a></li>
+<li class="chapter" data-level="4.2.8" data-path="text-pre-processing.html"><a href="text-pre-processing.html#evaluating-pre-processing"><i class="fa fa-check"></i><b>4.2.8</b> Evaluating Pre-Processing</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="descriptives-and-visualisations.html"><a href="descriptives-and-visualisations.html"><i class="fa fa-check"></i><b>4.3</b> Descriptives and Visualisations</a></li>
+<li class="chapter" data-level="4.4" data-path="text-statistics.html"><a href="text-statistics.html"><i class="fa fa-check"></i><b>4.4</b> Text Statistics</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="text-statistics.html"><a href="text-statistics.html#summary"><i class="fa fa-check"></i><b>4.4.1</b> Summary</a></li>
+<li class="chapter" data-level="4.4.2" data-path="text-statistics.html"><a href="text-statistics.html#frequencies"><i class="fa fa-check"></i><b>4.4.2</b> Frequencies</a></li>
+<li class="chapter" data-level="4.4.3" data-path="text-statistics.html"><a href="text-statistics.html#lexical-diversity"><i class="fa fa-check"></i><b>4.4.3</b> Lexical diversity</a></li>
+<li class="chapter" data-level="4.4.4" data-path="text-statistics.html"><a href="text-statistics.html#readability"><i class="fa fa-check"></i><b>4.4.4</b> Readability</a></li>
+<li class="chapter" data-level="4.4.5" data-path="text-statistics.html"><a href="text-statistics.html#similarity-and-distance"><i class="fa fa-check"></i><b>4.4.5</b> Similarity and Distance</a></li>
+<li class="chapter" data-level="4.4.6" data-path="text-statistics.html"><a href="text-statistics.html#keyness"><i class="fa fa-check"></i><b>4.4.6</b> Keyness</a></li>
+<li class="chapter" data-level="4.4.7" data-path="text-statistics.html"><a href="text-statistics.html#entropy"><i class="fa fa-check"></i><b>4.4.7</b> Entropy</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="exercises.html"><a href="exercises.html"><i class="fa fa-check"></i><b>4.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="dictionary-analysis.html"><a href="dictionary-analysis.html"><i class="fa fa-check"></i><b>5</b> Dictionary Analysis</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="classical-dictionary-analysis.html"><a href="classical-dictionary-analysis.html"><i class="fa fa-check"></i><b>5.1</b> Classical Dictionary Analysis</a></li>
+<li class="chapter" data-level="5.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html"><i class="fa fa-check"></i><b>5.2</b> Sentiment Analysis</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#movie-reviews"><i class="fa fa-check"></i><b>5.2.1</b> Movie Reviews</a></li>
+<li class="chapter" data-level="5.2.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#twitter"><i class="fa fa-check"></i><b>5.2.2</b> Twitter</a></li>
+<li class="chapter" data-level="5.2.3" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#vader"><i class="fa fa-check"></i><b>5.2.3</b> VADER</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="exercises-1.html"><a href="exercises-1.html"><i class="fa fa-check"></i><b>5.3</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="scaling.html"><a href="scaling.html"><i class="fa fa-check"></i><b>6</b> Scaling Methods</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="wordscores.html"><a href="wordscores.html"><i class="fa fa-check"></i><b>6.1</b> Wordscores</a></li>
+<li class="chapter" data-level="6.2" data-path="wordfish.html"><a href="wordfish.html"><i class="fa fa-check"></i><b>6.2</b> Wordfish</a></li>
+<li class="chapter" data-level="6.3" data-path="correspondence-analysis.html"><a href="correspondence-analysis.html"><i class="fa fa-check"></i><b>6.3</b> Correspondence Analysis</a></li>
+<li class="chapter" data-level="6.4" data-path="exercises-2.html"><a href="exercises-2.html"><i class="fa fa-check"></i><b>6.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="supervised-methods.html"><a href="supervised-methods.html"><i class="fa fa-check"></i><b>7</b> Supervised Methods</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="support-vector-machines-svm.html"><a href="support-vector-machines-svm.html"><i class="fa fa-check"></i><b>7.1</b> Support Vector Machines (SVM)</a></li>
+<li class="chapter" data-level="7.2" data-path="logistic-regression.html"><a href="logistic-regression.html"><i class="fa fa-check"></i><b>7.2</b> Logistic Regression</a></li>
+<li class="chapter" data-level="7.3" data-path="naive-bayes-nb.html"><a href="naive-bayes-nb.html"><i class="fa fa-check"></i><b>7.3</b> Naive Bayes (NB)</a></li>
+<li class="chapter" data-level="7.4" data-path="exercises-3.html"><a href="exercises-3.html"><i class="fa fa-check"></i><b>7.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="unsupervised-methods.html"><a href="unsupervised-methods.html"><i class="fa fa-check"></i><b>8</b> Unsupervised Methods</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="latent-dirichlet-allocation-lda.html"><a href="latent-dirichlet-allocation-lda.html"><i class="fa fa-check"></i><b>8.1</b> Latent Dirichlet Allocation (LDA)</a></li>
+<li class="chapter" data-level="8.2" data-path="seeded-latent-dirichlet-allocation-slda.html"><a href="seeded-latent-dirichlet-allocation-slda.html"><i class="fa fa-check"></i><b>8.2</b> Seeded Latent Dirichlet Allocation (sLDA)</a></li>
+<li class="chapter" data-level="8.3" data-path="structural-topic-model-stm.html"><a href="structural-topic-model-stm.html"><i class="fa fa-check"></i><b>8.3</b> Structural Topic Model (STM)</a></li>
+<li class="chapter" data-level="8.4" data-path="latent-semantic-analysis-lsa.html"><a href="latent-semantic-analysis-lsa.html"><i class="fa fa-check"></i><b>8.4</b> Latent Semantic Analysis (LSA)</a></li>
+<li class="chapter" data-level="8.5" data-path="exercises-4.html"><a href="exercises-4.html"><i class="fa fa-check"></i><b>8.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="bastiaan.bruinsma@gmail.com" target="blank">Bastiaan Bruinsma</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to Quantitative Text Analysis</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="naive-bayes-nb" class="section level2 hasAnchor" number="7.3">
+<h2><span class="header-section-number">7.3</span> Naive Bayes (NB)<a href="naive-bayes-nb.html#naive-bayes-nb" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>As with SVM, Naive Bayes is a simple yet efficient text classification model. It belongs to a family of probabilistic classifiers based on applying Bayes’ Theorem with a “naive” that every word in a document is conditionally independent of every other word given the class. The classifier calculates this value for each class and assigns the document to the class with the highest resulting probability. Despite its simplifying assumption, Naive Bayes performs remarkably well for many text classification tasks, such as spam detection and document categorization.</p>
+<p>For this example, we will use data from the <a href="https://manifestoproject.wzb.eu/">Manifesto Project</a> (also known as the Comparative Manifesto Project (CMP)). To use this data, ensure you have signed up, downloaded the API key, loaded the package, and set the key.</p>
+<div class="sourceCode" id="cb249"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb249-1"><a href="naive-bayes-nb.html#cb249-1" tabindex="-1"></a><span class="fu">library</span>(manifestoR)  <span class="co"># Used to download Manifesto Project data</span></span>
+<span id="cb249-2"><a href="naive-bayes-nb.html#cb249-2" tabindex="-1"></a><span class="fu">library</span>(quanteda)  <span class="co"># For text analysis and DFM creation</span></span>
+<span id="cb249-3"><a href="naive-bayes-nb.html#cb249-3" tabindex="-1"></a><span class="fu">library</span>(quanteda.textmodels)  <span class="co"># For the Naive Bayes model</span></span>
+<span id="cb249-4"><a href="naive-bayes-nb.html#cb249-4" tabindex="-1"></a><span class="fu">library</span>(ggplot2)  <span class="co"># For plotting</span></span>
+<span id="cb249-5"><a href="naive-bayes-nb.html#cb249-5" tabindex="-1"></a><span class="fu">library</span>(DescTools)  <span class="co"># For Krippendorf&#39;s Alpha</span></span>
+<span id="cb249-6"><a href="naive-bayes-nb.html#cb249-6" tabindex="-1"></a><span class="fu">library</span>(caret)  <span class="co"># For confusion matrix and classification metrics</span></span>
+<span id="cb249-7"><a href="naive-bayes-nb.html#cb249-7" tabindex="-1"></a><span class="fu">library</span>(dplyr)  <span class="co"># For data manipulation</span></span>
+<span id="cb249-8"><a href="naive-bayes-nb.html#cb249-8" tabindex="-1"></a></span>
+<span id="cb249-9"><a href="naive-bayes-nb.html#cb249-9" tabindex="-1"></a><span class="co"># Set your Manifesto Project API key Replace &#39;manifesto_apikey.txt&#39; with the</span></span>
+<span id="cb249-10"><a href="naive-bayes-nb.html#cb249-10" tabindex="-1"></a><span class="co"># path to your API key file</span></span>
+<span id="cb249-11"><a href="naive-bayes-nb.html#cb249-11" tabindex="-1"></a><span class="fu">mp_setapikey</span>(<span class="st">&quot;manifesto_apikey.txt&quot;</span>)</span></code></pre></div>
+<p>As the entire MP corpus is relatively large, here we will only focus on part of it: the manifestos for the 2015 United Kingdom general election. To achieve this, we have created a data frame listing the party and year for the ‘mp_corpus’ command. Please note that The Manifesto Project uses unique codes for each party, which can be found in its codebook.</p>
+<div class="sourceCode" id="cb250"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb250-1"><a href="naive-bayes-nb.html#cb250-1" tabindex="-1"></a><span class="co"># Party codes: CON(51620), LABOUR(51320), LIBDEM(51421), SNP(51901), PLAID</span></span>
+<span id="cb250-2"><a href="naive-bayes-nb.html#cb250-2" tabindex="-1"></a><span class="co"># CYMRU(51902), GREEN(51110), UKIP(51951)</span></span>
+<span id="cb250-3"><a href="naive-bayes-nb.html#cb250-3" tabindex="-1"></a>manifestos_info <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">party =</span> <span class="fu">c</span>(<span class="dv">51320</span>, <span class="dv">51620</span>, <span class="dv">51110</span>, <span class="dv">51421</span>, <span class="dv">51901</span>, <span class="dv">51902</span>,</span>
+<span id="cb250-4"><a href="naive-bayes-nb.html#cb250-4" tabindex="-1"></a>    <span class="dv">51951</span>), <span class="at">date =</span> <span class="fu">rep</span>(<span class="dv">201505</span>, <span class="dv">7</span>))</span>
+<span id="cb250-5"><a href="naive-bayes-nb.html#cb250-5" tabindex="-1"></a></span>
+<span id="cb250-6"><a href="naive-bayes-nb.html#cb250-6" tabindex="-1"></a><span class="co"># Download the specified manifestos as a manifestoR corpus</span></span>
+<span id="cb250-7"><a href="naive-bayes-nb.html#cb250-7" tabindex="-1"></a>manifesto_corpus <span class="ot">&lt;-</span> <span class="fu">mp_corpus</span>(manifestos_info)</span></code></pre></div>
+<pre><code>## Connecting to Manifesto Project DB API... corpus version: 2024-1 
+## Connecting to Manifesto Project DB API... corpus version: 2024-1</code></pre>
+<p>We will create a data frame containing the quasi-sentences (the unit of analysis), their assigned <code>cmp_code</code>, and the <code>party</code> they belong to. This process extracts the core data needed for our analysis.</p>
+<div class="sourceCode" id="cb252"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb252-1"><a href="naive-bayes-nb.html#cb252-1" tabindex="-1"></a><span class="co"># Programmatically create a list of data frames, one for each document</span></span>
+<span id="cb252-2"><a href="naive-bayes-nb.html#cb252-2" tabindex="-1"></a>corpus_list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(manifesto_corpus, <span class="cf">function</span>(doc) {</span>
+<span id="cb252-3"><a href="naive-bayes-nb.html#cb252-3" tabindex="-1"></a>    <span class="fu">data.frame</span>(<span class="at">texts =</span> <span class="fu">content</span>(doc), <span class="at">cmp_code =</span> <span class="fu">codes</span>(doc), <span class="at">party =</span> doc<span class="sc">$</span>meta<span class="sc">$</span>party,</span>
+<span id="cb252-4"><a href="naive-bayes-nb.html#cb252-4" tabindex="-1"></a>        <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb252-5"><a href="naive-bayes-nb.html#cb252-5" tabindex="-1"></a>})</span>
+<span id="cb252-6"><a href="naive-bayes-nb.html#cb252-6" tabindex="-1"></a></span>
+<span id="cb252-7"><a href="naive-bayes-nb.html#cb252-7" tabindex="-1"></a><span class="co"># Combine the list of data frames into a single data frame</span></span>
+<span id="cb252-8"><a href="naive-bayes-nb.html#cb252-8" tabindex="-1"></a>manifesto_data <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, corpus_list)</span></code></pre></div>
+<p>Next, we clean and transform the data. We convert the <code>party</code> codes to factor labels (e.g., “CON”, “LABOUR”) for clarity, ensure text and code columns are in the correct format, and remove entries with <code>NA</code> codes, which typically correspond to un-coded document headers and titles.</p>
+<div class="sourceCode" id="cb253"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb253-1"><a href="naive-bayes-nb.html#cb253-1" tabindex="-1"></a><span class="co"># Transform and clean the data frame</span></span>
+<span id="cb253-2"><a href="naive-bayes-nb.html#cb253-2" tabindex="-1"></a>manifesto_data<span class="sc">$</span>party <span class="ot">&lt;-</span> <span class="fu">factor</span>(manifesto_data<span class="sc">$</span>party, <span class="at">levels =</span> <span class="fu">c</span>(<span class="dv">51110</span>, <span class="dv">51320</span>, <span class="dv">51421</span>,</span>
+<span id="cb253-3"><a href="naive-bayes-nb.html#cb253-3" tabindex="-1"></a>    <span class="dv">51620</span>, <span class="dv">51901</span>, <span class="dv">51902</span>, <span class="dv">51951</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;GREEN&quot;</span>, <span class="st">&quot;LABOUR&quot;</span>, <span class="st">&quot;LIBDEM&quot;</span>, <span class="st">&quot;CON&quot;</span>, <span class="st">&quot;PC&quot;</span>,</span>
+<span id="cb253-4"><a href="naive-bayes-nb.html#cb253-4" tabindex="-1"></a>    <span class="st">&quot;SNP&quot;</span>, <span class="st">&quot;UKIP&quot;</span>))</span>
+<span id="cb253-5"><a href="naive-bayes-nb.html#cb253-5" tabindex="-1"></a>manifesto_data<span class="sc">$</span>party <span class="ot">&lt;-</span> <span class="fu">as.character</span>(manifesto_data<span class="sc">$</span>party)</span>
+<span id="cb253-6"><a href="naive-bayes-nb.html#cb253-6" tabindex="-1"></a>manifesto_data<span class="sc">$</span>texts <span class="ot">&lt;-</span> <span class="fu">as.character</span>(manifesto_data<span class="sc">$</span>texts)</span>
+<span id="cb253-7"><a href="naive-bayes-nb.html#cb253-7" tabindex="-1"></a>manifesto_data<span class="sc">$</span>cmp_code <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(manifesto_data<span class="sc">$</span>cmp_code))</span>
+<span id="cb253-8"><a href="naive-bayes-nb.html#cb253-8" tabindex="-1"></a></span>
+<span id="cb253-9"><a href="naive-bayes-nb.html#cb253-9" tabindex="-1"></a><span class="co"># Remove NA values (sentences without a code)</span></span>
+<span id="cb253-10"><a href="naive-bayes-nb.html#cb253-10" tabindex="-1"></a>manifesto_data <span class="ot">&lt;-</span> <span class="fu">na.omit</span>(manifesto_data)</span>
+<span id="cb253-11"><a href="naive-bayes-nb.html#cb253-11" tabindex="-1"></a></span>
+<span id="cb253-12"><a href="naive-bayes-nb.html#cb253-12" tabindex="-1"></a><span class="co"># Display the structure of the cleaned data</span></span>
+<span id="cb253-13"><a href="naive-bayes-nb.html#cb253-13" tabindex="-1"></a><span class="fu">str</span>(manifesto_data)</span></code></pre></div>
+<pre><code>## &#39;data.frame&#39;:    9763 obs. of  3 variables:
+##  $ texts   : chr  &quot;Our manifesto begins with the Budget Responsibility Lock we offer the British people.&quot; &quot;It is the basis for all our plans in this manifesto because it is by securing our national finances that we are&quot;| __truncated__ &quot;Every policy in this manifesto is paid for.&quot; &quot;Not one commitment requires additional borrowing.&quot; ...
+##  $ cmp_code: num  414 414 414 414 414 414 414 414 414 414 ...
+##  $ party   : chr  &quot;LABOUR&quot; &quot;LABOUR&quot; &quot;LABOUR&quot; &quot;LABOUR&quot; ...
+##  - attr(*, &quot;na.action&quot;)= &#39;omit&#39; Named int [1:1014] 1 2 3 4 5 6 9 19 20 21 ...
+##   ..- attr(*, &quot;names&quot;)= chr [1:1014] &quot;51320_201505.1&quot; &quot;51320_201505.2&quot; &quot;51320_201505.3&quot; &quot;51320_201505.4&quot; ...</code></pre>
+<p>We can calculate row percentages to understand how much a party “owns” a specific code. This shows the proportion of a code’s total appearances attributed to each party.</p>
+<div class="sourceCode" id="cb255"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb255-1"><a href="naive-bayes-nb.html#cb255-1" tabindex="-1"></a><span class="co"># Calculate row percentages of code occurrences by party</span></span>
+<span id="cb255-2"><a href="naive-bayes-nb.html#cb255-2" tabindex="-1"></a>prop_row <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">prop.table</span>(<span class="fu">table</span>(manifesto_data<span class="sc">$</span>cmp_code, manifesto_data<span class="sc">$</span>party),</span>
+<span id="cb255-3"><a href="naive-bayes-nb.html#cb255-3" tabindex="-1"></a>    <span class="at">margin =</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="dv">100</span>)</span>
+<span id="cb255-4"><a href="naive-bayes-nb.html#cb255-4" tabindex="-1"></a><span class="fu">names</span>(prop_row) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Code&quot;</span>, <span class="st">&quot;Party&quot;</span>, <span class="st">&quot;Percentage&quot;</span>)</span>
+<span id="cb255-5"><a href="naive-bayes-nb.html#cb255-5" tabindex="-1"></a></span>
+<span id="cb255-6"><a href="naive-bayes-nb.html#cb255-6" tabindex="-1"></a><span class="co"># Display head of row percentages</span></span>
+<span id="cb255-7"><a href="naive-bayes-nb.html#cb255-7" tabindex="-1"></a><span class="fu">head</span>(prop_row)</span></code></pre></div>
+<pre><code>##   Code Party Percentage
+## 1    0   CON   0.000000
+## 2  101   CON  42.857143
+## 3  103   CON 100.000000
+## 4  104   CON  28.632479
+## 5  105   CON   6.382979
+## 6  106   CON   6.896552</code></pre>
+<p>Visualizing the <code>prop_row</code> object as a stacked bar chart clarifies how parties utilize different codes.</p>
+<div class="sourceCode" id="cb257"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb257-1"><a href="naive-bayes-nb.html#cb257-1" tabindex="-1"></a><span class="co"># Define party colours for consistent plotting</span></span>
+<span id="cb257-2"><a href="naive-bayes-nb.html#cb257-2" tabindex="-1"></a>party_colors <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">CON =</span> <span class="st">&quot;#0087DC&quot;</span>, <span class="at">GREEN =</span> <span class="st">&quot;#67B437&quot;</span>, <span class="at">LABOUR =</span> <span class="st">&quot;#DC241F&quot;</span>, <span class="at">LIBDEM =</span> <span class="st">&quot;#FAA61A&quot;</span>,</span>
+<span id="cb257-3"><a href="naive-bayes-nb.html#cb257-3" tabindex="-1"></a>    <span class="at">PC =</span> <span class="st">&quot;#008142&quot;</span>, <span class="at">SNP =</span> <span class="st">&quot;#FDF38E&quot;</span>, <span class="at">UKIP =</span> <span class="st">&quot;#780077&quot;</span>)</span>
+<span id="cb257-4"><a href="naive-bayes-nb.html#cb257-4" tabindex="-1"></a></span>
+<span id="cb257-5"><a href="naive-bayes-nb.html#cb257-5" tabindex="-1"></a><span class="co"># Plot the row percentages</span></span>
+<span id="cb257-6"><a href="naive-bayes-nb.html#cb257-6" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> prop_row, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(Code), <span class="at">y =</span> Percentage, <span class="at">fill =</span> Party)) <span class="sc">+</span> <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> party_colors) <span class="sc">+</span></span>
+<span id="cb257-7"><a href="naive-bayes-nb.html#cb257-7" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">&quot;identity&quot;</span>, <span class="at">position =</span> <span class="st">&quot;stack&quot;</span>) <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>,</span>
+<span id="cb257-8"><a href="naive-bayes-nb.html#cb257-8" tabindex="-1"></a>    <span class="dv">0</span>)) <span class="sc">+</span> <span class="fu">theme_classic</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>,</span>
+<span id="cb257-9"><a href="naive-bayes-nb.html#cb257-9" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">8</span>)) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Manifesto Code&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Percentage of Code Occurrences&quot;</span>,</span>
+<span id="cb257-10"><a href="naive-bayes-nb.html#cb257-10" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Party Ownership of Manifesto Codes (Row %)&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/ggplot-nb-codes-1.png" width="672" /></p>
+<p>This chart shows that some parties dominate specific categories. For example, we can see that UKIP is the only one to use code 406 (Protectionism: Positive). Note that these are percentages; a high percentage might reflect dominance but could be based on a very small number of sentences. Other categories are more evenly distributed across parties. We can also analyze the thematic composition of each party’s manifesto by calculating column percentages:</p>
+<div class="sourceCode" id="cb258"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb258-1"><a href="naive-bayes-nb.html#cb258-1" tabindex="-1"></a><span class="co"># Calculate column percentages (percentage of party manifesto per code)</span></span>
+<span id="cb258-2"><a href="naive-bayes-nb.html#cb258-2" tabindex="-1"></a>prop_col <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">prop.table</span>(<span class="fu">table</span>(manifesto_data<span class="sc">$</span>cmp_code, manifesto_data<span class="sc">$</span>party),</span>
+<span id="cb258-3"><a href="naive-bayes-nb.html#cb258-3" tabindex="-1"></a>    <span class="at">margin =</span> <span class="dv">2</span>) <span class="sc">*</span> <span class="dv">100</span>)</span>
+<span id="cb258-4"><a href="naive-bayes-nb.html#cb258-4" tabindex="-1"></a><span class="fu">names</span>(prop_col) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Code&quot;</span>, <span class="st">&quot;Party&quot;</span>, <span class="st">&quot;Percentage&quot;</span>)</span>
+<span id="cb258-5"><a href="naive-bayes-nb.html#cb258-5" tabindex="-1"></a></span>
+<span id="cb258-6"><a href="naive-bayes-nb.html#cb258-6" tabindex="-1"></a><span class="co"># Display head of column percentages</span></span>
+<span id="cb258-7"><a href="naive-bayes-nb.html#cb258-7" tabindex="-1"></a><span class="fu">head</span>(prop_col)</span></code></pre></div>
+<pre><code>##   Code Party Percentage
+## 1    0   CON  0.0000000
+## 2  101   CON  0.3778338
+## 3  103   CON  0.1259446
+## 4  104   CON  4.2191436
+## 5  105   CON  0.3778338
+## 6  106   CON  0.2518892</code></pre>
+<p>With 57 possible codes, grouping them into the 7 thematic domains defined by the Manifesto Project is more practical. We create a new <code>Domain</code> variable and assign each code to its corresponding domain.</p>
+<div class="sourceCode" id="cb260"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb260-1"><a href="naive-bayes-nb.html#cb260-1" tabindex="-1"></a><span class="co"># Assign codes to their respective domains</span></span>
+<span id="cb260-2"><a href="naive-bayes-nb.html#cb260-2" tabindex="-1"></a>prop_col<span class="sc">$</span>Code <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(prop_col<span class="sc">$</span>Code))</span>
+<span id="cb260-3"><a href="naive-bayes-nb.html#cb260-3" tabindex="-1"></a>prop_col<span class="sc">$</span>Domain <span class="ot">&lt;-</span> <span class="fu">cut</span>(prop_col<span class="sc">$</span>Code, <span class="at">breaks =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">110</span>, <span class="dv">204</span>, <span class="dv">305</span>, <span class="dv">416</span>, <span class="dv">507</span>,</span>
+<span id="cb260-4"><a href="naive-bayes-nb.html#cb260-4" tabindex="-1"></a>    <span class="dv">608</span>, <span class="dv">706</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;NA&quot;</span>, <span class="st">&quot;External Relations&quot;</span>, <span class="st">&quot;Freedom and Democracy&quot;</span>, <span class="st">&quot;Political System&quot;</span>,</span>
+<span id="cb260-5"><a href="naive-bayes-nb.html#cb260-5" tabindex="-1"></a>    <span class="st">&quot;Economy&quot;</span>, <span class="st">&quot;Welfare and Quality of Life&quot;</span>, <span class="st">&quot;Fabric of Society&quot;</span>, <span class="st">&quot;Social Groups&quot;</span>))</span>
+<span id="cb260-6"><a href="naive-bayes-nb.html#cb260-6" tabindex="-1"></a></span>
+<span id="cb260-7"><a href="naive-bayes-nb.html#cb260-7" tabindex="-1"></a><span class="co"># Display head with Domain information</span></span>
+<span id="cb260-8"><a href="naive-bayes-nb.html#cb260-8" tabindex="-1"></a><span class="fu">head</span>(prop_col)</span></code></pre></div>
+<pre><code>##   Code Party Percentage             Domain
+## 1    0   CON  0.0000000                 NA
+## 2  101   CON  0.3778338 External Relations
+## 3  103   CON  0.1259446 External Relations
+## 4  104   CON  4.2191436 External Relations
+## 5  105   CON  0.3778338 External Relations
+## 6  106   CON  0.2518892 External Relations</code></pre>
+<p>We can now plot the distribution of these domains within each party’s manifesto.</p>
+<div class="sourceCode" id="cb262"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb262-1"><a href="naive-bayes-nb.html#cb262-1" tabindex="-1"></a><span class="co"># Plot the column percentages aggregated by domain</span></span>
+<span id="cb262-2"><a href="naive-bayes-nb.html#cb262-2" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> prop_col, <span class="fu">aes</span>(<span class="at">x =</span> Party, <span class="at">y =</span> Percentage, <span class="at">fill =</span> Domain)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">&quot;identity&quot;</span>,</span>
+<span id="cb262-3"><a href="naive-bayes-nb.html#cb262-3" tabindex="-1"></a>    <span class="at">position =</span> <span class="st">&quot;stack&quot;</span>) <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span> <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb262-4"><a href="naive-bayes-nb.html#cb262-4" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Party&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Percentage of Manifesto Text&quot;</span>, <span class="at">title =</span> <span class="st">&quot;Thematic Composition of Party Manifestos (Col %)&quot;</span>) <span class="sc">+</span></span>
+<span id="cb262-5"><a href="naive-bayes-nb.html#cb262-5" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code></pre></div>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/ggplot-nb-domains-1.png" width="672" /></p>
+<p>The plot shows that “Welfare and Quality of Life” and “Economy” are dominant themes across most parties. We can also see party-specific focuses, such as UKIP’s emphasis on “External Relations”.</p>
+<p>Now, let us turn to the Naive Bayes. First, she place our data into a corpus object:</p>
+<div class="sourceCode" id="cb263"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb263-1"><a href="naive-bayes-nb.html#cb263-1" tabindex="-1"></a>manifesto_corpus <span class="ot">&lt;-</span> <span class="fu">corpus</span>(manifesto_data, <span class="at">text_field =</span> <span class="st">&quot;texts&quot;</span>)</span>
+<span id="cb263-2"><a href="naive-bayes-nb.html#cb263-2" tabindex="-1"></a><span class="fu">summary</span>(manifesto_corpus, <span class="dv">10</span>)</span></code></pre></div>
+<pre><code>## Corpus consisting of 9763 documents, showing 10 documents:
+## 
+##             Text Types Tokens Sentences cmp_code  party
+##   51320_201505.7    13     14         1      414 LABOUR
+##   51320_201505.8    29     35         1      414 LABOUR
+##  51320_201505.10     9      9         1      414 LABOUR
+##  51320_201505.11     7      7         1      414 LABOUR
+##  51320_201505.12    17     17         1      414 LABOUR
+##  51320_201505.13    21     22         1      414 LABOUR
+##  51320_201505.14    10     10         1      414 LABOUR
+##  51320_201505.15    18     20         1      414 LABOUR
+##  51320_201505.16    26     30         1      414 LABOUR
+##  51320_201505.17    20     22         1      414 LABOUR</code></pre>
+<p>To train and evaluate our model, we must split the data into training and test sets. We’ll use 80% for training and 20% for testing. <code>set.seed</code> ensures that the random sampling is reproducible.</p>
+<div class="sourceCode" id="cb265"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb265-1"><a href="naive-bayes-nb.html#cb265-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb265-2"><a href="naive-bayes-nb.html#cb265-2" tabindex="-1"></a></span>
+<span id="cb265-3"><a href="naive-bayes-nb.html#cb265-3" tabindex="-1"></a><span class="co"># Generate a random sample of document indices for the training set</span></span>
+<span id="cb265-4"><a href="naive-bayes-nb.html#cb265-4" tabindex="-1"></a>id_train <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">ndoc</span>(manifesto_corpus), <span class="at">size =</span> <span class="fu">ndoc</span>(manifesto_corpus) <span class="sc">*</span> <span class="fl">0.8</span>,</span>
+<span id="cb265-5"><a href="naive-bayes-nb.html#cb265-5" tabindex="-1"></a>    <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb265-6"><a href="naive-bayes-nb.html#cb265-6" tabindex="-1"></a></span>
+<span id="cb265-7"><a href="naive-bayes-nb.html#cb265-7" tabindex="-1"></a><span class="co"># Create training and test sets by subsetting the corpus</span></span>
+<span id="cb265-8"><a href="naive-bayes-nb.html#cb265-8" tabindex="-1"></a>train_corpus <span class="ot">&lt;-</span> <span class="fu">corpus_subset</span>(manifesto_corpus, <span class="dv">1</span><span class="sc">:</span><span class="fu">ndoc</span>(manifesto_corpus) <span class="sc">%in%</span> id_train)</span>
+<span id="cb265-9"><a href="naive-bayes-nb.html#cb265-9" tabindex="-1"></a>test_corpus <span class="ot">&lt;-</span> <span class="fu">corpus_subset</span>(manifesto_corpus, <span class="sc">!</span><span class="dv">1</span><span class="sc">:</span><span class="fu">ndoc</span>(manifesto_corpus) <span class="sc">%in%</span> id_train)</span></code></pre></div>
+<p>Next, we create Document-Feature Matrices (DFMs) from our corpus subsets. A DFM is a table where rows represent documents, columns represent words (features), and cells contain word counts. We perform basic text cleaning during this step: removing punctuation, numbers, and symbols. We also trim the DFM to remove very infrequent terms, which helps reduce noise and improve model performance.</p>
+<div class="sourceCode" id="cb266"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb266-1"><a href="naive-bayes-nb.html#cb266-1" tabindex="-1"></a><span class="co"># Create DFM for the training set</span></span>
+<span id="cb266-2"><a href="naive-bayes-nb.html#cb266-2" tabindex="-1"></a>train_dfm <span class="ot">&lt;-</span> train_corpus <span class="sc">%&gt;%</span></span>
+<span id="cb266-3"><a href="naive-bayes-nb.html#cb266-3" tabindex="-1"></a>    <span class="fu">tokens</span>(<span class="at">remove_punct =</span> <span class="cn">TRUE</span>, <span class="at">remove_numbers =</span> <span class="cn">TRUE</span>, <span class="at">remove_symbols =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb266-4"><a href="naive-bayes-nb.html#cb266-4" tabindex="-1"></a>    <span class="fu">dfm</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb266-5"><a href="naive-bayes-nb.html#cb266-5" tabindex="-1"></a>    <span class="fu">dfm_trim</span>(<span class="at">min_termfreq =</span> <span class="dv">5</span>)</span>
+<span id="cb266-6"><a href="naive-bayes-nb.html#cb266-6" tabindex="-1"></a></span>
+<span id="cb266-7"><a href="naive-bayes-nb.html#cb266-7" tabindex="-1"></a><span class="co"># Create DFM for the test set We don&#39;t trim the test set yet, as we will match</span></span>
+<span id="cb266-8"><a href="naive-bayes-nb.html#cb266-8" tabindex="-1"></a><span class="co"># its features to the training set</span></span>
+<span id="cb266-9"><a href="naive-bayes-nb.html#cb266-9" tabindex="-1"></a>test_dfm <span class="ot">&lt;-</span> test_corpus <span class="sc">%&gt;%</span></span>
+<span id="cb266-10"><a href="naive-bayes-nb.html#cb266-10" tabindex="-1"></a>    <span class="fu">tokens</span>(<span class="at">remove_punct =</span> <span class="cn">TRUE</span>, <span class="at">remove_numbers =</span> <span class="cn">TRUE</span>, <span class="at">remove_symbols =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb266-11"><a href="naive-bayes-nb.html#cb266-11" tabindex="-1"></a>    <span class="fu">dfm</span>()</span></code></pre></div>
+<p>We train the Naive Bayes model using the training DFM and the <code>cmp_code</code> variable as the target label.</p>
+<div class="sourceCode" id="cb267"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb267-1"><a href="naive-bayes-nb.html#cb267-1" tabindex="-1"></a>manifesto_nb <span class="ot">&lt;-</span> <span class="fu">textmodel_nb</span>(train_dfm, <span class="at">y =</span> <span class="fu">docvars</span>(train_corpus, <span class="st">&quot;cmp_code&quot;</span>))</span>
+<span id="cb267-2"><a href="naive-bayes-nb.html#cb267-2" tabindex="-1"></a><span class="fu">summary</span>(manifesto_nb)</span></code></pre></div>
+<p>The model summary provides estimated feature scores (the probability of a word given a class). We aim to evaluate the model’s performance on unseen data from the test set. Keep in mind that the Naive Bayes model can only make predictions based on features it has seen during training. Therefore, we must align the feature set of the test DFM with the training DFM. The <code>dfm_match()</code> function ensures that the test DFM has the same features as the training DFM.</p>
+<div class="sourceCode" id="cb268"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb268-1"><a href="naive-bayes-nb.html#cb268-1" tabindex="-1"></a>matched_test_dfm <span class="ot">&lt;-</span> <span class="fu">dfm_match</span>(test_dfm, <span class="at">features =</span> <span class="fu">featnames</span>(train_dfm))</span></code></pre></div>
+<p>The number of features in the matched test DFM is now identical to the training DFM. We can now predict the classes for the test set.</p>
+<div class="sourceCode" id="cb269"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb269-1"><a href="naive-bayes-nb.html#cb269-1" tabindex="-1"></a><span class="co"># Predict the classes for the matched test set</span></span>
+<span id="cb269-2"><a href="naive-bayes-nb.html#cb269-2" tabindex="-1"></a>predicted_class <span class="ot">&lt;-</span> <span class="fu">predict</span>(manifesto_nb, <span class="at">newdata =</span> matched_test_dfm)</span>
+<span id="cb269-3"><a href="naive-bayes-nb.html#cb269-3" tabindex="-1"></a></span>
+<span id="cb269-4"><a href="naive-bayes-nb.html#cb269-4" tabindex="-1"></a><span class="co"># Get the actual classes from the test corpus&#39;s document variables</span></span>
+<span id="cb269-5"><a href="naive-bayes-nb.html#cb269-5" tabindex="-1"></a>actual_class <span class="ot">&lt;-</span> <span class="fu">docvars</span>(test_corpus, <span class="st">&quot;cmp_code&quot;</span>)</span>
+<span id="cb269-6"><a href="naive-bayes-nb.html#cb269-6" tabindex="-1"></a></span>
+<span id="cb269-7"><a href="naive-bayes-nb.html#cb269-7" tabindex="-1"></a><span class="co"># Create a confusion matrix (table of actual vs. predicted classes)</span></span>
+<span id="cb269-8"><a href="naive-bayes-nb.html#cb269-8" tabindex="-1"></a>table_class <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">Actual =</span> actual_class, <span class="at">Predicted =</span> predicted_class)</span>
+<span id="cb269-9"><a href="naive-bayes-nb.html#cb269-9" tabindex="-1"></a></span>
+<span id="cb269-10"><a href="naive-bayes-nb.html#cb269-10" tabindex="-1"></a><span class="co"># Display a subset of the confusion matrix due to its large size</span></span>
+<span id="cb269-11"><a href="naive-bayes-nb.html#cb269-11" tabindex="-1"></a>table_class[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]</span></code></pre></div>
+<pre><code>##       Predicted
+## Actual  0 101 103 104 105 106 107 108 109 110
+##    0    0   0   0   0   0   0   1   0   0   1
+##    101  0   0   0   1   0   0   1   0   0   0
+##    104  1   0   0  16   0   0   0   0   0   4
+##    105  0   0   0   2   5   1   1   0   0   1
+##    106  0   0   0   0   0   1   2   1   0   0
+##    107  0   0   0   3   0   0  24   0   0   3
+##    108  0   0   0   1   0   0   0   6   0   8
+##    109  0   0   0   0   0   0   0   0   0   2
+##    110  0   0   0   0   0   0   0   2   0  42
+##    201  0   1   0   0   0   0   1   0   0   0</code></pre>
+<p>A confusion matrix table can be large and difficult to interpret. A heatmap offers a more intuitive visualization, highlighting where the model is accurate (strong diagonal) and where it makes errors (dark cells off the diagonal).</p>
+<div class="sourceCode" id="cb271"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb271-1"><a href="naive-bayes-nb.html#cb271-1" tabindex="-1"></a><span class="co"># Convert the table to a data frame for plotting</span></span>
+<span id="cb271-2"><a href="naive-bayes-nb.html#cb271-2" tabindex="-1"></a>table_class_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(table_class)</span>
+<span id="cb271-3"><a href="naive-bayes-nb.html#cb271-3" tabindex="-1"></a><span class="fu">names</span>(table_class_df) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Actual&quot;</span>, <span class="st">&quot;Predicted&quot;</span>, <span class="st">&quot;Frequency&quot;</span>)</span>
+<span id="cb271-4"><a href="naive-bayes-nb.html#cb271-4" tabindex="-1"></a></span>
+<span id="cb271-5"><a href="naive-bayes-nb.html#cb271-5" tabindex="-1"></a><span class="co"># Plot the confusion matrix as a heatmap</span></span>
+<span id="cb271-6"><a href="naive-bayes-nb.html#cb271-6" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> table_class_df, <span class="fu">aes</span>(<span class="at">x =</span> Predicted, <span class="at">y =</span> Actual)) <span class="sc">+</span> <span class="fu">geom_tile</span>(<span class="fu">aes</span>(<span class="at">fill =</span> Frequency)) <span class="sc">+</span></span>
+<span id="cb271-7"><a href="naive-bayes-nb.html#cb271-7" tabindex="-1"></a>    <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">&quot;white&quot;</span>, <span class="at">high =</span> <span class="st">&quot;#002366&quot;</span>, <span class="at">name =</span> <span class="st">&quot;Frequency&quot;</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Predicted Class&quot;</span>,</span>
+<span id="cb271-8"><a href="naive-bayes-nb.html#cb271-8" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">&quot;Actual Class&quot;</span>, <span class="at">title =</span> <span class="st">&quot;Confusion Matrix: Actual vs. Predicted Manifesto Codes&quot;</span>) <span class="sc">+</span></span>
+<span id="cb271-9"><a href="naive-bayes-nb.html#cb271-9" tabindex="-1"></a>    <span class="fu">theme_classic</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>, <span class="at">size =</span> <span class="dv">8</span>),</span>
+<span id="cb271-10"><a href="naive-bayes-nb.html#cb271-10" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>))</span></code></pre></div>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/ggplot-nb-heatmap-1.png" width="672" /></p>
+<p>To further understand how well NB has done, we can calculate aggregate performance metrics like accuracy, precision, recall, and F1-score. The <code>caret</code> package’s <code>confusionMatrix</code> function is ideal.</p>
+<div class="sourceCode" id="cb272"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb272-1"><a href="naive-bayes-nb.html#cb272-1" tabindex="-1"></a><span class="co"># Ensure levels are consistent for the confusion matrix function</span></span>
+<span id="cb272-2"><a href="naive-bayes-nb.html#cb272-2" tabindex="-1"></a>all_levels <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">c</span>(<span class="fu">as.character</span>(actual_class), <span class="fu">as.character</span>(predicted_class)))</span>
+<span id="cb272-3"><a href="naive-bayes-nb.html#cb272-3" tabindex="-1"></a>actual_class_factor <span class="ot">&lt;-</span> <span class="fu">factor</span>(actual_class, <span class="at">levels =</span> all_levels)</span>
+<span id="cb272-4"><a href="naive-bayes-nb.html#cb272-4" tabindex="-1"></a>predicted_class_factor <span class="ot">&lt;-</span> <span class="fu">factor</span>(predicted_class, <span class="at">levels =</span> all_levels)</span>
+<span id="cb272-5"><a href="naive-bayes-nb.html#cb272-5" tabindex="-1"></a></span>
+<span id="cb272-6"><a href="naive-bayes-nb.html#cb272-6" tabindex="-1"></a><span class="co"># Calculate various classification metrics using caret::confusionMatrix</span></span>
+<span id="cb272-7"><a href="naive-bayes-nb.html#cb272-7" tabindex="-1"></a>classification_metrics <span class="ot">&lt;-</span> <span class="fu">confusionMatrix</span>(predicted_class_factor, actual_class_factor)</span>
+<span id="cb272-8"><a href="naive-bayes-nb.html#cb272-8" tabindex="-1"></a></span>
+<span id="cb272-9"><a href="naive-bayes-nb.html#cb272-9" tabindex="-1"></a><span class="co"># Display macro-averaged F1-score (calculated manually from per-class stats)</span></span>
+<span id="cb272-10"><a href="naive-bayes-nb.html#cb272-10" tabindex="-1"></a>macro_f1 <span class="ot">&lt;-</span> <span class="fu">mean</span>(classification_metrics<span class="sc">$</span>byClass[, <span class="st">&quot;F1&quot;</span>], <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb272-11"><a href="naive-bayes-nb.html#cb272-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Macro-Averaged F1-Score:&quot;</span>, macro_f1, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<pre><code>## Macro-Averaged F1-Score: 0.3686071</code></pre>
+<p>In addition to this, comparing the frequency distribution of predicted classes against the actual classes can reveal if the model is biased towards or against specific categories.</p>
+<div class="sourceCode" id="cb274"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb274-1"><a href="naive-bayes-nb.html#cb274-1" tabindex="-1"></a><span class="co"># Create data frames for actual and predicted class counts and combine them</span></span>
+<span id="cb274-2"><a href="naive-bayes-nb.html#cb274-2" tabindex="-1"></a>actual_counts_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">table</span>(actual_class), <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb274-3"><a href="naive-bayes-nb.html#cb274-3" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">Code =</span> actual_class, <span class="at">Frequency =</span> Freq) <span class="sc">%&gt;%</span></span>
+<span id="cb274-4"><a href="naive-bayes-nb.html#cb274-4" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Type =</span> <span class="st">&quot;Actual&quot;</span>)</span>
+<span id="cb274-5"><a href="naive-bayes-nb.html#cb274-5" tabindex="-1"></a></span>
+<span id="cb274-6"><a href="naive-bayes-nb.html#cb274-6" tabindex="-1"></a>predicted_counts_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">table</span>(predicted_class), <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb274-7"><a href="naive-bayes-nb.html#cb274-7" tabindex="-1"></a>    <span class="fu">rename</span>(<span class="at">Code =</span> predicted_class, <span class="at">Frequency =</span> Freq) <span class="sc">%&gt;%</span></span>
+<span id="cb274-8"><a href="naive-bayes-nb.html#cb274-8" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Type =</span> <span class="st">&quot;Predicted&quot;</span>)</span>
+<span id="cb274-9"><a href="naive-bayes-nb.html#cb274-9" tabindex="-1"></a></span>
+<span id="cb274-10"><a href="naive-bayes-nb.html#cb274-10" tabindex="-1"></a>class_distribution_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(actual_counts_df, predicted_counts_df)</span>
+<span id="cb274-11"><a href="naive-bayes-nb.html#cb274-11" tabindex="-1"></a></span>
+<span id="cb274-12"><a href="naive-bayes-nb.html#cb274-12" tabindex="-1"></a><span class="co"># Plot the distribution</span></span>
+<span id="cb274-13"><a href="naive-bayes-nb.html#cb274-13" tabindex="-1"></a><span class="fu">ggplot</span>(class_distribution_df, <span class="fu">aes</span>(<span class="at">x =</span> Code, <span class="at">y =</span> Frequency, <span class="at">fill =</span> Type)) <span class="sc">+</span> <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">&quot;identity&quot;</span>,</span>
+<span id="cb274-14"><a href="naive-bayes-nb.html#cb274-14" tabindex="-1"></a>    <span class="at">position =</span> <span class="st">&quot;dodge&quot;</span>) <span class="sc">+</span> <span class="fu">theme_classic</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Manifesto Code&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Number of Sentences&quot;</span>,</span>
+<span id="cb274-15"><a href="naive-bayes-nb.html#cb274-15" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Distribution of Actual vs. Predicted Manifesto Codes&quot;</span>) <span class="sc">+</span> <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="at">Actual =</span> <span class="st">&quot;#0087DC&quot;</span>,</span>
+<span id="cb274-16"><a href="naive-bayes-nb.html#cb274-16" tabindex="-1"></a>    <span class="at">Predicted =</span> <span class="st">&quot;#DC241F&quot;</span>)) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>,</span>
+<span id="cb274-17"><a href="naive-bayes-nb.html#cb274-17" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">8</span>))</span></code></pre></div>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/ggplot-class-distribution-1.png" width="672" /></p>
+<p>This plot helps visualize if the model over-predicts (red bar is taller) or under-predicts (blue bar is taller) specific codes compared to their true frequency in the test set.</p>
+<p>Finally, we can use Krippendorff’s <span class="math inline">\(\alpha\)</span> again to measure the agreement between the model’s predictions and the human-assigned codes, accounting for chance agreement.</p>
+<div class="sourceCode" id="cb275"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb275-1"><a href="naive-bayes-nb.html#cb275-1" tabindex="-1"></a>reliability_data <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">rbind</span>(<span class="fu">as.character</span>(actual_class), <span class="fu">as.character</span>(predicted_class)))</span>
+<span id="cb275-2"><a href="naive-bayes-nb.html#cb275-2" tabindex="-1"></a></span>
+<span id="cb275-3"><a href="naive-bayes-nb.html#cb275-3" tabindex="-1"></a><span class="co"># Calculate for nominal data</span></span>
+<span id="cb275-4"><a href="naive-bayes-nb.html#cb275-4" tabindex="-1"></a>kripp_alpha <span class="ot">&lt;-</span> <span class="fu">KrippAlpha</span>(reliability_data, <span class="at">method =</span> <span class="st">&quot;nominal&quot;</span>)</span>
+<span id="cb275-5"><a href="naive-bayes-nb.html#cb275-5" tabindex="-1"></a>kripp_alpha<span class="sc">$</span>value</span></code></pre></div>
+<pre><code>## [1] 0.420661</code></pre>
+<p>Interpreting the <span class="math inline">\(\alpha\)</span> value requires context. Research by <span class="citation">Mikhaylov et al. (<a href="#ref-Mikhaylov2012a">2012</a>)</span> estimates the agreement <em>among trained human coders</em> for the Manifesto Project to be between 0.350 and 0.400. Seen this way, our <span class="math inline">\(\alpha = 0.43\)</span> from our simple automated model is therefore quite good!</p>
+</div>
+<h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="2">
+<div id="ref-Mikhaylov2012a" class="csl-entry">
+Mikhaylov, S., Laver, M., &amp; Benoit, K. (2012). Coder reliability and misclassification in the human coding of party manifestos. <em>Political Analysis</em>, <em>20</em>(1), 78–91. <a href="https://doi.org/10.1093/pan/mpr047">https://doi.org/10.1093/pan/mpr047</a>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="logistic-regression.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="exercises-3.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="assets/gitbook-2.6.7/js/app.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="assets/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["Introduction to Quantitative Text Analysis.pdf", "Introduction to Quantitative Text Analysis.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  },
+  "toolbar": {
+    "position": "static"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

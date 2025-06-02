@@ -1,0 +1,574 @@
+# Describe {#describe}
+
+Now that we have loaded our texts into R, it is time to understand *what* our texts are about, who their authors are, and what we expect to find in them. This chapter focuses on techniques for exploring and summarising text data, including keywords-in-context, visualisations, and text statistics. Before diving into these techniques, we will briefly discuss the concept of the *corpus*, which is central to working with text data in `quanteda` and the *DFM* (data-frequency matrix), which we derive from it. Throughout this chapter, we will use the example of the Manifesto Project corpus, specifically the UK manifestos, to illustrate these concepts and techniques. This data is part of the `quanteda.corpora` package as `data_corpus_ukmanifestos`.
+
+## Corpus and DFM
+
+In `quanteda`, the primary object for storing and managing text data is the `corpus`. A `corpus` object holds your documents and any associated metadata, known as *document-level variables* or *docvars*. The key characteristic of a `corpus` object is that it remains immutable during your analysis. Instead of modifying the original corpus, you create derivative objects (like tokens or document-feature matrices) for analysis. This approach ensures reproducibility and allows you to easily return to your original data for different analyses or pre-processing steps.
+
+Creating a corpus in `quanteda` is straightforward. As seen in the \@ref(import) chapter, one standard method is to use the `readtext` package, which reads various file formats and creates a data frame with document IDs and text. This data frame can be directly converted into a `corpus` object using the `corpus()` function.
+
+Alternatively, you can create a corpus from a simple character vector, where each element represents a document. If the vector elements are named, these names will be used as document identifiers (`doc_id`); otherwise, `quanteda` will generate default IDs.
+
+Incorporating document-level variables (docvars) is highly recommended. These variables store crucial metadata about each document, such as the author, publication date, source, or other relevant categorical or numerical information. Docvars are essential for grouping, filtering, and conducting analyses that relate textual features to external characteristics of the documents. When you create a corpus from a data frame, `quanteda` automatically attempts to include other columns as docvars. You can add or modify docvars later using the `docvars()` function.
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  tidy=TRUE
+)
+```
+
+```{r load-manifesto-corpus, results=FALSE, message=FALSE}
+library(quanteda)               # Core text analysis functions
+library(quanteda.corpora)       # Access to built-in text corpora
+library(quanteda.textstats)     # Text statistics
+library(quanteda.textplots)     # Visualizing text statistics
+library(ggplot2)                # Plots
+library(reshape2)               # For melting data frames 
+
+data(data_corpus_ukmanifestos) # Load the UK political manifestos corpus
+
+selected_parties <- c("Con", "Lab", "LD", "UKIP", "SNP", "PCy", "SF") # Filter the corpus to include only documents from the year 1997 onwards and belonging to a selected set of political parties
+data_corpus_ukmanifestos <- corpus_subset(data_corpus_ukmanifestos,
+                                          Year > 1996 &
+                                            Party %in% selected_parties)
+```
+
+The *document-feature matrix* (DFM) is the core data structure for many quantitative text analysis methods. It represents the corpus as a matrix, where documents are represented as rows and features (typically words or n-grams, after pre-processing) are represented as columns. The cell values are usually the counts of each feature in each document. The DFM is created from a `tokens` object (which identifies the individual words in a document) using the `dfm()` function.
+
+```{r dfm-manifesto, eval = FALSE}
+data_tokens <- tokens(data_corpus_ukmanifestos)
+data_dfm <- dfm(data_tokens)
+
+head(data_dfm)
+```
+
+By default, `dfm()` counts the occurrences of each feature (term frequency). If you want to, you can apply different weighting schemes like TF-IDF using `dfm_tfidf()` to emphasise words that are more important to a document relative to the corpus. However, at this point, the DFM contains much information we do not need, such as words like 'the' and '1997'. Because of this, we rarely generate the DFM directly, but we first carry out some pre-processing, to which we will now turn.
+
+## Text Pre-processing
+
+Raw text data is inherently complex and often contains noise that can obscure patterns relevant to your research question. Text pre-processing is the cleaning and normalising of text to make it suitable for quantitative analysis. These steps transform the raw text into a structured format, such as a document-feature matrix, by reducing variability and focusing on meaningful units of text.
+
+Choosing the proper pre-processing steps is not trivial and heavily depends on your research question and the nature of your text data. As highlighted by @Denny2018a, different pre-processing choices can significantly impact the results of downstream analyses, particularly unsupervised methods like topic modelling or clustering. Understanding what each pre-processing step does and its potential consequences is crucial. The `preText` R package, developed by the authors of that paper, provides tools to evaluate the sensitivity of your results to different pre-processing pipelines.
+
+Pre-processing is typically applied sequentially to the text. In `quanteda`, most pre-processing steps operate on a `tokens` object, transforming each document's list of word sequences before creating the final document-feature matrix.
+
+### Tokenisation and Initial Cleaning
+
+The first step in pre-processing is *tokenisation*: splitting the continuous text into discrete units called tokens. These are usually individual words but can also be sentences, paragraphs, or characters. `quanteda`'s `tokens()` function is used for this and allows for initial cleaning during the tokenisation process. By default, `tokens()` splits on whitespace and keeps punctuation, symbols, and numbers:
+
+```{r tokens-initial}
+data_tokens <- tokens(data_corpus_ukmanifestos)
+head(data_tokens[[5]], 20)
+```
+
+The ``head(data_tokens[[5]], 20)`` argument here allows us to see the first $20$ terms of the 5th object in our corpus (the 1997 Sinn Féin manifesto). As we can see, the raw tokens here include punctuation, numbers and symbols, as `tokens()` does not remove those unless we specify this:
+
+```{r tokens-cleaned}
+data_tokens_cleaned <- tokens(
+  data_corpus_ukmanifestos,
+  what = "word",
+  # Specify that we want to tokenise into words
+  remove_punct = TRUE,
+  # Remove punctuation marks like ., !?
+  remove_symbols = TRUE,
+  # Remove symbols like $, %, ^, &, *
+  remove_numbers = TRUE,
+  # Remove numerical digits (e.g., 123, 1997)
+  remove_url = TRUE,
+  # Remove URLs (web addresses).
+  remove_separators = TRUE,
+  # Remove separator characters like tabs, newlines, and multiple spaces.
+  split_hyphens = FALSE,
+  # If false, words such as matter-of-fact will not be split
+  split_tags = FALSE,
+  # If false, do not split social media tags
+  include_docvars = TRUE,
+  concatenator = "_",
+  # The character to connect tokens that should stay together (e.g. we can write conservative_party to prevent it from being split)
+  verbose = quanteda_options("verbose")
+)
+
+# Display the first 20 tokens of the first document after initial cleaning to observe the removal of specified elements.
+head(data_tokens_cleaned[[5]], 20)
+
+ntoken(data_tokens_cleaned) # The number of tokens per document
+ntype(data_tokens_cleaned) # The number of unique tokens per document
+```
+
+The `remove_*` arguments in `tokens()` are powerful for initial cleaning, simplifying the token set by removing elements that might not be relevant to your analysis and reducing noise. Also note that even though we remove punctuation, this is not always the case, such as when we are dealing with a possessive apostrophe (as in People's). We could (if we wanted to) remove this as well, by adding `` tokens_remove(pattern = "'s$", valuetype = "regex")``, though we do not recommend this as this would leave the ``s`` as a single character. 
+
+### Lower-casing
+
+Converting all text to lower-case is a standard normalisation step. It ensures that the same word is not counted as different features simply because of variations in capitalisation (e.g., "Party", "party", "PARTY"). This step is crucial for consistent term counting, and we generally recommend it unless your analysis requires preserving case information (e.g., for Named Entity Recognition). `quanteda` provides the `tokens_tolower()` function. Note that `keep_acronyms=FALSE` ensures that acronyms (like NATO) are also lower-cased. Set to `TRUE` if you want to preserve the capitalisation of detected acronyms:
+
+```{r tokens-lower}
+data_tokens_lower <- tokens_tolower(data_tokens_cleaned,
+                                    keep_acronyms = FALSE
+                                    )
+head(data_tokens_lower[[5]], 20)
+ntoken(data_tokens_lower) # The number of tokens per document
+ntype(data_tokens_lower) # The number of unique tokens per document
+```
+
+After lower-casing, all tokens are uniform and ready for subsequent matching and counting. Notice in the counts that while the number of tokens has not changed (as we have not removed any words), the number of types (unique tokens) has, as now words like "AND", "And" and "and" are not considered as three different terms, but as a single one.
+
+### Stopword Removal
+
+Stopwords are high-frequency words (e.g., "the", "a", "is", "in") that are generally considered less informative for distinguishing between documents or topics compared to more substantive terms (such as most verbs and nouns). Removing them can reduce the dimensionality of your DFM, allowing you to focus on more meaningful terms. However, stopwords should be eliminated with care, as in some contexts (e.g., authorship attribution, linguistic style analysis), they can be highly informative. Also, domain-specific "stopwords" might be essential concepts in your field and should not be removed (for example, you might not want to remove the word "we" if this word has become important during a political campaign).
+
+`quanteda` includes built-in lists of stopwords for many languages, accessed via the `stopwords()` function. You can remove these or your custom lists using `tokens_select()`:
+
+```{r tokens-stopwords}
+data_tokens_nostop <- tokens_select(data_tokens_lower,
+                                    stopwords("english"),
+                                    selection = "remove"
+                                    )
+head(data_tokens_nostop[[5]], 20)
+ntoken(data_tokens_nostop) # The number of tokens per document
+ntype(data_tokens_nostop) # The number of unique tokens per document
+```
+
+Note that this has removed several words, such as 'and' and 'a'. Before we move on, let us visualise the impact of this stopword removal on the total number of tokens per document. This helps us to better understand the reduction in text volume:
+
+```{r ggplot-stopwords-impact}
+# Calculate the number of tokens for each document before and after stopword removal.
+tokens_before_stop <- ntoken(data_tokens_lower)
+tokens_after_stop <- ntoken(data_tokens_nostop)
+
+# Create a data frame for plotting the impact.
+stopwords_data <- data.frame(
+  Manifesto = docnames(data_tokens_lower),
+  # Get document names
+  Before = tokens_before_stop,
+  After = tokens_after_stop
+)
+
+# Reshape the data from wide to long format for ggplot2 for more straightforward plotting of grouped bars
+stopwords_data <- melt(
+  stopwords_data,
+  id.vars = "Manifesto",
+  variable.name = "Processing",
+  value.name = "NumTokens"
+)
+
+ggplot(stopwords_data,
+       aes(x = Manifesto, y = NumTokens, fill = Processing)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
+  scale_x_discrete(name = "Manifesto") +
+  scale_y_continuous(name = "Number of Tokens", expand = c(0, 0)) +
+  ggtitle("Impact of Stopword Removal") +
+  theme_classic() +
+  theme(axis.text.x = element_text(
+    angle = 90,
+    vjust = 0.5,
+    hjust = 1
+  ))
+```
+
+As expected, removing stopwords substantially reduces the total number of tokens across all documents. The number of words removed differs per document but can be substantial, for example, in the case of the 2001 Labour Party manifesto, which was reduced from $28,606$ to $16,386$ words — a reduction of around $42\%$. Finally, remember that ``stopwords("english")`` is nothing more than a character vector of stop words. Therefore, if we wish to remove stop words ourselves, we can do so by simply providing them as such:
+
+```{r stopwords-own, results=FALSE}
+data_tokens_nostop   <-
+  quanteda::tokens_select(
+    data_tokens_nostop,
+    c(
+      "may",
+      "new",
+      "manifesto"
+    ),
+    selection = "remove",
+    valuetype = "fixed"
+  )
+```
+
+### N-grams and Collocations
+
+While individual words (unigrams) are the most common features in text analysis, sometimes the meaning is better captured by sequences of words, known as **n-grams**. An n-gram is a contiguous sequence of *n* items from a given sample of text or speech. For example, "strong economy" is a 2-gram (or bigram), and "peace and prosperity" is a 3-gram (or trigram). Using n-grams can help us to capture phrases, multi-word expressions, and local context that single words miss. The `quanteda` package provides `tokens_ngrams()` to generate all possible n-grams of a specified size from a tokens object. Here, `# n = 2` specifies bigrams:
+
+```{r tokens-ngrams-example}
+data_tokens_bigrams <- tokens_ngrams(data_tokens_nostop, n = 2)
+head(data_tokens_bigrams[[5]], 10)
+```
+
+While `tokens_ngrams()` can generate n-grams, the problem is that it creates *all* possible numbers of n-grams, many of which are not meaningful or useful (such as 'opportunity\_peace'). Therefore, it is a better idea first to identify **collocations** -- n-grams that appear more frequently than we would expect by chance. These often represent meaningful phrases or concepts (for example, given that we are working with UK manifestos, we would expect combinations such as "Prime Minister" or "National Health Service"). We can identify these with the `textstat_collocations()` function, which calculates various association measures (like likelihood ratio, PMI, and chi-squared) to score potential collocations. Depending on your analysis, you might calculate collocations before stopword removal if you think that stopwords could be part of a collocation you would like to capture (for instance, if you are interested in capturing the term "we the people"). For this example, we will look for collocations after the stopwords are removed. Here, `# min_count` specifies the minimum number of times a collocation must appear to be considered. The standard ($2$) thus means that a combination appears more than a single time, and is thus not a random combination. Here we set ours at $5$:
+
+```{r textstat-collocations}
+collocations <- textstat_collocations(data_tokens_nostop,
+                                      min_count = 5,
+                                      size = 2
+                                      )
+```
+
+Now that we have found all the possible collocations, it is time to decide which ones we want to use. One aspect we can utilise for this is the Wald $z$-statistic, which calculates the likelihood that the two words would occur together at random. Here, we decide to include only those collocations with a $z>3$, which means they are three standard errors away from the mean (and thus have a p-value of approximately $0.0027$) of being likely:
+
+```{r textstat-collocations-2}
+collocations <- collocations[collocations$z > 3,]
+head(collocations, 20)
+```
+
+As we can see, we now capture some relevant combinations such as "european union", "local authorities", and "income tax". We could remove all the terms we do not wish to from the data frame, but we will leave this for now. For now, we will "compound" them using `tokens_compound()`. This function replaces the sequence of individual tokens that form a collocation with a single, multi-word token (e.g., "national_health_service"). This ensures that the identified phrase is treated as a single feature from now on (as both the tokens object and the DFM will see `_` as the sign for a compound):
+
+```{r tokens-compound}
+data_tokens_compounded <- tokens_compound(data_tokens_nostop,
+                                          pattern = collocations,
+                                          concatenator = "_"
+                                          )
+head(data_tokens_compounded[[5]], 10)
+```
+
+Note that now the words "social justice" are combined into a single new term. Also, note that while we mainly calculate the collocations after initial lowercasing and punctuation removal, whether we do so before or after stopword removal and stemming depends on whether we see the stopwords and word endings as part of the collocation. For instance, stemming "social security" to "social secur" might be desired, but stemming before identifying the collocation could make it harder for us to identify the collocation.
+
+### Stemming and Lemmatisation
+
+Stemming and lemmatisation are two techniques that reduce words to a common form, to group variations (e.g., "run", "running", "ran"). This can help us to treat words with similar meanings as equivalent features, reducing the overall vocabulary size and improving the signal-to-noise ratio in the data.
+
+*Stemming* uses algorithmic rules to chop off suffixes (and sometimes prefixes) from words, often resulting in a truncated "stem" that may not be a real word (e.g., "university" -\> "univers", "connection" -\> "connect"). `quanteda` provides the `tokens_wordstem()` function, which uses the Porter stemmer by default for English. While fast, stemming can sometimes produce non-words or conflate words with different meanings.
+
+*Lemmatisation* is a more linguistically informed process that uses a lexicon (a dictionary of words and their base forms) to convert words to their dictionary form, or *lemma* (e.g., "better" -\> "good", "geese" -\> "goose", "running" -\> "run"). Lemmatisation generally produces valid words. It can be more accurate than stemming but typically requires external resources, such as lexicons. Also, it is computationally more intensive. `quanteda` does not have a built-in lemmatiser. Still, you can perform lemmatisation before creating a `corpus` or `tokens` object using other R packages (like `textstem` or `spacyr`).
+
+Here, we will do some stemming using `tokens_wordstem()`:
+
+```{r tokens-stemming}
+data_tokens_stemmed <- tokens_wordstem(data_tokens_compounded, language = "english")
+head(data_tokens_stemmed[[5]], 20)
+```
+
+Note how words like "economy", "culture", and "peace" have been reduced to their stems ("economi", "cultur", "peac"). As before, let's visualise this as well:
+
+```{r ggplot-stemming-impact}
+# Calculate the number of types (unique tokens)
+
+types_before_stem <- ntype(data_tokens_compounded)
+types_after_stem <- ntype(data_tokens_stemmed)
+
+stemming_data <- data.frame(
+  document = docnames(data_tokens_nostop),
+  # Get document names
+  Before = types_before_stem,
+  After = types_after_stem
+)
+
+stemming_data <- melt(
+  stemming_data,
+  id.vars = "document",
+  variable.name = "Processing",
+  value.name = "NumTypes"
+)
+
+# Create a bar plot comparing each document's type counts before and after stemming
+
+ggplot(stemming_data, aes(x = document, y = NumTypes, fill = Processing)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8)) + # Use dodged bars.
+  scale_x_discrete(name = "Manifesto") +
+  scale_y_continuous(name = "Number of Tokens", expand = c(0, 0)) +
+  ggtitle("Impact of Stemming") +
+  theme_classic() +
+  theme(axis.text.x = element_text(
+    angle = 90,
+    vjust = 0.5,
+    hjust = 1
+  ))  # Rotate x-axis labels
+
+```
+
+Again, removing the words from their stems can remove a significant number of unique features. For example, looking at the 2001 Labour manifesto shows that from the $4320$ types before stemming, only $3315$ remained afterwards.
+
+### Removing Sparse Features (DFM Trimming)
+
+After tokenisation and linguistic pre-processing, we can generate our DFM. However, at this point, our DFM might still contain many features (terms) that appear infrequently across the corpus or in only a few documents. These *sparse features* can increase the dimensionality of our data without adding much useful information and can sometimes be noise (e.g., typos). Removing them can decrease processing time and also the performance of some models. We can use the `dfm_trim()` function for DFM trimming. We can set thresholds based on minimum term frequency (`min_termfreq`), maximum term frequency (`max_termfreq`), minimum document frequency (`min_docfreq`), or maximum document frequency (`max_docfreq`), either as absolute counts or percentages:
+
+```{r dfm-trimming}
+data_dfm_untrimmed <- dfm(data_tokens_stemmed)
+data_dfm_trimmed <- dfm_trim(data_dfm_untrimmed, min_docfreq = 2) # Trim the dfm to remove features that appear in fewer than two documents
+
+# You could also trim by minimum term frequency (total occurrences across the corpus):
+# data_dfm_trimmed_freq <- dfm_trim(data_dfm_untrimmed, min_termfreq = 10)
+
+data_dfm_untrimmed
+data_dfm_trimmed
+```
+
+Note that when we trim the DFM to remove features that appear in fewer than five documents, we reduce the sparsity (i.e., empty cells in the DFM) from $81.37\%$ to $69.33\%$. We also go from $11,789$ for features (types) to $6,257$. Trimming significantly reduces the number of features in the DFM by removing those that occur very rarely. The specific thresholds you choose for trimming will depend on the size of your corpus, the nature of your text, and your analytical goals. One reason to use it (and why we set it to $2$ here) is that 'unique' words are rarely very interesting. Besides, removing words that occur only a single time can be a good way of removing spelling mistakes. However, be mindful that overly aggressive trimming can remove potentially informative rare terms.
+
+### Additional Pre-Processing
+
+Besides using the functions built into `quanteda`, we can also use R's more native functions to clean texts. For this, we have to clean our text while it is still in a data frame. There are several ways to do this, including R's `gsub`. However, we will use the more powerful and faster `stringr` package, part of the `tidyverse`, here. To use `stringr`, we first need to load the library. We must also ensure that our texts are stored as a data frame. For demonstration purposes here, we will take our original (and non-pre-processed) corpus and make it into a data frame using the `convert` function:
+
+```{r load-stringr}
+library(stringr)
+data_corpus_df <- convert(data_corpus_ukmanifestos, to = "data.frame")
+```
+
+Now we can use `stringr` functions like `str_replace_all()` to clean up the text. `str_replace_all()` takes a character vector, a pattern to find and a replacement string. We will use regular expressions for the pattern.
+
+```{r tweets-cleaning-stringr}
+# Remove URLs (http, https, ftp, ftps)
+data_corpus_df$text <- str_replace_all(data_corpus_df$text, "http[s]?://[^ ]+", "")
+data_corpus_df$text <- str_replace_all(data_corpus_df$text, "ftp[s]?://[^ ]+", "") # Also include ftp/s
+
+# Remove mentions (@username)
+data_corpus_df$text <- str_replace_all(data_corpus_df$text, "@\\w+", "")
+
+# Remove hashtags (#topic) - keep the topic word, remove the #
+data_corpus_df$text <- str_replace_all(data_corpus_df$text, "#(\\w+)", "\\1")
+
+# Remove punctuation
+data_corpus_df$text <- str_replace_all(data_corpus_df$text, "[[:punct:]]", "")
+
+# Remove numbers (optional, depending on analysis)
+data_corpus_df$text <- str_replace_all(data_corpus_df$text, "[[:digit:]]", "")
+
+# Remove retweet indicator "RT" (ensure it's at the start of a potential tweet)
+data_corpus_df$text <- str_replace_all(data_corpus_df$text, "^RT\\s", "") # Use ^RT\\s to match RT at the start followed by space
+
+# Remove extra whitespace (leading, trailing, and multiple spaces)
+data_corpus_df$text <- str_trim(data_corpus_df$text) # Remove leading/trailing whitespace using str_trim
+data_corpus_df$text <- str_replace_all(data_corpus_df$text, "[[:space:]]{2,}", " ") # Replace multiple spaces with a single space
+
+# Convert to lower-case (important for dictionary matching)
+data_corpus_df$text <- str_to_lower(data_corpus_df$text)
+```
+
+Note that in most cases, the functions in `quanteda` are enough. However, `str_replace_all()` can be practical before regular pre-processing, especially when dealing with problematic data.
+
+### Evaluating Pre-Processing
+
+The selection and order of these pre-processing steps can substantially impact the resulting DFM and, as a result, the outcomes of your text analysis. For example:
+
+-   Removing stopwords might remove terms that are crucial in a specific context or field
+-   Stemming can group words that have different meanings (e.g., "organ" and "organise")
+-   The order of removing stopwords before or after calculating collocations affects the collocations we find
+
+In other words, simply pre-processing our data can lead to different data sets and, therefore, to different conclusions later on during our analysis. To see what effect our pre-processing decisions had, we can use the `preText` package by @Denny2018a to see what the impact of each step is on our analysis. `preText` works by applying all of the different possible combinations of pre-processing steps (7 in total, leading to 2⁷ = 128 possible combinations) to your corpus and then comparing the similarities between the different DFMs.
+
+First, ensure the `preText` package is installed and loaded:
+
+```{r pretext-load, message=FALSE, warning=FALSE}
+library(preText)
+library(reshape2)
+```
+
+First, we run `factorial_preprocessing()`, which takes a corpus object (or other text formats) and applies a set of default pre-processing pipelines by systematically varying common pre-processing options. After this, we run the main `preText` command:
+
+```{r pretext-run, message=FALSE, warning=FALSE, results='hide', cache=TRUE}
+
+# use_ngrams = TRUE: Also consider including n-grams (sequences of words)
+# infrequent_term_threshold = 0.01: Remove terms that appear in less than 1% of documents
+
+preprocessed_documents <- factorial_preprocessing(
+  data_corpus_ukmanifestos,
+  use_ngrams = TRUE,
+  infrequent_term_threshold = 0.01,
+  parallel = FALSE,
+  cores = 1,
+ return_results = TRUE,
+  verbose = TRUE # Display progress and information
+)
+
+# Run the preText analysis, which compares the different pre-processed versions
+# distance_method = "cosine": Method to calculate distance between document representations
+# num_comparisons = 50: Number of random document pairs to compare for robustness
+
+preText_results <- preText(
+    preprocessed_documents,
+    dataset_name = "UK Manifestos",
+    distance_method = "cosine",
+    num_comparisons = 50,
+    verbose = TRUE)
+```
+
+After running `preText`, we can visualise the results. Two commands are already part of the package and provide a good overview of the results:
+
+```{r pretext-models, message=FALSE, warning=FALSE}
+preText_score_plot(preText_results)
+regression_coefficient_plot(preText_results, remove_intercept = TRUE)
+```
+
+In the first plot, lower scores indicate more robust pre-processing pipelines where document similarities are less sensitive to changes. In the second plot, which is the more interesting of the two, we are looking for pre-processing steps that are significantly different from the null line. In this case, this is the use of n-grams, the removal of stopwords and punctuation and lowercasing. The fact that they are different means that this pre-processing step has led to a significantly different DFM, which is, therefore, more likely to yield significantly different results in further analyses. Note that this does not say whether this is good or bad: we might still prefer a "different" and clean DFM over an uncleaned one. The point is that we are aware of these changes and should consider the potential impacts of our pre-processing on our subsequent analysis.
+
+## Descriptives and Visualisations
+
+Now that we have finished our DFM and assessed the effects of the pre-processing steps, it is time to examine our resulting DFM. For this, `quanteda` offers a variety of options. We start with a look at the most frequent tokens:
+
+```{r topfeatures-manifesto}
+features <- topfeatures(data_dfm_trimmed, 50) # Get the top 50 most frequent features from the DFM
+features_plot <- data.frame(term = names(features), frequency = unname(features))
+
+features_plot$term <- with(features_plot, reorder(term, -frequency)) # Reorder the terms by frequency in descending order
+
+ggplot(features_plot, aes(x = term, y = frequency)) +
+  geom_point() +
+  theme_classic() +
+  scale_x_discrete(name = "Token") +
+  scale_y_continuous(name = "Frequency") +
+  ggtitle("Top 50 Most Frequent Tokens") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+We can see that the words "govern", "work" and "need" are the most frequent, already indicating a little what our documents are about. Apart from this, a good use of a frequency graph is to spot stopwords you might wish to remove (for example, "also") and include them in the list of stopwords.
+
+Another option for examining frequencies is to use word clouds. Not only are they a visually appealing way to visualise term frequencies, but word size also indicates frequency. While less precise than bar plots, we can use them for a quick impression of prominent terms. To avoid clutter, here, we include only terms that appear at least 20 times and set the maximum number of words in the word cloud at 100:
+
+```{r wordcloud-manifesto, warning=FALSE}
+wordcloud_dfm_trim <- dfm_trim(data_dfm_trimmed, min_termfreq = 20)
+textplot_wordcloud(wordcloud_dfm_trim, max_words = 100) 
+```
+
+We can also compare docvars. Here, we first subset the DFM to include only Labour and Conservative manifestoes. Then we group them and then set `compare = TRUE`:
+
+```{r wordcloud-compare, warning=FALSE}
+data_dfm_compare <- dfm_subset(data_dfm_trimmed, Party %in% c("Lab", "Con"))
+wordcloud_dfm_trim <- dfm_group(data_dfm_compare, data_dfm_compare$Party)
+
+textplot_wordcloud(
+  wordcloud_dfm_trim,
+  comparison = TRUE,
+  max_words = 200,
+  color = c("darkblue", "darkred")
+)
+```
+
+Another thing we can do is examine Keywords in Context (KWIC), which displays how specific words or phrases are used by showing them along with their surrounding words. This is useful for understanding the different senses of a word, identifying typical phrases it appears in, and exploring its usage across different documents or contexts. We perform KWIC analysis on the `tokens` object as the order of the words is still essential at this point:
+
+```{r kwic1-manifesto}
+
+# pattern = "econom*": The term to search for (using glob for wildcard matching). This will find "econom", "economi", "economist", etc., after stemming.
+# valuetype = "glob": Specifies that the pattern is a glob-style wildcard pattern.
+# window = 3: Show 3 words before and 3 words after the keyword.
+
+kwic_output <- kwic(data_tokens_stemmed, pattern = "econom*", valuetype = "glob", window = 3)
+head(kwic_output, 10)
+```
+
+The `kwic()` function output includes the document name (`docname`), the position of the keyword (`from`, `to`), the surrounding context (`pre`, `post`), and the keyword itself (`keyword`).
+
+## Text Statistics
+
+Apart from graphics, we can also calculate a wide range of statistics about our texts, and the `quanteda.textstats` package offers a range of functions for this. We will use the pre-processed DFM (`data_dfm_trimmed`) and tokens (`data_tokens_stemmed`) for these calculations. We will go through the various options in turn.
+
+### Summary
+
+`textstat_summary()` provides basic summary statistics for each document in the corpus, such as the number of characters, tokens, types, sentences, and paragraphs. Note that this command works on the original corpus, and not on the cleaned DFM:
+
+```{r textstat_summary-manifesto}
+corpus_summary <- textstat_summary(data_corpus_ukmanifestos)
+head(corpus_summary)
+```
+
+### Frequencies
+
+`textstat_frequency()` provides detailed frequency counts for features in a DFM, including term frequency (total occurrences, like we already saw earlier) and document frequency (number of documents the term appears in). It can also group frequencies by document variables, allowing for comparison of term usage across different categories of documents.
+
+```{r textstat_frequency-manifesto}
+feature_frequencies <- textstat_frequency(data_dfm_trimmed)
+head(feature_frequencies, 10)
+
+party_frequencies <- textstat_frequency(data_dfm_trimmed, groups = data_dfm_trimmed@docvars$Party) # Group by Party
+head(party_frequencies, 10)
+```
+
+### Lexical diversity
+
+Lexical diversity measures the variety of vocabulary in a text. `textstat_lexdiv()` calculates various measures like the Type-Token Ratio (TTR), which is the number of types (unique tokens) divided by the total number of tokens. A higher TTR generally indicates greater lexical diversity. This function operates on a `tokens` object:
+
+```{r textstat_lexdiv-manifesto}
+corpus_lexdiv <- textstat_lexdiv(data_tokens_stemmed, measure = "TTR")
+corpus_lexdiv
+```
+
+### Readability
+
+Readability statistics estimate the difficulty of understanding a text based on characteristics like sentence length and the number of syllables per word. `textstat_readability()` calculates various standard scores (e.g., Flesch-Kincaid, Gunning Fog). This function works directly on a `corpus` object or a character vector:
+
+```{r textstat_readability-manifesto}
+corpus_readability <- textstat_readability(data_corpus_ukmanifestos, measure = "Flesch.Kincaid")
+head(corpus_readability)
+```
+
+### Similarity and Distance
+
+These functions calculate the similarity or distance between documents or features based on their representation in a DFM. They help quantify how alike or different texts or words are based on their shared vocabulary and term frequencies. Common measures include cosine similarity and Euclidean distance:
+
+```{r textstat_simil-manifesto}
+# method = "cosine": Specifies the cosine similarity measure.
+# margin = "documents": Calculate the similarity between documents (rows of the DFM).
+
+corpus_similarties <- textstat_simil(data_dfm_trimmed, method = "cosine", margin = "documents")
+
+corpus_similarties_matrix <- as.matrix(corpus_similarties)
+corpus_similarties_matrix[1:5, 1:5]
+
+# method = "euclidean": Specifies the Euclidean distance measure
+# margin = "documents": Calculate the distance between documents
+
+corpus_distances <- textstat_dist(data_dfm_trimmed, margin = "documents", method = "euclidean")
+
+# Convert the distance object to a matrix for inspection of pairwise distances
+
+corpus_distances_matrix <- as.matrix(corpus_distances)
+corpus_distances_matrix[1:5, 1:5]
+```
+
+If we would want to, we can also visualise the distances between the documents in the form of a dendrogram, by clustering the distances object:
+
+```{r dendrogram}
+plot(hclust(as.dist(corpus_distances)))
+```
+The results here are quite interesting, for one in that while both the 1997 and 2003 Plaid Cymru documents are very similar, they are clustered together with the 2001 Labour Party document, which is quite far from its 1997 and 2005 counterparts.
+
+### Keyness
+
+Keyness statistics identify terms that are unusually frequent or infrequent in a target group of documents compared to a reference group. This is useful for identifying characteristic terms within a corpus subset and understanding what distinguishes one set of texts from another. A common measure is the log-likelihood ratio or chi-squared statistic:
+
+```{r textstat_keyness-manifesto}
+# Create a logical vector TRUE for documents from the Conservative party and FALSE for others. This vector defines the 'target' group.
+
+data_dfm_trimmed@docvars$is_conservative <- data_dfm_trimmed@docvars$Party == "Con"
+
+# Compute keyness statistics comparing the Conservative manifestos (target) to all other manifestos (reference)
+# target = data_dfm_trimmed@docvars$is_conservative: Specifies the target group using the logical vector
+
+keyness_conservative <- textstat_keyness(data_dfm_trimmed, target = data_dfm_trimmed@docvars$is_conservative)
+
+# View the most distinctive terms for the Conservative party (highest keyness scores) and the least distinctive terms (lowest keyness scores, which are characteristic of the reference group)
+
+head(keyness_conservative, 20)
+tail(keyness_conservative, 20)
+```
+
+The output of `textstat_keyness` includes the feature, the keyness score, and the $p$-value. Positive keyness scores indicate terms that are unusually frequent in the target group. In contrast, negative scores indicate terms unusually infrequent in the target group (and thus characteristic of the reference group). Here, these are words refering to "britain", the family ("famili"), and choice ("choic"). We can of course also visualise this:
+
+```{r textplot-keyness}
+textplot_keyness(keyness_conservative)
+```
+
+### Entropy
+
+Entropy measures the randomness or evenness of feature distributions. Here, we can use it to assess the diversity of terms within documents (document entropy) or the evenness of a term's distribution across the corpus (feature entropy). High document entropy means a document uses a wide variety of terms relatively evenly, while low entropy means a few terms dominate. High feature entropy means a term is spread relatively evenly across documents, while low entropy means it's concentrated in a few documents.
+
+```{r textstat_entropy-manifesto-docs}
+# margin = "documents": Calculate entropy for each document (rows of the DFM)
+
+corpus_entropy_docs <- textstat_entropy(data_dfm_trimmed, margin = "documents")
+corpus_entropy_docs <- as.data.frame(corpus_entropy_docs)
+head(corpus_entropy_docs)
+
+# margin = "features": Calculate entropy for each feature (columns of the DFM)
+
+corpus_entropy_feats <- textstat_entropy(data_dfm_trimmed, margin = "features")
+corpus_entropy_feats <- as.data.frame(corpus_entropy_feats)
+corpus_entropy_feats <- corpus_entropy_feats[order(-corpus_entropy_feats$entropy),]
+head(corpus_entropy_feats, 10)
+```
+
+## Exercises
+
+1.  Using the UK Manifestos corpus (`data_corpus_ukmanifestos`), calculate each manifesto's readability scores (`textstat_readability`), perhaps using multiple measures. Add these scores to the document variables and plot a chosen readability score against the *Year* docvar. Is there a discernible trend in the readability of UK political manifestos over the selected period?
+
+2.  Calculate keyness statistics (`textstat_keyness`) to compare Labour Party manifestos with all other parties in the filtered corpus. What are the 20 most important terms for the Labour Party? Create a visualisation of these terms using `textplot_keyness`.
+
+3.  Using the cosine method (`margin = "features"`), explore the similarity of features (words) in the UK manifestos (`data_dfm`). Can you identify pairs of words that tend to appear in similar contexts? (Hint: examine the similarity matrix for high values).
+
+4.  Calculate the entropy (`textstat_entropy` ) for features in the UK Manifestos DFM. Identify features with very low entropy (close to 0) and examine the documents in which they are concentrated using the `kwic()` function or by examining the DFM directly. What might this tell you about those documents or the use of those specific terms?
+
+5.  Apply `textstat_frequency` grouped by party to find the most frequent terms for the Conservative, Labour and Liberal Democrat parties. Create bar plots using the `ggplot2` package to visualise the frequencies of a few selected terms (e.g. 'econom', 'social', 'europ') across these three parties. Compare this to the grouped frequency plot above, and add more terms for comparison.

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>2.3 Validation | Introduction to Quantitative Text Analysis</title>
+  <meta name="description" content="2.3 Validation | Introduction to Quantitative Text Analysis" />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="2.3 Validation | Introduction to Quantitative Text Analysis" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="2.3 Validation | Introduction to Quantitative Text Analysis" />
+  
+  
+  
+
+<meta name="author" content="Kostas Gemenis and Bastiaan Bruinsma" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="workflow.html"/>
+<link rel="next" href="import.html"/>
+<script src="assets/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="assets/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="assets/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="assets/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="assets/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 2em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Introduction to Quantitative Text Analysis</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome!</a></li>
+<li class="chapter" data-level="1" data-path="preliminaries.html"><a href="preliminaries.html"><i class="fa fa-check"></i><b>1</b> Preliminaries</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="installing-r.html"><a href="installing-r.html"><i class="fa fa-check"></i><b>1.1</b> Installing R</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="installing-r.html"><a href="installing-r.html#windows"><i class="fa fa-check"></i><b>1.1.1</b> Windows</a></li>
+<li class="chapter" data-level="1.1.2" data-path="installing-r.html"><a href="installing-r.html#linux"><i class="fa fa-check"></i><b>1.1.2</b> Linux</a></li>
+<li class="chapter" data-level="1.1.3" data-path="installing-r.html"><a href="installing-r.html#macos"><i class="fa fa-check"></i><b>1.1.3</b> macOS</a></li>
+<li class="chapter" data-level="1.1.4" data-path="installing-r.html"><a href="installing-r.html#cloud"><i class="fa fa-check"></i><b>1.1.4</b> Cloud</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="installing-packages.html"><a href="installing-packages.html"><i class="fa fa-check"></i><b>1.2</b> Installing Packages</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="installing-packages.html"><a href="installing-packages.html#cran"><i class="fa fa-check"></i><b>1.2.1</b> CRAN</a></li>
+<li class="chapter" data-level="1.2.2" data-path="installing-packages.html"><a href="installing-packages.html#github"><i class="fa fa-check"></i><b>1.2.2</b> GitHub</a></li>
+<li class="chapter" data-level="1.2.3" data-path="installing-packages.html"><a href="installing-packages.html#writing-packages"><i class="fa fa-check"></i><b>1.2.3</b> Writing Packages</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="required.html"><a href="required.html"><i class="fa fa-check"></i><b>1.3</b> Required Packages</a></li>
+<li class="chapter" data-level="1.4" data-path="troubleshooting.html"><a href="troubleshooting.html"><i class="fa fa-check"></i><b>1.4</b> Troubleshooting</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="background.html"><a href="background.html"><i class="fa fa-check"></i><b>2</b> Background</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="concepts.html"><a href="concepts.html"><i class="fa fa-check"></i><b>2.1</b> Concepts</a></li>
+<li class="chapter" data-level="2.2" data-path="workflow.html"><a href="workflow.html"><i class="fa fa-check"></i><b>2.2</b> Workflow</a></li>
+<li class="chapter" data-level="2.3" data-path="validation.html"><a href="validation.html"><i class="fa fa-check"></i><b>2.3</b> Validation</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="validation.html"><a href="validation.html#validity"><i class="fa fa-check"></i><b>2.3.1</b> Validity</a></li>
+<li class="chapter" data-level="2.3.2" data-path="validation.html"><a href="validation.html#reliability"><i class="fa fa-check"></i><b>2.3.2</b> Reliability</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="import.html"><a href="import.html"><i class="fa fa-check"></i><b>3</b> Text in R</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="basics.html"><a href="basics.html"><i class="fa fa-check"></i><b>3.1</b> Basics</a></li>
+<li class="chapter" data-level="3.2" data-path="import-.html"><a href="import-.html"><i class="fa fa-check"></i><b>3.2</b> Import .txt</a></li>
+<li class="chapter" data-level="3.3" data-path="import-.html"><a href="import-.html#import-.pdf"><i class="fa fa-check"></i><b>3.3</b> Import .pdf</a></li>
+<li class="chapter" data-level="3.4" data-path="import-.html"><a href="import-.html#import-.csv"><i class="fa fa-check"></i><b>3.4</b> Import .csv</a></li>
+<li class="chapter" data-level="3.5" data-path="import-from-an-api.html"><a href="import-from-an-api.html"><i class="fa fa-check"></i><b>3.5</b> Import from an API</a></li>
+<li class="chapter" data-level="3.6" data-path="import-using-web-scraping.html"><a href="import-using-web-scraping.html"><i class="fa fa-check"></i><b>3.6</b> Import using Web Scraping</a></li>
+<li class="chapter" data-level="3.7" data-path="import-json-and-xml.html"><a href="import-json-and-xml.html"><i class="fa fa-check"></i><b>3.7</b> Import JSON and XML</a></li>
+<li class="chapter" data-level="3.8" data-path="import-from-databases.html"><a href="import-from-databases.html"><i class="fa fa-check"></i><b>3.8</b> Import from Databases</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="describe.html"><a href="describe.html"><i class="fa fa-check"></i><b>4</b> Describe</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="corpus-and-dfm.html"><a href="corpus-and-dfm.html"><i class="fa fa-check"></i><b>4.1</b> Corpus and DFM</a></li>
+<li class="chapter" data-level="4.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html"><i class="fa fa-check"></i><b>4.2</b> Text Pre-processing</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="text-pre-processing.html"><a href="text-pre-processing.html#tokenisation-and-initial-cleaning"><i class="fa fa-check"></i><b>4.2.1</b> Tokenisation and Initial Cleaning</a></li>
+<li class="chapter" data-level="4.2.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html#lower-casing"><i class="fa fa-check"></i><b>4.2.2</b> Lower-casing</a></li>
+<li class="chapter" data-level="4.2.3" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stopword-removal"><i class="fa fa-check"></i><b>4.2.3</b> Stopword Removal</a></li>
+<li class="chapter" data-level="4.2.4" data-path="text-pre-processing.html"><a href="text-pre-processing.html#n-grams-and-collocations"><i class="fa fa-check"></i><b>4.2.4</b> N-grams and Collocations</a></li>
+<li class="chapter" data-level="4.2.5" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stemming-and-lemmatisation"><i class="fa fa-check"></i><b>4.2.5</b> Stemming and Lemmatisation</a></li>
+<li class="chapter" data-level="4.2.6" data-path="text-pre-processing.html"><a href="text-pre-processing.html#removing-sparse-features-dfm-trimming"><i class="fa fa-check"></i><b>4.2.6</b> Removing Sparse Features (DFM Trimming)</a></li>
+<li class="chapter" data-level="4.2.7" data-path="text-pre-processing.html"><a href="text-pre-processing.html#additional-pre-processing"><i class="fa fa-check"></i><b>4.2.7</b> Additional Pre-Processing</a></li>
+<li class="chapter" data-level="4.2.8" data-path="text-pre-processing.html"><a href="text-pre-processing.html#evaluating-pre-processing"><i class="fa fa-check"></i><b>4.2.8</b> Evaluating Pre-Processing</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="descriptives-and-visualisations.html"><a href="descriptives-and-visualisations.html"><i class="fa fa-check"></i><b>4.3</b> Descriptives and Visualisations</a></li>
+<li class="chapter" data-level="4.4" data-path="text-statistics.html"><a href="text-statistics.html"><i class="fa fa-check"></i><b>4.4</b> Text Statistics</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="text-statistics.html"><a href="text-statistics.html#summary"><i class="fa fa-check"></i><b>4.4.1</b> Summary</a></li>
+<li class="chapter" data-level="4.4.2" data-path="text-statistics.html"><a href="text-statistics.html#frequencies"><i class="fa fa-check"></i><b>4.4.2</b> Frequencies</a></li>
+<li class="chapter" data-level="4.4.3" data-path="text-statistics.html"><a href="text-statistics.html#lexical-diversity"><i class="fa fa-check"></i><b>4.4.3</b> Lexical diversity</a></li>
+<li class="chapter" data-level="4.4.4" data-path="text-statistics.html"><a href="text-statistics.html#readability"><i class="fa fa-check"></i><b>4.4.4</b> Readability</a></li>
+<li class="chapter" data-level="4.4.5" data-path="text-statistics.html"><a href="text-statistics.html#similarity-and-distance"><i class="fa fa-check"></i><b>4.4.5</b> Similarity and Distance</a></li>
+<li class="chapter" data-level="4.4.6" data-path="text-statistics.html"><a href="text-statistics.html#keyness"><i class="fa fa-check"></i><b>4.4.6</b> Keyness</a></li>
+<li class="chapter" data-level="4.4.7" data-path="text-statistics.html"><a href="text-statistics.html#entropy"><i class="fa fa-check"></i><b>4.4.7</b> Entropy</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="exercises.html"><a href="exercises.html"><i class="fa fa-check"></i><b>4.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="dictionary-analysis.html"><a href="dictionary-analysis.html"><i class="fa fa-check"></i><b>5</b> Dictionary Analysis</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="classical-dictionary-analysis.html"><a href="classical-dictionary-analysis.html"><i class="fa fa-check"></i><b>5.1</b> Classical Dictionary Analysis</a></li>
+<li class="chapter" data-level="5.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html"><i class="fa fa-check"></i><b>5.2</b> Sentiment Analysis</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#movie-reviews"><i class="fa fa-check"></i><b>5.2.1</b> Movie Reviews</a></li>
+<li class="chapter" data-level="5.2.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#twitter"><i class="fa fa-check"></i><b>5.2.2</b> Twitter</a></li>
+<li class="chapter" data-level="5.2.3" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#vader"><i class="fa fa-check"></i><b>5.2.3</b> VADER</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="exercises-1.html"><a href="exercises-1.html"><i class="fa fa-check"></i><b>5.3</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="scaling.html"><a href="scaling.html"><i class="fa fa-check"></i><b>6</b> Scaling Methods</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="wordscores.html"><a href="wordscores.html"><i class="fa fa-check"></i><b>6.1</b> Wordscores</a></li>
+<li class="chapter" data-level="6.2" data-path="wordfish.html"><a href="wordfish.html"><i class="fa fa-check"></i><b>6.2</b> Wordfish</a></li>
+<li class="chapter" data-level="6.3" data-path="correspondence-analysis.html"><a href="correspondence-analysis.html"><i class="fa fa-check"></i><b>6.3</b> Correspondence Analysis</a></li>
+<li class="chapter" data-level="6.4" data-path="exercises-2.html"><a href="exercises-2.html"><i class="fa fa-check"></i><b>6.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="supervised-methods.html"><a href="supervised-methods.html"><i class="fa fa-check"></i><b>7</b> Supervised Methods</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="support-vector-machines-svm.html"><a href="support-vector-machines-svm.html"><i class="fa fa-check"></i><b>7.1</b> Support Vector Machines (SVM)</a></li>
+<li class="chapter" data-level="7.2" data-path="logistic-regression.html"><a href="logistic-regression.html"><i class="fa fa-check"></i><b>7.2</b> Logistic Regression</a></li>
+<li class="chapter" data-level="7.3" data-path="naive-bayes-nb.html"><a href="naive-bayes-nb.html"><i class="fa fa-check"></i><b>7.3</b> Naive Bayes (NB)</a></li>
+<li class="chapter" data-level="7.4" data-path="exercises-3.html"><a href="exercises-3.html"><i class="fa fa-check"></i><b>7.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="unsupervised-methods.html"><a href="unsupervised-methods.html"><i class="fa fa-check"></i><b>8</b> Unsupervised Methods</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="latent-dirichlet-allocation-lda.html"><a href="latent-dirichlet-allocation-lda.html"><i class="fa fa-check"></i><b>8.1</b> Latent Dirichlet Allocation (LDA)</a></li>
+<li class="chapter" data-level="8.2" data-path="seeded-latent-dirichlet-allocation-slda.html"><a href="seeded-latent-dirichlet-allocation-slda.html"><i class="fa fa-check"></i><b>8.2</b> Seeded Latent Dirichlet Allocation (sLDA)</a></li>
+<li class="chapter" data-level="8.3" data-path="structural-topic-model-stm.html"><a href="structural-topic-model-stm.html"><i class="fa fa-check"></i><b>8.3</b> Structural Topic Model (STM)</a></li>
+<li class="chapter" data-level="8.4" data-path="latent-semantic-analysis-lsa.html"><a href="latent-semantic-analysis-lsa.html"><i class="fa fa-check"></i><b>8.4</b> Latent Semantic Analysis (LSA)</a></li>
+<li class="chapter" data-level="8.5" data-path="exercises-4.html"><a href="exercises-4.html"><i class="fa fa-check"></i><b>8.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="bastiaan.bruinsma@gmail.com" target="blank">Bastiaan Bruinsma</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to Quantitative Text Analysis</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="validation" class="section level2 hasAnchor" number="2.3">
+<h2><span class="header-section-number">2.3</span> Validation<a href="validation.html#validation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Of all the steps involved in the QTA workflow, validation is often the one that receives the least attention. However, given that each method is based on some form of machine learning, it is also the most important. In fact, <span class="citation">Grimmer &amp; Stewart (<a href="#ref-Grimmer2013a">2013</a>)</span> advised to “validate, validate, validate!”. The reason is simple. With the large amount of data and the fact that we are simply counting numbers, it is very easy to find evidence for something, especially when it is (very) large data. We should therefore be very sure of what we are doing and whether it makes sense. For this reason, it is a good idea to take a closer look at what validation actually means and how to go about it.</p>
+<p>Validation involves two related concepts: reliability and validity. Here, <em>reliability</em> refers to our measure’s <em>consistency</em> (or <em>stability</em>). If we have a measure with high reliability, this means that we should get the same results each time we run it - it is stable and not prone to random error or variation. <em>Validity,</em> on the other hand, refers to the accuracy or appropriateness of our measure. In other words, if our measure is valid, we measure what we want to measure. If you want to think about it in statistical terms, reliability is the proportion of non-random variance, while validity is the proportion of variance that the observed scores share with the true scores.</p>
+<div class="figure"><span style="display:block;" id="fig:validity"></span>
+<img src="figure/validity-reliability.png" alt="Validity and Reliability" width="100%" />
+<p class="caption">
+Figure 2.1: Validity and Reliability
+</p>
+</div>
+<p>Note that reliability and validity are not mutually exclusive. There is no point in having a highly valid measure that is not reliable, or a highly reliable measure that is not valid. Figure <a href="validation.html#fig:validity">2.1</a>, after <span class="citation">Krippendorff (<a href="#ref-Krippendorff2019a">2019</a>)</span>, shows this nicely by comparing our measure with a target, with the hits (the black dots) representing individual measures. What we are aiming for is at the top left: a measurement that hits the target perfectly every time. However, as our reliability decreases, more and more often we are not only hitting the target, but also hovering around it. As a result, high validity but low reliability means that sometimes we hit the target, but whether we do so is a matter of chance. At the same time, high reliability but low validity means that we hit the same spot every time, but always miss the target. So we never measure what we want to measure. So we want our measure to be both valid and reliable if it is to be of any use. Now, let’s look at both concepts in a little more detail.</p>
+<div id="validity" class="section level3 hasAnchor" number="2.3.1">
+<h3><span class="header-section-number">2.3.1</span> Validity<a href="validation.html#validity" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Of the two concepts, validity is the more difficult. To understand it a little better, we can divide it into three subtypes: content, criterion, and construct validity <span class="citation">(<a href="#ref-Carmines1979a">Carmines &amp; Zeller, 1979</a>)</span>. Each of these focuses on a different aspect of validity and has different issues associated with it.</p>
+<table>
+<colgroup>
+<col width="5%" />
+<col width="94%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Content Validity</strong></td>
+<td><p><em>Does our measure cover all the aspects or dimensions of the concept we are studying?</em></p>
+<p>For example, if we design a coding scheme to measure ‘political ideology’, have we included all the different attitudes to existing economic, social and foreign policy issues? To see if this is the case, we often rely on expert judgement and our own theoretical understanding of the concept.</p></td>
+</tr>
+<tr class="even">
+<td><strong>Criterion Validity</strong></td>
+<td><p><em>How well does our measure correlate with other established measures of the same concept?</em></p>
+<p>For example, we might test whether a sentiment score we get from social media texts agrees with the results of a public opinion poll on the same topic. Another way might be to use our measure to predict a future outcome and then check that the prediction is correct. For example, we could see if the amount of attention given to specific policies in legislative debates could help us predict future budget allocations for those policies.</p></td>
+</tr>
+<tr class="odd">
+<td><strong>Construct Validity</strong></td>
+<td><p><em>How well does our measure operationalise our concept?</em></p>
+<p>If it does, we would expect the measure to behave in the same way as the concept. For example, if we develop a measure of “economic uncertainty” from news articles, we would expect it to be negatively correlated with measures of consumer confidence.</p></td>
+</tr>
+</tbody>
+</table>
+<p>So, how do we put this into practice? One aspect that generally makes validity more difficult than reliability is that there is very little we can measure. Instead, we have to argue and prove, using a variety of methods, that our measure and overall analysis are indeed valid.</p>
+<p>The most common approach is to compare against a <em>gold standard</em>. For example, suppose we have access to a human-coded dataset for a subset of our data. In this case, we can compare the output of our (computational) method with these human judgments. Indeed, this is what we will do in Chapter <a href="supervised-methods.html#supervised-methods">7</a>, where we will use this to calculate metrics such as accuracy, precision, recall and F1 scores. Related to this is when we use our data to predict other (external) data. For example, we might build a model to explain the overall economy of a country, and then relate this to the country’s actual GDP. Somewhat more complicated is when we focus on our analysis’s actual <em>meaning</em>. This involves asking whether the results generated by our method are conceptually meaningful and make sense to people. In sentiment analysis, for example, we could manually review examples where our model gives strong positive or negative sentiment scores and see if they make sense. Preferably, we would have more than one person do this to avoid being too lenient on the model.</p>
+<p>Ideally, we would use as many validation options as possible (a technique also known as triangulation). This way, with each validation, we build confidence and strengthen our argument that our approach is valid.</p>
+</div>
+<div id="reliability" class="section level3 hasAnchor" number="2.3.2">
+<h3><span class="header-section-number">2.3.2</span> Reliability<a href="validation.html#reliability" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Reliability, as we saw above, is whether our measurement measures the same thing each time we do it, or, more broadly, whether our analysis would lead us to the same conclusions each time. One thing that helps us here is that reliability is something we can measure (unlike validity). It often comes in three forms: stability, reproducibility and accuracy. The first, <em>Stability</em>, refers to how consistent a measurement is over time. For example, if we asked a coder to code the same text on different occasions, we would expect them to code it the same way (also known as within-coder consistency). The second, <em>Reproducibility</em> (also known as inter-coder reliability), extends this to multiple coders. This means that independent coders, given the same coding instructions, should produce the same code for the same text. Finally, the third, <em>Accuracy</em> (which we also use for validity), compares our coders’ codes to a known standard or “true” value. The better the comparison, the more reliable our measure.</p>
+<p>The first type - stability - is easy to measure: just repeat the analysis and compare the results. The second - reproducibility - is more complicated. This is because there are several things we want to be able to take into account, such as the ability to account for the categories our coders actually use, a standardised scale for interpretation, appropriateness to the level of measurement of our data (e.g. nominal, ordinal, interval, ratio), correction for chance agreement, and the ability to handle missing data. There are several measures of reproducibility, each with its own strengths and limitations. The simplest and most straightforward is <em>Percentage Agreement</em>, where we divide the number of codes the coders agree on by the total number of codes coded. However, this does not consider agreement that could occur purely by chance, therefore overestimates reliability.</p>
+<p>Another way of doing this is to use Pearson’s correlation coefficient (<em>r</em>), as we would assume that we are correlating the codes of one or more coders. However, Pearson’s <em>r</em> measures linear association, not agreement. Thus, two coders can be in perfect disagreement and still show a strong positive or negative correlation if their disagreements follow a consistent linear pattern.</p>
+<div class="figure"><span style="display:block;" id="fig:coders"></span>
+<img src="figure/observers.png" alt="Perfect agreement between two coders" width="100%" />
+<p class="caption">
+Figure 2.2: Perfect agreement between two coders
+</p>
+</div>
+<p>Consider Figure <a href="validation.html#fig:coders">2.2</a>, which is an example adapted from <span class="citation">Krippendorff (<a href="#ref-Krippendorff2019a">2019</a>)</span> to illustrate this. Suppose we have two coders, A and B, each assigning sentences to five categories, labelled ‘a’ to ‘e’. If, for example, whenever Coder A assigns ‘a’, Coder B assigns ‘e’; and whenever Coder A assigns ‘b’, Coder B assigns ‘a’, and so on, they are in perfect disagreement (the example on the right). However, if we calculated Pearson’s <em>r</em>, we might still find a high correlation. This is because Pearson’s <em>r</em> only looks at the distances between the values, regardless of their location. For there to be a correlation, it is only necessary for increases or decreases in the category values assigned by one coder to be mirrored by similar directional changes in the other’s assignments, a condition that can be met even when there is complete disagreement about the actual categories assigned. For this reason, we generally do not recommend it. Instead, we have the following options:</p>
+<p><strong>Cohen’s</strong> <span class="math inline">\(\kappa\)</span> is useful for assessing agreement between <em>two coders</em> on <em>nominal</em> (categorical) data. It improves on percent agreement because it corrects for chance agreement, based on each coder’s individual marginal distributions of codes.</p>
+<p><strong>Scott’s</strong> <span class="math inline">\(\pi\)</span> is similar to Cohen’s <span class="math inline">\(\kappa\)</span>, but we use it when we assume that the two coders are drawing from the same underlying distribution of codes. Consequently, it calculates the chance agreement based on the pooled marginal distribution of codes. Like Cohen’s <span class="math inline">\(\kappa\)</span>, we use it with two coders and nominal data.</p>
+<p><strong>Fleiss’</strong> <span class="math inline">\(\kappa\)</span> is an extension of Scott’s <span class="math inline">\(\pi\)</span> . We use it when assessing the agreement between <em>multiple coders</em> (more than two) on <em>nominal</em> data. A key requirement for Fleiss’ <span class="math inline">\(\kappa\)</span> is that each unit (e.g. document, sentence) must be coded by the same number of coders, although it does not necessarily have to be the exact same set of coders for each unit.</p>
+<p>Since each of these three measures has its drawbacks, we will use <strong>Krippendorff’s</strong> <span class="math inline">\(\alpha\)</span> here. It improves on the other measures by handling any number of coders, allowing for missing data, and applying to any level of measurement - nominal, ordinal, interval, and ratio. In addition, it calculates the random agreement based on the observed data, rather than assuming any distribution.</p>
+<p>We can calculate Krippendorff’s <span class="math inline">\(\alpha\)</span> using the formula:</p>
+<p><span class="math display">\[\alpha = 1 - \frac{D_o}{D_e}\]</span></p>
+<p>Where <span class="math inline">\(D_o\)</span> is the disagreement we observe between the coders, determined by the distance function we choose to be appropriate for the level of measurement of our data. <span class="math inline">\(D_e\)</span> represents the disagreement we would expect by chance, calculated from the distribution of codes assigned by our coders. Thus, if we obtain a <span class="math inline">\(\alpha\)</span> value of <span class="math inline">\(1.0\)</span>, this indicates perfect agreement; <span class="math inline">\(0.0\)</span> indicates agreement at the level of chance alone; and a value below <span class="math inline">\(0.0\)</span> indicates systematic disagreement between our coders. For interpretation, we follow Krippendorff’s suggestion that a <span class="math inline">\(\alpha \ge 0.800\)</span> indicates good reliability, while values between <span class="math inline">\(0.667 \le \alpha &lt; 0.800\)</span> may allow us to draw tentative conclusions. We usually consider alpha values below <span class="math inline">\(0.667\)</span> to indicate poor reliability.</p>
+<p>However, even <span class="math inline">\(\alpha\)</span> has its limitations, the most problematic being when coders agree on only a few categories and use those categories very often. This inflates the value of <span class="math inline">\(\alpha\)</span>, making it higher than it should be.</p>
+<div class="figure"><span style="display:block;" id="fig:kripp"></span>
+<img src="figure/kripp.png" alt="Inflation caused by use of a limited number of categories" width="100%" />
+<p class="caption">
+Figure 2.3: Inflation caused by use of a limited number of categories
+</p>
+</div>
+<p>Figure <a href="validation.html#fig:kripp">2.3</a> (based on <span class="citation">Krippendorff (<a href="#ref-Krippendorff2019a">2019</a>)</span>) illustrates this point. Imagine a coding task with three categories (<span class="math inline">\(0\)</span>, <span class="math inline">\(1\)</span> and <span class="math inline">\(2\)</span>). Category <span class="math inline">\(0\)</span> indicates that the coders could not assign a more specific code, while categories <span class="math inline">\(1\)</span> and <span class="math inline">\(2\)</span> represent meaningful codes. If, out of a large number of cases (e.g. <span class="math inline">\(86\)</span>), both coders assign category <span class="math inline">\(0\)</span> to the majority (e.g. <span class="math inline">\(80\)</span> cases), this leaves very few cases for us to observe agreement or disagreement on the meaningful categories <span class="math inline">\(1\)</span> and <span class="math inline">\(2\)</span>. If we then calculate <span class="math inline">\(\alpha\)</span> over all three categories, we get a moderate value (<span class="math inline">\(0.686\)</span>). However, if we then collapse categories <span class="math inline">\(1\)</span> and <span class="math inline">\(2\)</span> into a single category ‘meaningful code’, distinguishing only between ‘meaningful code’ and ‘no meaningful code’ (category <span class="math inline">\(0\)</span>), the agreement on this broader distinction suddenly becomes very high, leading to a higher <span class="math inline">\(\alpha\)</span> (<span class="math inline">\(0.789\)</span>). On the other hand, if we remove the dominant <span class="math inline">\(0\)</span> category and calculate <span class="math inline">\(\alpha\)</span> only on categories <span class="math inline">\(1\)</span> and <span class="math inline">\(2\)</span> (for the few cases where they were used), the resulting <span class="math inline">\(\alpha\)</span> could be very low (almost <span class="math inline">\(0\)</span>). This could happen if a coder did not use one of these categories at all, even if they agreed on the other meaningful category in the remaining cases. This shows how our choice of categories to include in the calculation, and their observed distribution, can significantly influence the resulting <span class="math inline">\(\alpha\)</span> value.</p>
+<p>Finally, <span class="math inline">\(\alpha\)</span> depends on our chosen metric (e.g. nominal, ordinal, interval, ratio). If we use an inappropriate metric, such as a nominal metric for data that is actually ordinal, we may ignore valuable information about the ordered nature of the categories, leading us to misunderstand the actual level of agreement achieved by our coders.</p>
+<p>To calculate <span class="math inline">\(\alpha\)</span> in R, we use the <code>irr</code> package, which provides the <code>kripp.alpha()</code> function. To see how this works, we simulate a case where <span class="math inline">\(12\)</span> coders code <span class="math inline">\(10\)</span> sentences into <span class="math inline">\(3\)</span> categories:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="validation.html#cb15-1" tabindex="-1"></a><span class="fu">library</span>(irr)  <span class="co"># Load the library</span></span>
+<span id="cb15-2"><a href="validation.html#cb15-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">24</span>)  <span class="co"># Setting a seed makes our example reproducible</span></span>
+<span id="cb15-3"><a href="validation.html#cb15-3" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="validation.html#cb15-4" tabindex="-1"></a><span class="co"># We create a matrix with 10 coders (rows) coding 12 sentences (columns) into 3</span></span>
+<span id="cb15-5"><a href="validation.html#cb15-5" tabindex="-1"></a><span class="co"># categories (1, 2, or 3)</span></span>
+<span id="cb15-6"><a href="validation.html#cb15-6" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="validation.html#cb15-7" tabindex="-1"></a>reliability_matrix <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">10</span> <span class="sc">*</span> <span class="dv">12</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>), <span class="at">nrow =</span> <span class="dv">10</span>, <span class="at">ncol =</span> <span class="dv">12</span>)</span>
+<span id="cb15-8"><a href="validation.html#cb15-8" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="validation.html#cb15-9" tabindex="-1"></a><span class="co"># Now, we calculate Krippendorff&#39;s alpha, specifying the data and method (level</span></span>
+<span id="cb15-10"><a href="validation.html#cb15-10" tabindex="-1"></a><span class="co"># of measurement). For this example, we assume nominal data.</span></span>
+<span id="cb15-11"><a href="validation.html#cb15-11" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="validation.html#cb15-12" tabindex="-1"></a>k_alpha_nominal <span class="ot">&lt;-</span> <span class="fu">kripp.alpha</span>(reliability_matrix, <span class="at">method =</span> <span class="st">&quot;nominal&quot;</span>)</span>
+<span id="cb15-13"><a href="validation.html#cb15-13" tabindex="-1"></a><span class="fu">print</span>(k_alpha_nominal)</span></code></pre></div>
+<pre><code>##  Krippendorff&#39;s alpha
+## 
+##  Subjects = 12 
+##    Raters = 10 
+##     alpha = 0.0106</code></pre>
+<p>When we run <code>kripp.alpha</code>, the output typically includes the calculated <span class="math inline">\(\alpha\)</span> value, the number of units (which it refers to as subjects), the number of coders (raters), and the level of measurement we specified for the calculation (e.g. “nominal”). We then compare this resulting <span class="math inline">\(\alpha\)</span> value with established thresholds (e.g. <span class="math inline">\(0.67\)</span> or <span class="math inline">\(0.80\)</span>, as Krippendorff suggests) to assess our coding reliability. For a more nuanced understanding of the stability of our estimate, we can obtain bootstrapped confidence intervals for <span class="math inline">\(\alpha\)</span> using packages such as <code>kripp.boot</code> (see <a href="https://github.com/MikeGruz/kripp.boot">here</a>).</p>
+<p>In addition, we can also visualise our reliability. One way of doing this, adapted from <span class="citation">Benoit et al. (<a href="#ref-Benoit2009a">2009</a>)</span> and <span class="citation">Lowe &amp; Benoit (<a href="#ref-Lowe2011a">2011</a>)</span>, is to use bootstrapping to estimate and visualise the uncertainty around each coder’s distribution of codes across the different categories. To do this, we first obtain the number of times each coder used each specific category. Then, for each coder, we use their observed coding patterns (i.e., the proportion of times they used each category) to repeatedly resample their codings, typically using a multinomial distribution. From these numerous bootstrapped samples, we compute summary statistics such as the mean percentage and standard error for each category for each coder. Finally, we plot these mean percentages along with their confidence intervals. This allows us to visually represent the consistency of each coder and identify any significant variation in their application of the coding scheme. As before, let’s simulate the coding output of 12 coders across 3 categories and see how this works:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="validation.html#cb17-1" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb17-2"><a href="validation.html#cb17-2" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb17-3"><a href="validation.html#cb17-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb17-4"><a href="validation.html#cb17-4" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="validation.html#cb17-5" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">48</span>)</span>
+<span id="cb17-6"><a href="validation.html#cb17-6" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="validation.html#cb17-7" tabindex="-1"></a><span class="co"># Create placeholder data to simulate coder output. This tibble will have coder IDs and counts for three hypothetical categories (c00, c01, c02)</span></span>
+<span id="cb17-8"><a href="validation.html#cb17-8" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="validation.html#cb17-9" tabindex="-1"></a>data_uncertainty <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb17-10"><a href="validation.html#cb17-10" tabindex="-1"></a>  <span class="at">coderid =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>,</span>
+<span id="cb17-11"><a href="validation.html#cb17-11" tabindex="-1"></a>  <span class="at">c00 =</span> <span class="fu">rpois</span>(<span class="dv">12</span>, <span class="dv">50</span>), <span class="co"># Simulating counts for category 0</span></span>
+<span id="cb17-12"><a href="validation.html#cb17-12" tabindex="-1"></a>  <span class="at">c01 =</span> <span class="fu">rpois</span>(<span class="dv">12</span>, <span class="dv">20</span>), <span class="co"># Simulating counts for category 1</span></span>
+<span id="cb17-13"><a href="validation.html#cb17-13" tabindex="-1"></a>  <span class="at">c02 =</span> <span class="fu">rpois</span>(<span class="dv">12</span>, <span class="dv">10</span>)  <span class="co"># Simulating counts for category 2</span></span>
+<span id="cb17-14"><a href="validation.html#cb17-14" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-15"><a href="validation.html#cb17-15" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">n =</span> c00 <span class="sc">+</span> c01 <span class="sc">+</span> c02) <span class="co"># Total codes per coder</span></span>
+<span id="cb17-16"><a href="validation.html#cb17-16" tabindex="-1"></a></span>
+<span id="cb17-17"><a href="validation.html#cb17-17" tabindex="-1"></a>category_cols_id <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;c00&quot;</span>, <span class="st">&quot;c01&quot;</span>, <span class="st">&quot;c02&quot;</span>)</span>
+<span id="cb17-18"><a href="validation.html#cb17-18" tabindex="-1"></a></span>
+<span id="cb17-19"><a href="validation.html#cb17-19" tabindex="-1"></a><span class="co"># Now, we perform the bootstrap</span></span>
+<span id="cb17-20"><a href="validation.html#cb17-20" tabindex="-1"></a>n_coders <span class="ot">&lt;-</span> <span class="fu">nrow</span>(data_uncertainty)</span>
+<span id="cb17-21"><a href="validation.html#cb17-21" tabindex="-1"></a>n_repl <span class="ot">&lt;-</span> <span class="dv">2000</span> <span class="co"># We set the number of bootstraps</span></span>
+<span id="cb17-22"><a href="validation.html#cb17-22" tabindex="-1"></a>n_categories <span class="ot">&lt;-</span> <span class="fu">length</span>(category_cols_id)</span>
+<span id="cb17-23"><a href="validation.html#cb17-23" tabindex="-1"></a></span>
+<span id="cb17-24"><a href="validation.html#cb17-24" tabindex="-1"></a><span class="co"># We prepare an array to store our bootstrap results: coder x category x replicate</span></span>
+<span id="cb17-25"><a href="validation.html#cb17-25" tabindex="-1"></a>bootstrap_results_array <span class="ot">&lt;-</span> <span class="fu">array</span>(</span>
+<span id="cb17-26"><a href="validation.html#cb17-26" tabindex="-1"></a>  <span class="cn">NA</span>,</span>
+<span id="cb17-27"><a href="validation.html#cb17-27" tabindex="-1"></a>  <span class="at">dim =</span> <span class="fu">c</span>(n_coders, n_categories, n_repl),</span>
+<span id="cb17-28"><a href="validation.html#cb17-28" tabindex="-1"></a>  <span class="at">dimnames =</span> <span class="fu">list</span>(data_uncertainty<span class="sc">$</span>coderid, category_cols_id, <span class="dv">1</span><span class="sc">:</span>n_repl)</span>
+<span id="cb17-29"><a href="validation.html#cb17-29" tabindex="-1"></a>)</span>
+<span id="cb17-30"><a href="validation.html#cb17-30" tabindex="-1"></a></span>
+<span id="cb17-31"><a href="validation.html#cb17-31" tabindex="-1"></a><span class="co"># We loop through each coder to resample their codings.</span></span>
+<span id="cb17-32"><a href="validation.html#cb17-32" tabindex="-1"></a><span class="cf">for</span> (coder_idx <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n_coders) {</span>
+<span id="cb17-33"><a href="validation.html#cb17-33" tabindex="-1"></a>  observed_counts <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(data_uncertainty[coder_idx, category_cols_id])</span>
+<span id="cb17-34"><a href="validation.html#cb17-34" tabindex="-1"></a>  total_codes_n <span class="ot">&lt;-</span> data_uncertainty<span class="sc">$</span>n[coder_idx]</span>
+<span id="cb17-35"><a href="validation.html#cb17-35" tabindex="-1"></a>  </span>
+<span id="cb17-36"><a href="validation.html#cb17-36" tabindex="-1"></a>  observed_probs <span class="ot">&lt;-</span> observed_counts <span class="sc">/</span> total_codes_n</span>
+<span id="cb17-37"><a href="validation.html#cb17-37" tabindex="-1"></a>  <span class="co"># We ensure probabilities sum to 1</span></span>
+<span id="cb17-38"><a href="validation.html#cb17-38" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">abs</span>(<span class="fu">sum</span>(observed_probs) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">&gt;</span> <span class="fl">1e-6</span>) {</span>
+<span id="cb17-39"><a href="validation.html#cb17-39" tabindex="-1"></a>    observed_probs <span class="ot">&lt;-</span> observed_probs <span class="sc">/</span> <span class="fu">sum</span>(observed_probs)</span>
+<span id="cb17-40"><a href="validation.html#cb17-40" tabindex="-1"></a>  }</span>
+<span id="cb17-41"><a href="validation.html#cb17-41" tabindex="-1"></a>  </span>
+<span id="cb17-42"><a href="validation.html#cb17-42" tabindex="-1"></a>  <span class="co"># We perform multinomial resampling</span></span>
+<span id="cb17-43"><a href="validation.html#cb17-43" tabindex="-1"></a>  resampled_counts_matrix <span class="ot">&lt;-</span> <span class="fu">rmultinom</span>(<span class="at">n =</span> n_repl, <span class="at">size =</span> total_codes_n, <span class="at">prob =</span> observed_probs)</span>
+<span id="cb17-44"><a href="validation.html#cb17-44" tabindex="-1"></a>  bootstrap_results_array[coder_idx, , ] <span class="ot">&lt;-</span> resampled_counts_matrix</span>
+<span id="cb17-45"><a href="validation.html#cb17-45" tabindex="-1"></a>  </span>
+<span id="cb17-46"><a href="validation.html#cb17-46" tabindex="-1"></a>}</span>
+<span id="cb17-47"><a href="validation.html#cb17-47" tabindex="-1"></a></span>
+<span id="cb17-48"><a href="validation.html#cb17-48" tabindex="-1"></a><span class="co"># We convert counts to percentages</span></span>
+<span id="cb17-49"><a href="validation.html#cb17-49" tabindex="-1"></a>bootstrap_percentages_array <span class="ot">&lt;-</span> <span class="fu">sweep</span>(</span>
+<span id="cb17-50"><a href="validation.html#cb17-50" tabindex="-1"></a>  bootstrap_results_array,</span>
+<span id="cb17-51"><a href="validation.html#cb17-51" tabindex="-1"></a>  <span class="at">MARGIN =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>),</span>
+<span id="cb17-52"><a href="validation.html#cb17-52" tabindex="-1"></a>  data_uncertainty<span class="sc">$</span>n,</span>
+<span id="cb17-53"><a href="validation.html#cb17-53" tabindex="-1"></a>  <span class="at">FUN =</span> <span class="st">&quot;/&quot;</span></span>
+<span id="cb17-54"><a href="validation.html#cb17-54" tabindex="-1"></a>) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb17-55"><a href="validation.html#cb17-55" tabindex="-1"></a><span class="co"># Handle potential NaN if a coder had 0 codes for &#39;n&#39;</span></span>
+<span id="cb17-56"><a href="validation.html#cb17-56" tabindex="-1"></a>bootstrap_percentages_array[<span class="fu">is.nan</span>(bootstrap_percentages_array)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb17-57"><a href="validation.html#cb17-57" tabindex="-1"></a></span>
+<span id="cb17-58"><a href="validation.html#cb17-58" tabindex="-1"></a><span class="co"># Calculate summary statistics</span></span>
+<span id="cb17-59"><a href="validation.html#cb17-59" tabindex="-1"></a>mean_perc <span class="ot">&lt;-</span> <span class="fu">apply</span>(bootstrap_percentages_array, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), mean, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb17-60"><a href="validation.html#cb17-60" tabindex="-1"></a><span class="co"># Use the SD of the bootstrapped means as an estimate of the standard error</span></span>
+<span id="cb17-61"><a href="validation.html#cb17-61" tabindex="-1"></a>sd_perc <span class="ot">&lt;-</span> <span class="fu">apply</span>(bootstrap_percentages_array, <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), sd, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb17-62"><a href="validation.html#cb17-62" tabindex="-1"></a></span>
+<span id="cb17-63"><a href="validation.html#cb17-63" tabindex="-1"></a>mean_perc_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame.table</span>(mean_perc, <span class="at">responseName =</span> <span class="st">&quot;mean_p&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-64"><a href="validation.html#cb17-64" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">coderid =</span> Var1, <span class="at">category =</span> Var2)</span>
+<span id="cb17-65"><a href="validation.html#cb17-65" tabindex="-1"></a>sd_perc_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame.table</span>(sd_perc, <span class="at">responseName =</span> <span class="st">&quot;se_p&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb17-66"><a href="validation.html#cb17-66" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">coderid =</span> Var1, <span class="at">category =</span> Var2)</span>
+<span id="cb17-67"><a href="validation.html#cb17-67" tabindex="-1"></a></span>
+<span id="cb17-68"><a href="validation.html#cb17-68" tabindex="-1"></a>vis_data <span class="ot">&lt;-</span> <span class="fu">full_join</span>(mean_perc_df, sd_perc_df, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;coderid&quot;</span>, <span class="st">&quot;category&quot;</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb17-69"><a href="validation.html#cb17-69" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb17-70"><a href="validation.html#cb17-70" tabindex="-1"></a>    <span class="at">lower_ci =</span> mean_p <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se_p, <span class="co"># 95% CI lower bound</span></span>
+<span id="cb17-71"><a href="validation.html#cb17-71" tabindex="-1"></a>    <span class="at">upper_ci =</span> mean_p <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se_p, <span class="co"># 95% CI upper bound</span></span>
+<span id="cb17-72"><a href="validation.html#cb17-72" tabindex="-1"></a>    <span class="at">lower_ci =</span> <span class="fu">pmax</span>(<span class="dv">0</span>, lower_ci), <span class="co"># Ensure CI doesn&#39;t go below 0%</span></span>
+<span id="cb17-73"><a href="validation.html#cb17-73" tabindex="-1"></a>    <span class="at">upper_ci =</span> <span class="fu">pmin</span>(<span class="dv">100</span>, upper_ci), <span class="co"># Ensure CI doesn&#39;t exceed 100%</span></span>
+<span id="cb17-74"><a href="validation.html#cb17-74" tabindex="-1"></a>    <span class="at">coderid =</span> <span class="fu">factor</span>(coderid)        <span class="co"># Treat coderid as a factor for plotting</span></span>
+<span id="cb17-75"><a href="validation.html#cb17-75" tabindex="-1"></a>  )</span>
+<span id="cb17-76"><a href="validation.html#cb17-76" tabindex="-1"></a></span>
+<span id="cb17-77"><a href="validation.html#cb17-77" tabindex="-1"></a><span class="co"># Finally, we plot the three categories:</span></span>
+<span id="cb17-78"><a href="validation.html#cb17-78" tabindex="-1"></a></span>
+<span id="cb17-79"><a href="validation.html#cb17-79" tabindex="-1"></a>categories_to_plot <span class="ot">&lt;-</span> category_cols_id[<span class="dv">1</span><span class="sc">:</span><span class="fu">min</span>(<span class="dv">3</span>, <span class="fu">length</span>(category_cols_id))]</span>
+<span id="cb17-80"><a href="validation.html#cb17-80" tabindex="-1"></a>plots_list <span class="ot">&lt;-</span> <span class="fu">list</span>() <span class="co"># To store plots if we generate multiple</span></span>
+<span id="cb17-81"><a href="validation.html#cb17-81" tabindex="-1"></a></span>
+<span id="cb17-82"><a href="validation.html#cb17-82" tabindex="-1"></a><span class="cf">for</span> (cat_to_plot <span class="cf">in</span> categories_to_plot) {</span>
+<span id="cb17-83"><a href="validation.html#cb17-83" tabindex="-1"></a>  plot_data_subset <span class="ot">&lt;-</span> <span class="fu">filter</span>(vis_data, category <span class="sc">==</span> cat_to_plot)</span>
+<span id="cb17-84"><a href="validation.html#cb17-84" tabindex="-1"></a>  </span>
+<span id="cb17-85"><a href="validation.html#cb17-85" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(plot_data_subset, <span class="fu">aes</span>(<span class="at">x =</span> mean_p, <span class="at">y =</span> coderid)) <span class="sc">+</span></span>
+<span id="cb17-86"><a href="validation.html#cb17-86" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb17-87"><a href="validation.html#cb17-87" tabindex="-1"></a>    <span class="fu">geom_errorbarh</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> lower_ci, <span class="at">xmax =</span> upper_ci),</span>
+<span id="cb17-88"><a href="validation.html#cb17-88" tabindex="-1"></a>                   <span class="at">height =</span> <span class="fl">0.2</span>,</span>
+<span id="cb17-89"><a href="validation.html#cb17-89" tabindex="-1"></a>                   <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb17-90"><a href="validation.html#cb17-90" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Mean Percentage Coded (%) with 95% CI&quot;</span>, <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="cn">NA</span>)) <span class="sc">+</span></span>
+<span id="cb17-91"><a href="validation.html#cb17-91" tabindex="-1"></a>    <span class="fu">scale_y_discrete</span>(<span class="at">name =</span> <span class="st">&quot;Coder ID&quot;</span>) <span class="sc">+</span></span>
+<span id="cb17-92"><a href="validation.html#cb17-92" tabindex="-1"></a>    <span class="fu">ggtitle</span>(<span class="fu">paste</span>(<span class="st">&quot;Our Analysis of Coder Usage for Category:&quot;</span>, cat_to_plot)) <span class="sc">+</span></span>
+<span id="cb17-93"><a href="validation.html#cb17-93" tabindex="-1"></a>    <span class="fu">theme_classic</span>()</span>
+<span id="cb17-94"><a href="validation.html#cb17-94" tabindex="-1"></a>  </span>
+<span id="cb17-95"><a href="validation.html#cb17-95" tabindex="-1"></a>  plots_list[[cat_to_plot]] <span class="ot">&lt;-</span> p</span>
+<span id="cb17-96"><a href="validation.html#cb17-96" tabindex="-1"></a>  <span class="fu">print</span>(p) <span class="co"># Display the plot</span></span>
+<span id="cb17-97"><a href="validation.html#cb17-97" tabindex="-1"></a>}</span></code></pre></div>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/reliability-bootstrap-1.png" width="672" /><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/reliability-bootstrap-2.png" width="672" /><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/reliability-bootstrap-3.png" width="672" /></p>
+<p>In these plots, the horizontal bars represent the 95% confidence intervals we derived from the bootstrap resampling process. When we see shorter bars around a coder’s mean percentage, this indicates high consistency (low uncertainty) in that coder’s use of that category relative to their overall coding activity. On the other hand, longer bars indicate greater uncertainty, which could be due to the coder’s less frequent or less consistent use of that particular category. When comparing between coders, overlapping confidence intervals indicate that the coders used the category at statistically similar rates. However, non-overlapping intervals may indicate systematic differences in how a particular coder interpreted or applied a category compared to their peers. Graphs such as these can help us identify specific categories or coders that contribute most to disagreement, and we can use them to improve our coder training or refine our coding scheme.</p>
+
+</div>
+</div>
+<!-- </div> -->
+<h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="2">
+<div id="ref-Benoit2009a" class="csl-entry">
+Benoit, K., Laver, M., &amp; Mikhaylov, S. (2009). Treating words as data with error: Uncertainty in text statements of policy positions. <em>American Journal of Political Science</em>, <em>53</em>(2), 495–513. <a href="https://doi.org/10.1111/j.1540-5907.2009.00383.x">https://doi.org/10.1111/j.1540-5907.2009.00383.x</a>
+</div>
+<div id="ref-Carmines1979a" class="csl-entry">
+Carmines, E. G., &amp; Zeller, R. A. (1979). <em>Reliability and validity assessment</em>. Sage. <a href="https://doi.org/10.4135/9781412985642">https://doi.org/10.4135/9781412985642</a>
+</div>
+<div id="ref-Grimmer2013a" class="csl-entry">
+Grimmer, J., &amp; Stewart, B. M. (2013). Text as data: The promise and pitfals of automatic content analysis methods for political texts. <em>Political Analysis</em>, <em>21</em>(3), 267–297. <a href="https://doi.org/10.1093/pan/mps028">https://doi.org/10.1093/pan/mps028</a>
+</div>
+<div id="ref-Krippendorff2019a" class="csl-entry">
+Krippendorff, K. (2019). <em><span class="nocase">Content Analysis - An Introduction to Its Methodology</span></em> (4th ed.). Sage. <a href="https://doi.org/10.4135/9781071878781">https://doi.org/10.4135/9781071878781</a>
+</div>
+<div id="ref-Lowe2011a" class="csl-entry">
+Lowe, W., &amp; Benoit, K. (2011). Estimating uncertainty in quantitative text analysis. <em>Annual Meeting of the Midwest Political Science Association</em>.
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="workflow.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="import.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="assets/gitbook-2.6.7/js/app.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="assets/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["Introduction to Quantitative Text Analysis.pdf", "Introduction to Quantitative Text Analysis.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  },
+  "toolbar": {
+    "position": "static"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

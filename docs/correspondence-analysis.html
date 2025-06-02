@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>6.3 Correspondence Analysis | Introduction to Quantitative Text Analysis</title>
+  <meta name="description" content="6.3 Correspondence Analysis | Introduction to Quantitative Text Analysis" />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="6.3 Correspondence Analysis | Introduction to Quantitative Text Analysis" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="6.3 Correspondence Analysis | Introduction to Quantitative Text Analysis" />
+  
+  
+  
+
+<meta name="author" content="Kostas Gemenis and Bastiaan Bruinsma" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="wordfish.html"/>
+<link rel="next" href="exercises-2.html"/>
+<script src="assets/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="assets/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="assets/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="assets/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="assets/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 2em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Introduction to Quantitative Text Analysis</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome!</a></li>
+<li class="chapter" data-level="1" data-path="preliminaries.html"><a href="preliminaries.html"><i class="fa fa-check"></i><b>1</b> Preliminaries</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="installing-r.html"><a href="installing-r.html"><i class="fa fa-check"></i><b>1.1</b> Installing R</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="installing-r.html"><a href="installing-r.html#windows"><i class="fa fa-check"></i><b>1.1.1</b> Windows</a></li>
+<li class="chapter" data-level="1.1.2" data-path="installing-r.html"><a href="installing-r.html#linux"><i class="fa fa-check"></i><b>1.1.2</b> Linux</a></li>
+<li class="chapter" data-level="1.1.3" data-path="installing-r.html"><a href="installing-r.html#macos"><i class="fa fa-check"></i><b>1.1.3</b> macOS</a></li>
+<li class="chapter" data-level="1.1.4" data-path="installing-r.html"><a href="installing-r.html#cloud"><i class="fa fa-check"></i><b>1.1.4</b> Cloud</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="installing-packages.html"><a href="installing-packages.html"><i class="fa fa-check"></i><b>1.2</b> Installing Packages</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="installing-packages.html"><a href="installing-packages.html#cran"><i class="fa fa-check"></i><b>1.2.1</b> CRAN</a></li>
+<li class="chapter" data-level="1.2.2" data-path="installing-packages.html"><a href="installing-packages.html#github"><i class="fa fa-check"></i><b>1.2.2</b> GitHub</a></li>
+<li class="chapter" data-level="1.2.3" data-path="installing-packages.html"><a href="installing-packages.html#writing-packages"><i class="fa fa-check"></i><b>1.2.3</b> Writing Packages</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="required.html"><a href="required.html"><i class="fa fa-check"></i><b>1.3</b> Required Packages</a></li>
+<li class="chapter" data-level="1.4" data-path="troubleshooting.html"><a href="troubleshooting.html"><i class="fa fa-check"></i><b>1.4</b> Troubleshooting</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="background.html"><a href="background.html"><i class="fa fa-check"></i><b>2</b> Background</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="concepts.html"><a href="concepts.html"><i class="fa fa-check"></i><b>2.1</b> Concepts</a></li>
+<li class="chapter" data-level="2.2" data-path="workflow.html"><a href="workflow.html"><i class="fa fa-check"></i><b>2.2</b> Workflow</a></li>
+<li class="chapter" data-level="2.3" data-path="validation.html"><a href="validation.html"><i class="fa fa-check"></i><b>2.3</b> Validation</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="validation.html"><a href="validation.html#validity"><i class="fa fa-check"></i><b>2.3.1</b> Validity</a></li>
+<li class="chapter" data-level="2.3.2" data-path="validation.html"><a href="validation.html#reliability"><i class="fa fa-check"></i><b>2.3.2</b> Reliability</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="import.html"><a href="import.html"><i class="fa fa-check"></i><b>3</b> Text in R</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="basics.html"><a href="basics.html"><i class="fa fa-check"></i><b>3.1</b> Basics</a></li>
+<li class="chapter" data-level="3.2" data-path="import-.html"><a href="import-.html"><i class="fa fa-check"></i><b>3.2</b> Import .txt</a></li>
+<li class="chapter" data-level="3.3" data-path="import-.html"><a href="import-.html#import-.pdf"><i class="fa fa-check"></i><b>3.3</b> Import .pdf</a></li>
+<li class="chapter" data-level="3.4" data-path="import-.html"><a href="import-.html#import-.csv"><i class="fa fa-check"></i><b>3.4</b> Import .csv</a></li>
+<li class="chapter" data-level="3.5" data-path="import-from-an-api.html"><a href="import-from-an-api.html"><i class="fa fa-check"></i><b>3.5</b> Import from an API</a></li>
+<li class="chapter" data-level="3.6" data-path="import-using-web-scraping.html"><a href="import-using-web-scraping.html"><i class="fa fa-check"></i><b>3.6</b> Import using Web Scraping</a></li>
+<li class="chapter" data-level="3.7" data-path="import-json-and-xml.html"><a href="import-json-and-xml.html"><i class="fa fa-check"></i><b>3.7</b> Import JSON and XML</a></li>
+<li class="chapter" data-level="3.8" data-path="import-from-databases.html"><a href="import-from-databases.html"><i class="fa fa-check"></i><b>3.8</b> Import from Databases</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="describe.html"><a href="describe.html"><i class="fa fa-check"></i><b>4</b> Describe</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="corpus-and-dfm.html"><a href="corpus-and-dfm.html"><i class="fa fa-check"></i><b>4.1</b> Corpus and DFM</a></li>
+<li class="chapter" data-level="4.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html"><i class="fa fa-check"></i><b>4.2</b> Text Pre-processing</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="text-pre-processing.html"><a href="text-pre-processing.html#tokenisation-and-initial-cleaning"><i class="fa fa-check"></i><b>4.2.1</b> Tokenisation and Initial Cleaning</a></li>
+<li class="chapter" data-level="4.2.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html#lower-casing"><i class="fa fa-check"></i><b>4.2.2</b> Lower-casing</a></li>
+<li class="chapter" data-level="4.2.3" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stopword-removal"><i class="fa fa-check"></i><b>4.2.3</b> Stopword Removal</a></li>
+<li class="chapter" data-level="4.2.4" data-path="text-pre-processing.html"><a href="text-pre-processing.html#n-grams-and-collocations"><i class="fa fa-check"></i><b>4.2.4</b> N-grams and Collocations</a></li>
+<li class="chapter" data-level="4.2.5" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stemming-and-lemmatisation"><i class="fa fa-check"></i><b>4.2.5</b> Stemming and Lemmatisation</a></li>
+<li class="chapter" data-level="4.2.6" data-path="text-pre-processing.html"><a href="text-pre-processing.html#removing-sparse-features-dfm-trimming"><i class="fa fa-check"></i><b>4.2.6</b> Removing Sparse Features (DFM Trimming)</a></li>
+<li class="chapter" data-level="4.2.7" data-path="text-pre-processing.html"><a href="text-pre-processing.html#additional-pre-processing"><i class="fa fa-check"></i><b>4.2.7</b> Additional Pre-Processing</a></li>
+<li class="chapter" data-level="4.2.8" data-path="text-pre-processing.html"><a href="text-pre-processing.html#evaluating-pre-processing"><i class="fa fa-check"></i><b>4.2.8</b> Evaluating Pre-Processing</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="descriptives-and-visualisations.html"><a href="descriptives-and-visualisations.html"><i class="fa fa-check"></i><b>4.3</b> Descriptives and Visualisations</a></li>
+<li class="chapter" data-level="4.4" data-path="text-statistics.html"><a href="text-statistics.html"><i class="fa fa-check"></i><b>4.4</b> Text Statistics</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="text-statistics.html"><a href="text-statistics.html#summary"><i class="fa fa-check"></i><b>4.4.1</b> Summary</a></li>
+<li class="chapter" data-level="4.4.2" data-path="text-statistics.html"><a href="text-statistics.html#frequencies"><i class="fa fa-check"></i><b>4.4.2</b> Frequencies</a></li>
+<li class="chapter" data-level="4.4.3" data-path="text-statistics.html"><a href="text-statistics.html#lexical-diversity"><i class="fa fa-check"></i><b>4.4.3</b> Lexical diversity</a></li>
+<li class="chapter" data-level="4.4.4" data-path="text-statistics.html"><a href="text-statistics.html#readability"><i class="fa fa-check"></i><b>4.4.4</b> Readability</a></li>
+<li class="chapter" data-level="4.4.5" data-path="text-statistics.html"><a href="text-statistics.html#similarity-and-distance"><i class="fa fa-check"></i><b>4.4.5</b> Similarity and Distance</a></li>
+<li class="chapter" data-level="4.4.6" data-path="text-statistics.html"><a href="text-statistics.html#keyness"><i class="fa fa-check"></i><b>4.4.6</b> Keyness</a></li>
+<li class="chapter" data-level="4.4.7" data-path="text-statistics.html"><a href="text-statistics.html#entropy"><i class="fa fa-check"></i><b>4.4.7</b> Entropy</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="exercises.html"><a href="exercises.html"><i class="fa fa-check"></i><b>4.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="dictionary-analysis.html"><a href="dictionary-analysis.html"><i class="fa fa-check"></i><b>5</b> Dictionary Analysis</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="classical-dictionary-analysis.html"><a href="classical-dictionary-analysis.html"><i class="fa fa-check"></i><b>5.1</b> Classical Dictionary Analysis</a></li>
+<li class="chapter" data-level="5.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html"><i class="fa fa-check"></i><b>5.2</b> Sentiment Analysis</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#movie-reviews"><i class="fa fa-check"></i><b>5.2.1</b> Movie Reviews</a></li>
+<li class="chapter" data-level="5.2.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#twitter"><i class="fa fa-check"></i><b>5.2.2</b> Twitter</a></li>
+<li class="chapter" data-level="5.2.3" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#vader"><i class="fa fa-check"></i><b>5.2.3</b> VADER</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="exercises-1.html"><a href="exercises-1.html"><i class="fa fa-check"></i><b>5.3</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="scaling.html"><a href="scaling.html"><i class="fa fa-check"></i><b>6</b> Scaling Methods</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="wordscores.html"><a href="wordscores.html"><i class="fa fa-check"></i><b>6.1</b> Wordscores</a></li>
+<li class="chapter" data-level="6.2" data-path="wordfish.html"><a href="wordfish.html"><i class="fa fa-check"></i><b>6.2</b> Wordfish</a></li>
+<li class="chapter" data-level="6.3" data-path="correspondence-analysis.html"><a href="correspondence-analysis.html"><i class="fa fa-check"></i><b>6.3</b> Correspondence Analysis</a></li>
+<li class="chapter" data-level="6.4" data-path="exercises-2.html"><a href="exercises-2.html"><i class="fa fa-check"></i><b>6.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="supervised-methods.html"><a href="supervised-methods.html"><i class="fa fa-check"></i><b>7</b> Supervised Methods</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="support-vector-machines-svm.html"><a href="support-vector-machines-svm.html"><i class="fa fa-check"></i><b>7.1</b> Support Vector Machines (SVM)</a></li>
+<li class="chapter" data-level="7.2" data-path="logistic-regression.html"><a href="logistic-regression.html"><i class="fa fa-check"></i><b>7.2</b> Logistic Regression</a></li>
+<li class="chapter" data-level="7.3" data-path="naive-bayes-nb.html"><a href="naive-bayes-nb.html"><i class="fa fa-check"></i><b>7.3</b> Naive Bayes (NB)</a></li>
+<li class="chapter" data-level="7.4" data-path="exercises-3.html"><a href="exercises-3.html"><i class="fa fa-check"></i><b>7.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="unsupervised-methods.html"><a href="unsupervised-methods.html"><i class="fa fa-check"></i><b>8</b> Unsupervised Methods</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="latent-dirichlet-allocation-lda.html"><a href="latent-dirichlet-allocation-lda.html"><i class="fa fa-check"></i><b>8.1</b> Latent Dirichlet Allocation (LDA)</a></li>
+<li class="chapter" data-level="8.2" data-path="seeded-latent-dirichlet-allocation-slda.html"><a href="seeded-latent-dirichlet-allocation-slda.html"><i class="fa fa-check"></i><b>8.2</b> Seeded Latent Dirichlet Allocation (sLDA)</a></li>
+<li class="chapter" data-level="8.3" data-path="structural-topic-model-stm.html"><a href="structural-topic-model-stm.html"><i class="fa fa-check"></i><b>8.3</b> Structural Topic Model (STM)</a></li>
+<li class="chapter" data-level="8.4" data-path="latent-semantic-analysis-lsa.html"><a href="latent-semantic-analysis-lsa.html"><i class="fa fa-check"></i><b>8.4</b> Latent Semantic Analysis (LSA)</a></li>
+<li class="chapter" data-level="8.5" data-path="exercises-4.html"><a href="exercises-4.html"><i class="fa fa-check"></i><b>8.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="bastiaan.bruinsma@gmail.com" target="blank">Bastiaan Bruinsma</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to Quantitative Text Analysis</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="correspondence-analysis" class="section level2 hasAnchor" number="6.3">
+<h2><span class="header-section-number">6.3</span> Correspondence Analysis<a href="correspondence-analysis.html#correspondence-analysis" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Correspondence analysis (CA) is a dimensionality reduction technique used to analyse the relationship between categorical variables. In text analysis, it is often applied to document feature matrices (DFM) to explore the associations between documents and words. CA can be considered categorical data (or count data treated as frequencies or proportions) equivalent to Principal Component Analysis (PCA). It simultaneously positions documents and features (words) in a low-dimensional space, where proximity between points indicates association.</p>
+<ul>
+<li><strong>Simple Correspondence Analysis (SCA)</strong> is applied to a two-way contingency table (like a dfm).</li>
+<li><strong>Multiple Correspondence Analysis (MCA)</strong> is an extension used to analyse relationships between more than two categorical variables and is often applied to surveys or questionnaires. While a DFM is inherently a two-way table, MCA can be used by treating the presence or absence of each word in a document as a categorical variable. However, this approach is less common than applying SCA directly to the dfm or using specialised text analysis functions that perform a form of CA.</li>
+</ul>
+<p>Here, we look at an example using a dataset where the text has been coded into specific categories, making it suitable for MCA. The example uses data from an article on the stylistic variation in Donald Trump’s Twitter data (which we already looked at earlier) between 2009 and 2018 <span class="citation">(<a href="#ref-Clarke2019a">Clarke &amp; Grieve, 2019</a>)</span>. In this study, the authors downloaded 21,739 tweets and grouped them into 63 categories over 5 dimensions based on their content. First, we load the packages we need for the Correspondence Analysis:</p>
+<p>Although there is a CA function in <code>quanteda</code>, here, we first look at <code>FactoMineR</code> and <code>factoextra</code>, which allow us several interesting possibilities. <code>FactoMineR</code> is renowned for its extensive range of exploratory data analysis functions, including CA and MCA, and it integrates seamlessly with <code>factoextra</code> for visualisation. First, we load the necessary packages and the dataset:</p>
+<div class="sourceCode" id="cb177"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb177-1"><a href="correspondence-analysis.html#cb177-1" tabindex="-1"></a><span class="fu">library</span>(FactoMineR)</span>
+<span id="cb177-2"><a href="correspondence-analysis.html#cb177-2" tabindex="-1"></a><span class="fu">library</span>(factoextra)</span>
+<span id="cb177-3"><a href="correspondence-analysis.html#cb177-3" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb177-4"><a href="correspondence-analysis.html#cb177-4" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div>
+<p>Then, we import the data, which should contain categorised information about the tweets. As before, you can load the data directly from the URL:</p>
+<div class="sourceCode" id="cb178"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb178-1"><a href="correspondence-analysis.html#cb178-1" tabindex="-1"></a>urlfile <span class="ot">=</span> <span class="st">&quot;https://raw.githubusercontent.com/SCJBruinsma/qta-files/master/TRUMP_DATA.csv&quot;</span></span>
+<span id="cb178-2"><a href="correspondence-analysis.html#cb178-2" tabindex="-1"></a>tweets <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">url</span>(urlfile), <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb178-3"><a href="correspondence-analysis.html#cb178-3" tabindex="-1"></a><span class="fu">head</span>(tweets)</span></code></pre></div>
+<p>This dataset contains several variables, including categorisations of the tweets and possibly other metadata. For the MCA, we must select the columns representing the categorical variables we want to analyse (the 63 categories mentioned in the original text). We will also sample a subset of the tweets for faster processing.</p>
+<div class="sourceCode" id="cb179"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb179-1"><a href="correspondence-analysis.html#cb179-1" tabindex="-1"></a>tweets <span class="ot">&lt;-</span> tweets[<span class="fu">sample</span>(<span class="fu">nrow</span>(tweets), <span class="dv">500</span>), ]</span>
+<span id="cb179-2"><a href="correspondence-analysis.html#cb179-2" tabindex="-1"></a>tweets_mat <span class="ot">&lt;-</span> tweets[, <span class="dv">2</span><span class="sc">:</span><span class="dv">65</span>]  <span class="co"># Select columns 2 through 65, which contain the categorical variables for MCA.</span></span></code></pre></div>
+<p>We can then run the Multiple Correspondence Analysis using the <code>MCA()</code> function from the <code>FactoMineR</code> package. When we provide the data frame containing the categorical variables, we need to specify the number of dimensions (<code>ncp</code>) to retain. We can determine this by examining the eigenvalues (similar to a scree plot in PCA) or base ourselves on theoretical considerations. Here, we use 5, as this was the number of dimensions found by <span class="citation">Clarke &amp; Grieve (<a href="#ref-Clarke2019a">2019</a>)</span>. In addition, we can include supplementary quantitative variables (<code>quanti.sup</code>) or supplementary individuals (<code>ind.sup</code>) that do not contribute to the MCA but are projected onto the resulting dimensions. Here, we include ‘Tweet.Length’ as a supplementary quantitative variable:</p>
+<div class="sourceCode" id="cb180"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb180-1"><a href="correspondence-analysis.html#cb180-1" tabindex="-1"></a>mca_tweets <span class="ot">&lt;-</span> <span class="fu">MCA</span>(tweets_mat, <span class="at">ncp =</span> <span class="dv">5</span>, <span class="at">quanti.sup =</span> <span class="dv">1</span>, <span class="at">graph =</span> <span class="cn">FALSE</span>)  <span class="co"># &#39;ncp=5&#39; specifies keeping 5 dimensions. &#39;quanti.sup=1&#39; indicates that the first column (Tweet.Length) is a supplementary quantitative variable. &#39;graph=FALSE&#39; prevents the default plots from being generated immediately.</span></span></code></pre></div>
+<p>First, let’s look at the association of the supplementary quantitative variable (Tweet Length) with the five dimensions. The MCA output’s <code>quanti.sup</code> element shows the correlation between the supplementary variable and each dimension.</p>
+<div class="sourceCode" id="cb181"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb181-1"><a href="correspondence-analysis.html#cb181-1" tabindex="-1"></a>mca_tweets<span class="sc">$</span>quanti.sup  <span class="co"># Display the correlations between the supplementary quantitative variable and the MCA dimensions.</span></span></code></pre></div>
+<pre><code>## $coord
+##               Dim 1      Dim 2       Dim 3      Dim 4      Dim 5
+## WORDCOUNT 0.8570116 -0.1467442 -0.05012065 0.01714113 -0.1163162</code></pre>
+<p>As we can see, the ‘Tweet.Length’ variable strongly correlates with dimension 1. This means that the first dimension primarily captures the variation in the length of tweets rather than different stylistic categories. When interpreting the correspondence between categories and dimensions, it’s often advisable to focus on the dimensions that explain the variance in the categorical variables independently of the ancillary variables, such as length. We will, therefore, concentrate our visualisation on dimensions 2 and 3, as we did in the original analysis.</p>
+<p>We can visualise the position of the categories on the chosen dimensions using <code>fviz_mca_var()</code> from the <code>factoextra</code> package. This plot shows the categories in MCA space. Closely related categories are often related, and their position relative to the dimensions indicates their contribution to those dimensions.</p>
+<div class="sourceCode" id="cb183"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb183-1"><a href="correspondence-analysis.html#cb183-1" tabindex="-1"></a><span class="fu">fviz_mca_var</span>(mca_tweets,</span>
+<span id="cb183-2"><a href="correspondence-analysis.html#cb183-2" tabindex="-1"></a>             <span class="at">repel =</span> <span class="cn">TRUE</span>, <span class="co"># Avoid overlapping text labels</span></span>
+<span id="cb183-3"><a href="correspondence-analysis.html#cb183-3" tabindex="-1"></a>             <span class="at">geom =</span> <span class="fu">c</span>(<span class="st">&quot;point&quot;</span>, <span class="st">&quot;text&quot;</span>), <span class="co"># Display both points and text labels</span></span>
+<span id="cb183-4"><a href="correspondence-analysis.html#cb183-4" tabindex="-1"></a>             <span class="at">axes =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), <span class="co"># Specify that we want to plot Dimensions 2 and 3</span></span>
+<span id="cb183-5"><a href="correspondence-analysis.html#cb183-5" tabindex="-1"></a>             <span class="at">ggtheme =</span> <span class="fu">theme_minimal</span>(),</span>
+<span id="cb183-6"><a href="correspondence-analysis.html#cb183-6" tabindex="-1"></a>             <span class="at">title =</span> <span class="st">&quot;MCA Plot of Tweet Categories (Dimensions 2 &amp; 3)&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/trumptweets-fvizvar-1.png" width="672" /></p>
+<p>This plot illustrates the relationships between the tweet categories based on Dimensions 2 and 3. <span class="citation">Clarke &amp; Grieve (<a href="#ref-Clarke2019a">2019</a>)</span> interpreted Dimension 2 as a ‘Conversational Style’ and Dimension 3 as a ‘Campaigning Style’. Thus, categories at the extremes of Dimension 2 indicate conversational style, while those at the extremes of Dimension 3 are associated with campaigning style. Categories near the centre are less distinctive along these dimensions.</p>
+<p>To see which categories contribute most to these dimensions or have the most extreme positions, we can examine their coordinates on the dimensions. The <code>get_mca_var()</code> function extracts detailed information about the variables (categories), including their coordinates, contributions to the dimensions, and correlations.</p>
+<div class="sourceCode" id="cb184"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb184-1"><a href="correspondence-analysis.html#cb184-1" tabindex="-1"></a>var_info <span class="ot">&lt;-</span> <span class="fu">get_mca_var</span>(mca_tweets)  <span class="co"># Get detailed information about the categories (variables) from the MCA output.</span></span>
+<span id="cb184-2"><a href="correspondence-analysis.html#cb184-2" tabindex="-1"></a>coordinates <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(var_info<span class="sc">$</span>coord)  <span class="co"># Extract the coordinates of the categories on each dimension.</span></span>
+<span id="cb184-3"><a href="correspondence-analysis.html#cb184-3" tabindex="-1"></a><span class="fu">head</span>(coordinates)</span></code></pre></div>
+<pre><code>##                   Dim 1       Dim 2       Dim 3       Dim 4       Dim 5
+## AMPLIFIER_A -0.09788751 -0.06902274  0.06712121  0.09543741 -0.03446247
+## AMPLIFIER_P  0.59146114  0.41705287 -0.40556335 -0.57665701  0.20823099
+## ANALNEG_A   -0.15748770 -0.17213448  0.02091087 -0.09791397 -0.04902178
+## ANALNEG_P    0.85204886  0.93129168 -0.11313318  0.52973968  0.26522042
+## ATTRIBADJ_A -0.47929022  0.22824686  0.23663061  0.13986682  0.40121761
+## ATTRIBADJ_P  0.23821011 -0.11344006 -0.11760683 -0.06951464 -0.19940755</code></pre>
+<div class="sourceCode" id="cb186"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb186-1"><a href="correspondence-analysis.html#cb186-1" tabindex="-1"></a><span class="co"># Optionally, order by a specific dimension to see the extremes. This can help</span></span>
+<span id="cb186-2"><a href="correspondence-analysis.html#cb186-2" tabindex="-1"></a><span class="co"># interpret the dimensions by identifying the categories most strongly</span></span>
+<span id="cb186-3"><a href="correspondence-analysis.html#cb186-3" tabindex="-1"></a><span class="co"># associated with each end.</span></span>
+<span id="cb186-4"><a href="correspondence-analysis.html#cb186-4" tabindex="-1"></a></span>
+<span id="cb186-5"><a href="correspondence-analysis.html#cb186-5" tabindex="-1"></a>coordinates_ordered_dim2 <span class="ot">&lt;-</span> coordinates <span class="sc">%&gt;%</span></span>
+<span id="cb186-6"><a href="correspondence-analysis.html#cb186-6" tabindex="-1"></a>    <span class="fu">arrange</span>(<span class="st">`</span><span class="at">Dim 2</span><span class="st">`</span>)</span>
+<span id="cb186-7"><a href="correspondence-analysis.html#cb186-7" tabindex="-1"></a></span>
+<span id="cb186-8"><a href="correspondence-analysis.html#cb186-8" tabindex="-1"></a><span class="fu">head</span>(coordinates_ordered_dim2)  <span class="co"># Display categories with the most negative coordinates on Dim 2</span></span></code></pre></div>
+<pre><code>##                  Dim 1      Dim 2       Dim 3       Dim 4      Dim 5
+## COLON_P     -0.2592962 -1.1346550 -0.12765743  0.65087583  0.6419737
+## NUMDET_P     0.3617208 -0.8159953  0.43697966 -0.03973954  0.1617759
+## NUMNOUN_P    0.2506834 -0.8150235  0.04534697 -0.38332211  0.3973838
+## GERUND_P     0.2383111 -0.7235272  0.79047745 -0.04533401 -0.3780261
+## URL_P       -0.5334139 -0.6689921 -0.20223454  0.29823581  0.6217575
+## POSESPRPN_P  0.1372452 -0.6100926  0.45200582  0.16700550  0.6420377</code></pre>
+<div class="sourceCode" id="cb188"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb188-1"><a href="correspondence-analysis.html#cb188-1" tabindex="-1"></a><span class="fu">tail</span>(coordinates_ordered_dim2)  <span class="co"># Display categories with the most positive coordinates on Dim 2</span></span></code></pre></div>
+<pre><code>##                       Dim 1     Dim 2       Dim 3       Dim 4       Dim 5
+## PREP_A           -0.8230712 0.8052457  0.14477086 -0.03477667  0.03766616
+## OTHRNOUN_A       -1.4568686 0.8629022  0.37599003 -0.41308773  0.09841326
+## ANALNEG_P         0.8520489 0.9312917 -0.11313318  0.52973968  0.26522042
+## STANCEVB_P        0.5514010 1.2065100  0.33043865  0.49040727  0.77609391
+## INITIALMENTION_P -1.3740889 1.2977164  0.09504675 -0.65336128 -0.36025425
+## AUXDO_P           0.7401893 1.3289167 -0.11606038  1.11590177  0.30943522</code></pre>
+<div class="sourceCode" id="cb190"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb190-1"><a href="correspondence-analysis.html#cb190-1" tabindex="-1"></a>coordinates_ordered_dim3 <span class="ot">&lt;-</span> coordinates <span class="sc">%&gt;%</span></span>
+<span id="cb190-2"><a href="correspondence-analysis.html#cb190-2" tabindex="-1"></a>    <span class="fu">arrange</span>(<span class="st">`</span><span class="at">Dim 3</span><span class="st">`</span>)</span>
+<span id="cb190-3"><a href="correspondence-analysis.html#cb190-3" tabindex="-1"></a></span>
+<span id="cb190-4"><a href="correspondence-analysis.html#cb190-4" tabindex="-1"></a><span class="fu">head</span>(coordinates_ordered_dim3)</span></code></pre></div>
+<pre><code>##                   Dim 1      Dim 2      Dim 3       Dim 4       Dim 5
+## SUPERLATIVE_P 0.3844324 -0.2969177 -0.9344720  0.37897964 -1.12086446
+## PREDADJ_P     0.5907107  0.7702513 -0.8023569 -0.66156655  0.32914762
+## CNTRSTCONJ_P  0.4785936  0.7500073 -0.7131886 -0.58944621  0.45511677
+## INDEFART_P    0.4894847 -0.1060032 -0.5706842 -0.05053374  0.20323712
+## BEMV_P        0.5529525  0.3132293 -0.5702540 -0.34951629  0.06513688
+## MDNEC_P       0.5222506  0.2103261 -0.5253531  0.61481327  0.08689422</code></pre>
+<div class="sourceCode" id="cb192"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb192-1"><a href="correspondence-analysis.html#cb192-1" tabindex="-1"></a><span class="fu">tail</span>(coordinates_ordered_dim3)</span></code></pre></div>
+<pre><code>##               Dim 1       Dim 2     Dim 3       Dim 4       Dim 5
+## PRVV_P    0.6250762  0.40612075 0.5799258  0.79378561 -0.07698886
+## PROVDO_P  1.0370597  0.43591147 0.7204183 -0.03205591 -0.66174907
+## GERUND_P  0.2383111 -0.72352720 0.7904774 -0.04533401 -0.37802611
+## QUES_P    0.3404573  0.37539603 0.7922378  1.57205964  0.26088244
+## MDPRED_P  0.4722946 -0.05099973 0.9256090 -0.68949403 -0.08883854
+## PASSIVE_P 0.6729391 -0.25613607 1.2319758 -1.15578164 -0.16784366</code></pre>
+<p>Examining the categories with the highest absolute coordinates on Dimensions 2 and 3 provides insight into the characteristics of these stylistic dimensions. For instance, if categories such as ‘Use of colloquialisms’ or ‘Personal anecdotes’ have high positive coordinates on Dimension 2, this lends weight to interpreting this dimension as ‘Conversational Style’. Similarly, if categories such as ‘Policy mentions’ or ‘Calls to action’ have high positive coordinates on Dimension 3, this would support the interpretation of this dimension as ‘Campaigning Style’. MCA also enables individuals (or, in this case, tweets) to be plotted in the same space using the <code>fviz_mca_ind()</code> function, which can reveal clusters of tweets with similar stylistic features:</p>
+<div class="sourceCode" id="cb194"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb194-1"><a href="correspondence-analysis.html#cb194-1" tabindex="-1"></a><span class="co"># Plot the position of individual tweets on Dimensions 2 and 3.</span></span>
+<span id="cb194-2"><a href="correspondence-analysis.html#cb194-2" tabindex="-1"></a><span class="fu">fviz_mca_ind</span>(mca_tweets,</span>
+<span id="cb194-3"><a href="correspondence-analysis.html#cb194-3" tabindex="-1"></a>             <span class="at">geom =</span> <span class="st">&quot;point&quot;</span>, <span class="co"># Show points for each tweet</span></span>
+<span id="cb194-4"><a href="correspondence-analysis.html#cb194-4" tabindex="-1"></a>             <span class="at">axes =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), <span class="co"># Plot Dimensions 2 and 3</span></span>
+<span id="cb194-5"><a href="correspondence-analysis.html#cb194-5" tabindex="-1"></a>             <span class="at">col.ind =</span> <span class="st">&quot;cos2&quot;</span>, <span class="at">gradient.cols =</span> <span class="fu">c</span>(<span class="st">&quot;#00AFBB&quot;</span>, <span class="st">&quot;#E7B800&quot;</span>, <span class="st">&quot;#FC4E07&quot;</span>), <span class="co"># Color individuals by their quality of representation (cos2) on the dimensions, using a colour gradient</span></span>
+<span id="cb194-6"><a href="correspondence-analysis.html#cb194-6" tabindex="-1"></a>             <span class="at">repel =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb194-7"><a href="correspondence-analysis.html#cb194-7" tabindex="-1"></a>             <span class="at">ggtheme =</span> <span class="fu">theme_minimal</span>(),</span>
+<span id="cb194-8"><a href="correspondence-analysis.html#cb194-8" tabindex="-1"></a>             <span class="at">title =</span> <span class="st">&quot;MCA Plot of Individual Tweets (Dimensions 2 &amp; 3)&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/trumptweets-fvizind-1.png" width="672" /></p>
+<p>Interpreting MCA results is often an iterative and exploratory process that involves examining the position of categories and individuals and potentially using additional variables or external information to understand the meaning of the dimensions. The designers of <code>FactoMineR</code> have developed a Shiny app called <code>Factoshiny</code> that provides an interactive interface for exploring MCA results that can be very helpful in this process.</p>
+<div class="sourceCode" id="cb195"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb195-1"><a href="correspondence-analysis.html#cb195-1" tabindex="-1"></a><span class="fu">library</span>(Factoshiny)</span>
+<span id="cb195-2"><a href="correspondence-analysis.html#cb195-2" tabindex="-1"></a></span>
+<span id="cb195-3"><a href="correspondence-analysis.html#cb195-3" tabindex="-1"></a><span class="co"># Launch the interactive Shiny app for MCA results. This provides a graphical</span></span>
+<span id="cb195-4"><a href="correspondence-analysis.html#cb195-4" tabindex="-1"></a><span class="co"># user interface to explore the MCA output interactively</span></span>
+<span id="cb195-5"><a href="correspondence-analysis.html#cb195-5" tabindex="-1"></a></span>
+<span id="cb195-6"><a href="correspondence-analysis.html#cb195-6" tabindex="-1"></a>res.shiny <span class="ot">&lt;-</span> <span class="fu">MCAshiny</span>(mca_tweets)  <span class="co"># Use the MCA output object as input.</span></span></code></pre></div>
+<p>Ensure you quit the Shiny application by clicking the “Quit the App” button to return to your R session. For more information on Correspondence Analysis and the <code>FactoMineR</code> package, see the original article by <span class="citation">Lê et al. (<a href="#ref-Le2008a">2008</a>)</span> or the package website.</p>
+<p>While <code>FactoMineR</code> is excellent for MCA with pre-coded categorical data, the <code>quanteda.textmodels</code> package also provides a function, <code>textmodel_ca()</code>, designed explicitly for Simple Correspondence Analysis (SCA) on a document-feature matrix (dfm). This is particularly useful when you want to perform CA directly on raw term frequencies in your corpus without prior categorisation. Based on their co-occurrence patterns, SCA on a dfm positions both documents and terms in a low-dimensional space.</p>
+<p>Let’s apply <code>textmodel_ca()</code> to the UK party manifestos dfm we created earlier in the Wordscores section. We will fit an SCA model and then explore the resulting document and feature placements. First, ensure you have loaded the <code>quanteda.textmodels</code> package. Then, we can apply the <code>textmodel_ca()</code> function to our <code>data_manifestos_dfm</code>, for which we must specify the number of dimensions (<code>nd</code>) to compute:</p>
+<div class="sourceCode" id="cb196"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb196-1"><a href="correspondence-analysis.html#cb196-1" tabindex="-1"></a><span class="co"># Ensure quanteda.textmodels is loaded</span></span>
+<span id="cb196-2"><a href="correspondence-analysis.html#cb196-2" tabindex="-1"></a><span class="fu">library</span>(quanteda.textmodels)</span>
+<span id="cb196-3"><a href="correspondence-analysis.html#cb196-3" tabindex="-1"></a></span>
+<span id="cb196-4"><a href="correspondence-analysis.html#cb196-4" tabindex="-1"></a><span class="co"># We will compute the first 2 dimensions</span></span>
+<span id="cb196-5"><a href="correspondence-analysis.html#cb196-5" tabindex="-1"></a>ca_model <span class="ot">&lt;-</span> <span class="fu">textmodel_ca</span>(data_manifestos_dfm, <span class="at">nd =</span> <span class="dv">2</span>)</span>
+<span id="cb196-6"><a href="correspondence-analysis.html#cb196-6" tabindex="-1"></a>ca_model<span class="sc">$</span>sv</span></code></pre></div>
+<pre><code>## [1] 0.5276873 0.4724757</code></pre>
+<p>The output for <code>textmodel_ca</code> shows the eigenvalues for the first two dimensions, indicating the amount of variance explained by each dimension. The <code>ca_model</code> object also provides the coordinates of both features (terms) and documents on the computed dimensions. Features or documents with similar coordinates are located close together in the CA space, suggesting a strong association based on their co-occurrence patterns. We can access the coordinates of the documents and features directly from the model object for plotting. The document coordinates are stored in <code>ca_model$rowcoord</code>, and the feature coordinates are in <code>ca_model$colcoord</code>:</p>
+<div class="sourceCode" id="cb198"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb198-1"><a href="correspondence-analysis.html#cb198-1" tabindex="-1"></a>doc_coords <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(ca_model<span class="sc">$</span>rowcoord)</span>
+<span id="cb198-2"><a href="correspondence-analysis.html#cb198-2" tabindex="-1"></a>doc_coords<span class="sc">$</span>document <span class="ot">&lt;-</span> <span class="fu">rownames</span>(doc_coords)</span>
+<span id="cb198-3"><a href="correspondence-analysis.html#cb198-3" tabindex="-1"></a><span class="fu">head</span>(doc_coords)</span></code></pre></div>
+<pre><code>##                           Dim1       Dim2            document
+## UK_natl_2001_en_Con  0.1524448 -0.5672257 UK_natl_2001_en_Con
+## UK_natl_2001_en_Lab  0.3302092 -0.5700563 UK_natl_2001_en_Lab
+## UK_natl_2001_en_LD   0.1771004  0.2938892  UK_natl_2001_en_LD
+## UK_natl_2001_en_PCy  0.1031924  2.8146966 UK_natl_2001_en_PCy
+## UK_natl_2001_en_SNP -0.8278683  0.8287998 UK_natl_2001_en_SNP
+## UK_natl_2005_en_Con  0.1432759 -1.0469080 UK_natl_2005_en_Con</code></pre>
+<div class="sourceCode" id="cb200"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb200-1"><a href="correspondence-analysis.html#cb200-1" tabindex="-1"></a><span class="co"># Extract feature coordinates</span></span>
+<span id="cb200-2"><a href="correspondence-analysis.html#cb200-2" tabindex="-1"></a></span>
+<span id="cb200-3"><a href="correspondence-analysis.html#cb200-3" tabindex="-1"></a>feature_coords <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(ca_model<span class="sc">$</span>colcoord)</span>
+<span id="cb200-4"><a href="correspondence-analysis.html#cb200-4" tabindex="-1"></a>feature_coords<span class="sc">$</span>feature <span class="ot">&lt;-</span> <span class="fu">rownames</span>(feature_coords)</span>
+<span id="cb200-5"><a href="correspondence-analysis.html#cb200-5" tabindex="-1"></a><span class="fu">head</span>(feature_coords)</span></code></pre></div>
+<pre><code>##                    Dim1       Dim2      feature
+## time          0.1959597 -0.3493652         time
+## common        0.2421251 -0.6085238       common
+## sense         0.3245334 -1.0271480        sense
+## conservative  0.2831843 -1.3381374 conservative
+## manifesto     0.2763475 -0.7723784    manifesto
+## introduction -0.4311302  1.4987321 introduction</code></pre>
+<p>Now that we have extracted the coordinates, we can visualise the documents and features in the CA space using <code>ggplot2</code>. Plotting both documents and features on the same plot enables us to inspect their relationships directly. Terms located near a document are likely to appear frequently compared to other documents, and documents located near each other tend to use similar vocabulary.</p>
+<div class="sourceCode" id="cb202"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb202-1"><a href="correspondence-analysis.html#cb202-1" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb202-2"><a href="correspondence-analysis.html#cb202-2" tabindex="-1"></a></span>
+<span id="cb202-3"><a href="correspondence-analysis.html#cb202-3" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb202-4"><a href="correspondence-analysis.html#cb202-4" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> doc_coords, <span class="fu">aes</span>(<span class="at">x =</span> Dim1, <span class="at">y =</span> Dim2, <span class="at">color =</span> document), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span> </span>
+<span id="cb202-5"><a href="correspondence-analysis.html#cb202-5" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">data =</span> doc_coords, <span class="fu">aes</span>(<span class="at">x =</span> Dim1, <span class="at">y =</span> Dim2, <span class="at">label =</span> document), <span class="at">vjust =</span> <span class="fl">1.5</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span> <span class="co"># Add document labels</span></span>
+<span id="cb202-6"><a href="correspondence-analysis.html#cb202-6" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> feature_coords, <span class="fu">aes</span>(<span class="at">x =</span> Dim1, <span class="at">y =</span> Dim2), <span class="at">shape =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">&quot;darkgrey&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb202-7"><a href="correspondence-analysis.html#cb202-7" tabindex="-1"></a><span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">color =</span> <span class="st">&quot;grey&quot;</span>) <span class="sc">+</span> <span class="co"># Add vertical line at x=0</span></span>
+<span id="cb202-8"><a href="correspondence-analysis.html#cb202-8" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">color =</span> <span class="st">&quot;grey&quot;</span>) <span class="sc">+</span> <span class="co"># Add horizontal line at y=0</span></span>
+<span id="cb202-9"><a href="correspondence-analysis.html#cb202-9" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Correspondence Analysis of UK Party Manifestos&quot;</span>) <span class="sc">+</span></span>
+<span id="cb202-10"><a href="correspondence-analysis.html#cb202-10" tabindex="-1"></a><span class="fu">scale_x_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Dimension 1&quot;</span>) <span class="sc">+</span></span>
+<span id="cb202-11"><a href="correspondence-analysis.html#cb202-11" tabindex="-1"></a><span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">&quot;Dimension 2&quot;</span>) <span class="sc">+</span></span>
+<span id="cb202-12"><a href="correspondence-analysis.html#cb202-12" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb202-13"><a href="correspondence-analysis.html#cb202-13" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/ggplot-textmodelca-1.png" width="672" /></p>
+<p>This plot illustrates the relative positions of UK party manifestos and terms extracted from the first two dimensions by SCA. Documents positioned closer together use similar vocabulary, and terms positioned closer to documents are more characteristic of them. The interpretation of the dimensions (e.g. as a left-right scale or another thematic contrast) depends on examining which documents and terms fall at the extremes of each dimension. For instance, if manifestos from left-leaning parties and terms related to social welfare appear at one end of Dimension 1 and manifestos from right-leaning parties and terms related to the economy or security appear at the other, then Dimension 1 probably represents a left-right political spectrum.</p>
+</div>
+<h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="2">
+<div id="ref-Clarke2019a" class="csl-entry">
+Clarke, I., &amp; Grieve, J. (2019). Stylistic variation on the donald trump twitter account: A linguistic analysis of tweets posted between 2009 and 2018. <em>PLOS ONE</em>, <em>14</em>(9), 1–27. <a href="https://doi.org/10.1371/journal.pone.0222062">https://doi.org/10.1371/journal.pone.0222062</a>
+</div>
+<div id="ref-Le2008a" class="csl-entry">
+Lê, S., Josse, J., &amp; Husson, F. (2008). Factominer: An r package for multivariate analysis. <em>Journal of Statistical Software</em>, <em>25</em>(1). <a href="https://doi.org/10.18637/jss.v025.i01">https://doi.org/10.18637/jss.v025.i01</a>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="wordfish.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="exercises-2.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="assets/gitbook-2.6.7/js/app.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="assets/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["Introduction to Quantitative Text Analysis.pdf", "Introduction to Quantitative Text Analysis.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  },
+  "toolbar": {
+    "position": "static"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

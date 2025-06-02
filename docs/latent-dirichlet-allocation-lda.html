@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>8.1 Latent Dirichlet Allocation (LDA) | Introduction to Quantitative Text Analysis</title>
+  <meta name="description" content="8.1 Latent Dirichlet Allocation (LDA) | Introduction to Quantitative Text Analysis" />
+  <meta name="generator" content="bookdown 0.43 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="8.1 Latent Dirichlet Allocation (LDA) | Introduction to Quantitative Text Analysis" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="8.1 Latent Dirichlet Allocation (LDA) | Introduction to Quantitative Text Analysis" />
+  
+  
+  
+
+<meta name="author" content="Kostas Gemenis and Bastiaan Bruinsma" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="unsupervised-methods.html"/>
+<link rel="next" href="seeded-latent-dirichlet-allocation-slda.html"/>
+<script src="assets/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="assets/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="assets/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="assets/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="assets/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="assets/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 2em;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Introduction to Quantitative Text Analysis</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome!</a></li>
+<li class="chapter" data-level="1" data-path="preliminaries.html"><a href="preliminaries.html"><i class="fa fa-check"></i><b>1</b> Preliminaries</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="installing-r.html"><a href="installing-r.html"><i class="fa fa-check"></i><b>1.1</b> Installing R</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="installing-r.html"><a href="installing-r.html#windows"><i class="fa fa-check"></i><b>1.1.1</b> Windows</a></li>
+<li class="chapter" data-level="1.1.2" data-path="installing-r.html"><a href="installing-r.html#linux"><i class="fa fa-check"></i><b>1.1.2</b> Linux</a></li>
+<li class="chapter" data-level="1.1.3" data-path="installing-r.html"><a href="installing-r.html#macos"><i class="fa fa-check"></i><b>1.1.3</b> macOS</a></li>
+<li class="chapter" data-level="1.1.4" data-path="installing-r.html"><a href="installing-r.html#cloud"><i class="fa fa-check"></i><b>1.1.4</b> Cloud</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="installing-packages.html"><a href="installing-packages.html"><i class="fa fa-check"></i><b>1.2</b> Installing Packages</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="installing-packages.html"><a href="installing-packages.html#cran"><i class="fa fa-check"></i><b>1.2.1</b> CRAN</a></li>
+<li class="chapter" data-level="1.2.2" data-path="installing-packages.html"><a href="installing-packages.html#github"><i class="fa fa-check"></i><b>1.2.2</b> GitHub</a></li>
+<li class="chapter" data-level="1.2.3" data-path="installing-packages.html"><a href="installing-packages.html#writing-packages"><i class="fa fa-check"></i><b>1.2.3</b> Writing Packages</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="required.html"><a href="required.html"><i class="fa fa-check"></i><b>1.3</b> Required Packages</a></li>
+<li class="chapter" data-level="1.4" data-path="troubleshooting.html"><a href="troubleshooting.html"><i class="fa fa-check"></i><b>1.4</b> Troubleshooting</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="background.html"><a href="background.html"><i class="fa fa-check"></i><b>2</b> Background</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="concepts.html"><a href="concepts.html"><i class="fa fa-check"></i><b>2.1</b> Concepts</a></li>
+<li class="chapter" data-level="2.2" data-path="workflow.html"><a href="workflow.html"><i class="fa fa-check"></i><b>2.2</b> Workflow</a></li>
+<li class="chapter" data-level="2.3" data-path="validation.html"><a href="validation.html"><i class="fa fa-check"></i><b>2.3</b> Validation</a>
+<ul>
+<li class="chapter" data-level="2.3.1" data-path="validation.html"><a href="validation.html#validity"><i class="fa fa-check"></i><b>2.3.1</b> Validity</a></li>
+<li class="chapter" data-level="2.3.2" data-path="validation.html"><a href="validation.html#reliability"><i class="fa fa-check"></i><b>2.3.2</b> Reliability</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="import.html"><a href="import.html"><i class="fa fa-check"></i><b>3</b> Text in R</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="basics.html"><a href="basics.html"><i class="fa fa-check"></i><b>3.1</b> Basics</a></li>
+<li class="chapter" data-level="3.2" data-path="import-.html"><a href="import-.html"><i class="fa fa-check"></i><b>3.2</b> Import .txt</a></li>
+<li class="chapter" data-level="3.3" data-path="import-.html"><a href="import-.html#import-.pdf"><i class="fa fa-check"></i><b>3.3</b> Import .pdf</a></li>
+<li class="chapter" data-level="3.4" data-path="import-.html"><a href="import-.html#import-.csv"><i class="fa fa-check"></i><b>3.4</b> Import .csv</a></li>
+<li class="chapter" data-level="3.5" data-path="import-from-an-api.html"><a href="import-from-an-api.html"><i class="fa fa-check"></i><b>3.5</b> Import from an API</a></li>
+<li class="chapter" data-level="3.6" data-path="import-using-web-scraping.html"><a href="import-using-web-scraping.html"><i class="fa fa-check"></i><b>3.6</b> Import using Web Scraping</a></li>
+<li class="chapter" data-level="3.7" data-path="import-json-and-xml.html"><a href="import-json-and-xml.html"><i class="fa fa-check"></i><b>3.7</b> Import JSON and XML</a></li>
+<li class="chapter" data-level="3.8" data-path="import-from-databases.html"><a href="import-from-databases.html"><i class="fa fa-check"></i><b>3.8</b> Import from Databases</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="describe.html"><a href="describe.html"><i class="fa fa-check"></i><b>4</b> Describe</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="corpus-and-dfm.html"><a href="corpus-and-dfm.html"><i class="fa fa-check"></i><b>4.1</b> Corpus and DFM</a></li>
+<li class="chapter" data-level="4.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html"><i class="fa fa-check"></i><b>4.2</b> Text Pre-processing</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="text-pre-processing.html"><a href="text-pre-processing.html#tokenisation-and-initial-cleaning"><i class="fa fa-check"></i><b>4.2.1</b> Tokenisation and Initial Cleaning</a></li>
+<li class="chapter" data-level="4.2.2" data-path="text-pre-processing.html"><a href="text-pre-processing.html#lower-casing"><i class="fa fa-check"></i><b>4.2.2</b> Lower-casing</a></li>
+<li class="chapter" data-level="4.2.3" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stopword-removal"><i class="fa fa-check"></i><b>4.2.3</b> Stopword Removal</a></li>
+<li class="chapter" data-level="4.2.4" data-path="text-pre-processing.html"><a href="text-pre-processing.html#n-grams-and-collocations"><i class="fa fa-check"></i><b>4.2.4</b> N-grams and Collocations</a></li>
+<li class="chapter" data-level="4.2.5" data-path="text-pre-processing.html"><a href="text-pre-processing.html#stemming-and-lemmatisation"><i class="fa fa-check"></i><b>4.2.5</b> Stemming and Lemmatisation</a></li>
+<li class="chapter" data-level="4.2.6" data-path="text-pre-processing.html"><a href="text-pre-processing.html#removing-sparse-features-dfm-trimming"><i class="fa fa-check"></i><b>4.2.6</b> Removing Sparse Features (DFM Trimming)</a></li>
+<li class="chapter" data-level="4.2.7" data-path="text-pre-processing.html"><a href="text-pre-processing.html#additional-pre-processing"><i class="fa fa-check"></i><b>4.2.7</b> Additional Pre-Processing</a></li>
+<li class="chapter" data-level="4.2.8" data-path="text-pre-processing.html"><a href="text-pre-processing.html#evaluating-pre-processing"><i class="fa fa-check"></i><b>4.2.8</b> Evaluating Pre-Processing</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="descriptives-and-visualisations.html"><a href="descriptives-and-visualisations.html"><i class="fa fa-check"></i><b>4.3</b> Descriptives and Visualisations</a></li>
+<li class="chapter" data-level="4.4" data-path="text-statistics.html"><a href="text-statistics.html"><i class="fa fa-check"></i><b>4.4</b> Text Statistics</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="text-statistics.html"><a href="text-statistics.html#summary"><i class="fa fa-check"></i><b>4.4.1</b> Summary</a></li>
+<li class="chapter" data-level="4.4.2" data-path="text-statistics.html"><a href="text-statistics.html#frequencies"><i class="fa fa-check"></i><b>4.4.2</b> Frequencies</a></li>
+<li class="chapter" data-level="4.4.3" data-path="text-statistics.html"><a href="text-statistics.html#lexical-diversity"><i class="fa fa-check"></i><b>4.4.3</b> Lexical diversity</a></li>
+<li class="chapter" data-level="4.4.4" data-path="text-statistics.html"><a href="text-statistics.html#readability"><i class="fa fa-check"></i><b>4.4.4</b> Readability</a></li>
+<li class="chapter" data-level="4.4.5" data-path="text-statistics.html"><a href="text-statistics.html#similarity-and-distance"><i class="fa fa-check"></i><b>4.4.5</b> Similarity and Distance</a></li>
+<li class="chapter" data-level="4.4.6" data-path="text-statistics.html"><a href="text-statistics.html#keyness"><i class="fa fa-check"></i><b>4.4.6</b> Keyness</a></li>
+<li class="chapter" data-level="4.4.7" data-path="text-statistics.html"><a href="text-statistics.html#entropy"><i class="fa fa-check"></i><b>4.4.7</b> Entropy</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="exercises.html"><a href="exercises.html"><i class="fa fa-check"></i><b>4.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="dictionary-analysis.html"><a href="dictionary-analysis.html"><i class="fa fa-check"></i><b>5</b> Dictionary Analysis</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="classical-dictionary-analysis.html"><a href="classical-dictionary-analysis.html"><i class="fa fa-check"></i><b>5.1</b> Classical Dictionary Analysis</a></li>
+<li class="chapter" data-level="5.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html"><i class="fa fa-check"></i><b>5.2</b> Sentiment Analysis</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#movie-reviews"><i class="fa fa-check"></i><b>5.2.1</b> Movie Reviews</a></li>
+<li class="chapter" data-level="5.2.2" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#twitter"><i class="fa fa-check"></i><b>5.2.2</b> Twitter</a></li>
+<li class="chapter" data-level="5.2.3" data-path="sentiment-analysis.html"><a href="sentiment-analysis.html#vader"><i class="fa fa-check"></i><b>5.2.3</b> VADER</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="exercises-1.html"><a href="exercises-1.html"><i class="fa fa-check"></i><b>5.3</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="scaling.html"><a href="scaling.html"><i class="fa fa-check"></i><b>6</b> Scaling Methods</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="wordscores.html"><a href="wordscores.html"><i class="fa fa-check"></i><b>6.1</b> Wordscores</a></li>
+<li class="chapter" data-level="6.2" data-path="wordfish.html"><a href="wordfish.html"><i class="fa fa-check"></i><b>6.2</b> Wordfish</a></li>
+<li class="chapter" data-level="6.3" data-path="correspondence-analysis.html"><a href="correspondence-analysis.html"><i class="fa fa-check"></i><b>6.3</b> Correspondence Analysis</a></li>
+<li class="chapter" data-level="6.4" data-path="exercises-2.html"><a href="exercises-2.html"><i class="fa fa-check"></i><b>6.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="supervised-methods.html"><a href="supervised-methods.html"><i class="fa fa-check"></i><b>7</b> Supervised Methods</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="support-vector-machines-svm.html"><a href="support-vector-machines-svm.html"><i class="fa fa-check"></i><b>7.1</b> Support Vector Machines (SVM)</a></li>
+<li class="chapter" data-level="7.2" data-path="logistic-regression.html"><a href="logistic-regression.html"><i class="fa fa-check"></i><b>7.2</b> Logistic Regression</a></li>
+<li class="chapter" data-level="7.3" data-path="naive-bayes-nb.html"><a href="naive-bayes-nb.html"><i class="fa fa-check"></i><b>7.3</b> Naive Bayes (NB)</a></li>
+<li class="chapter" data-level="7.4" data-path="exercises-3.html"><a href="exercises-3.html"><i class="fa fa-check"></i><b>7.4</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="unsupervised-methods.html"><a href="unsupervised-methods.html"><i class="fa fa-check"></i><b>8</b> Unsupervised Methods</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="latent-dirichlet-allocation-lda.html"><a href="latent-dirichlet-allocation-lda.html"><i class="fa fa-check"></i><b>8.1</b> Latent Dirichlet Allocation (LDA)</a></li>
+<li class="chapter" data-level="8.2" data-path="seeded-latent-dirichlet-allocation-slda.html"><a href="seeded-latent-dirichlet-allocation-slda.html"><i class="fa fa-check"></i><b>8.2</b> Seeded Latent Dirichlet Allocation (sLDA)</a></li>
+<li class="chapter" data-level="8.3" data-path="structural-topic-model-stm.html"><a href="structural-topic-model-stm.html"><i class="fa fa-check"></i><b>8.3</b> Structural Topic Model (STM)</a></li>
+<li class="chapter" data-level="8.4" data-path="latent-semantic-analysis-lsa.html"><a href="latent-semantic-analysis-lsa.html"><i class="fa fa-check"></i><b>8.4</b> Latent Semantic Analysis (LSA)</a></li>
+<li class="chapter" data-level="8.5" data-path="exercises-4.html"><a href="exercises-4.html"><i class="fa fa-check"></i><b>8.5</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li><a href="bastiaan.bruinsma@gmail.com" target="blank">Bastiaan Bruinsma</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to Quantitative Text Analysis</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="latent-dirichlet-allocation-lda" class="section level2 hasAnchor" number="8.1">
+<h2><span class="header-section-number">8.1</span> Latent Dirichlet Allocation (LDA)<a href="latent-dirichlet-allocation-lda.html#latent-dirichlet-allocation-lda" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Latent Dirichlet Allocation (LDA) is a generative probabilistic model for collections of discrete data, such as text corpora.
+The core idea is that each document contains various topics, and a word distribution characterises each topic.
+The model assumes that the process of writing a document includes:</p>
+<ol style="list-style-type: decimal">
+<li>Choosing the length of the document.</li>
+<li>Choosing a mixture of topics for the document.</li>
+<li>For each word in the document:
+<ul>
+<li>Choosing a topic from the mixture of topics in the document.</li>
+<li>Choosing a word from the word distribution of the selected topic.</li>
+</ul></li>
+</ol>
+<p>LDA aims to infer these latent topic mixtures for each document and word distributions for each topic, given the observed word frequencies in the corpus.</p>
+<p>We will primarily use the <code>topicmodels</code> package to run LDA in R.
+This package works with a specific document-term matrix format, so we first need to convert our <code>quanteda</code> dfm into this format using the <code>convert()</code> function.
+We will use the inaugural speeches corpus (<code>data_inaugural_dfm</code>) from previous chapters as our example data.</p>
+<p>We begin by loading the necessary libraries.
+<code>topicmodels</code> is the core package for LDA.
+<code>quanteda</code> is needed for corpus and DFM manipulation.
+<code>dplyr</code>, <code>tidytext</code>, and <code>ggplot2</code> are essential for subsequent data manipulation and visualisation of the model outputs in a tidy format.</p>
+<div class="sourceCode" id="cb277"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb277-1"><a href="latent-dirichlet-allocation-lda.html#cb277-1" tabindex="-1"></a><span class="co"># Install topicmodels if you haven&#39;t already: install.packages(&#39;topicmodels&#39;)</span></span>
+<span id="cb277-2"><a href="latent-dirichlet-allocation-lda.html#cb277-2" tabindex="-1"></a><span class="fu">library</span>(topicmodels)</span>
+<span id="cb277-3"><a href="latent-dirichlet-allocation-lda.html#cb277-3" tabindex="-1"></a><span class="fu">library</span>(quanteda)  <span class="co"># Ensure quanteda is loaded</span></span>
+<span id="cb277-4"><a href="latent-dirichlet-allocation-lda.html#cb277-4" tabindex="-1"></a><span class="fu">library</span>(dplyr)  <span class="co"># For data manipulation later</span></span>
+<span id="cb277-5"><a href="latent-dirichlet-allocation-lda.html#cb277-5" tabindex="-1"></a><span class="fu">library</span>(tidytext)  <span class="co"># For tidying model output later</span></span>
+<span id="cb277-6"><a href="latent-dirichlet-allocation-lda.html#cb277-6" tabindex="-1"></a><span class="fu">library</span>(ggplot2)  <span class="co"># For visualization later</span></span>
+<span id="cb277-7"><a href="latent-dirichlet-allocation-lda.html#cb277-7" tabindex="-1"></a></span>
+<span id="cb277-8"><a href="latent-dirichlet-allocation-lda.html#cb277-8" tabindex="-1"></a></span>
+<span id="cb277-9"><a href="latent-dirichlet-allocation-lda.html#cb277-9" tabindex="-1"></a><span class="fu">data</span>(data_corpus_inaugural)</span>
+<span id="cb277-10"><a href="latent-dirichlet-allocation-lda.html#cb277-10" tabindex="-1"></a>data_inaugural_tokens <span class="ot">&lt;-</span> <span class="fu">tokens</span>(data_corpus_inaugural, <span class="at">remove_punct =</span> <span class="cn">TRUE</span>, <span class="at">remove_symbols =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb277-11"><a href="latent-dirichlet-allocation-lda.html#cb277-11" tabindex="-1"></a>    <span class="at">remove_numbers =</span> <span class="cn">TRUE</span>, <span class="at">remove_url =</span> <span class="cn">TRUE</span>, <span class="at">remove_separators =</span> <span class="cn">TRUE</span>, <span class="at">split_hyphens =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb277-12"><a href="latent-dirichlet-allocation-lda.html#cb277-12" tabindex="-1"></a>data_inaugural_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_tolower</span>(data_inaugural_tokens)</span>
+<span id="cb277-13"><a href="latent-dirichlet-allocation-lda.html#cb277-13" tabindex="-1"></a>data_inaugural_tokens <span class="ot">&lt;-</span> <span class="fu">tokens_select</span>(data_inaugural_tokens, <span class="fu">stopwords</span>(<span class="st">&quot;english&quot;</span>),</span>
+<span id="cb277-14"><a href="latent-dirichlet-allocation-lda.html#cb277-14" tabindex="-1"></a>    <span class="at">selection =</span> <span class="st">&quot;remove&quot;</span>)</span>
+<span id="cb277-15"><a href="latent-dirichlet-allocation-lda.html#cb277-15" tabindex="-1"></a>data_inaugural_dfm <span class="ot">&lt;-</span> <span class="fu">dfm</span>(data_inaugural_tokens)</span>
+<span id="cb277-16"><a href="latent-dirichlet-allocation-lda.html#cb277-16" tabindex="-1"></a>data_inaugural_dfm <span class="ot">&lt;-</span> <span class="fu">dfm_compress</span>(data_inaugural_dfm, <span class="at">margin =</span> <span class="st">&quot;features&quot;</span>)</span>
+<span id="cb277-17"><a href="latent-dirichlet-allocation-lda.html#cb277-17" tabindex="-1"></a></span>
+<span id="cb277-18"><a href="latent-dirichlet-allocation-lda.html#cb277-18" tabindex="-1"></a>inaugural_dtm <span class="ot">&lt;-</span> <span class="fu">convert</span>(data_inaugural_dfm, <span class="at">to =</span> <span class="st">&quot;topicmodels&quot;</span>)</span></code></pre></div>
+<p>Once the libraries have been loaded and the data has been prepared in the required format, we will specify the parameters for the LDA model using Gibbs sampling.
+These parameters control the inference process, including the number of iterations, burn-in period, thinning interval, random seeds for reproducibility, and independent chains to run.</p>
+<p>When using Gibbs sampling, specific parameters need to be set: <em>burnin</em> (the number of initial iterations to discard), <em>iter</em> (the total number of iterations after the burn-in period), <em>thin</em> (the thinning interval), <em>seed</em> (the random seed or seeds for multiple runs), <em>nstart</em> (the number of independent chains) and <em>best</em> (whether to keep the model with the highest log-likelihood if nstart &gt; 1).
+Additionally, we must set the desired number of topics to extract.
+This is a common challenge in topic modelling, as no definitive method exists.
+It often involves a combination of statistical measures, such as likelihood or coherence scores, and qualitative evaluation of the topics to determine their meaning and interpretability.</p>
+<p>Using Gibbs sampling, we can fit an LDA model with a chosen number of topics.
+For example, k could be set to 10.
+The explanation of the parameters and the choice of k has been expanded slightly for clarity.</p>
+<div class="sourceCode" id="cb278"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb278-1"><a href="latent-dirichlet-allocation-lda.html#cb278-1" tabindex="-1"></a><span class="co"># Set parameters for Gibbs sampling</span></span>
+<span id="cb278-2"><a href="latent-dirichlet-allocation-lda.html#cb278-2" tabindex="-1"></a>burnin <span class="ot">&lt;-</span> <span class="dv">2000</span>  <span class="co"># Number of initial iterations to discard.</span></span>
+<span id="cb278-3"><a href="latent-dirichlet-allocation-lda.html#cb278-3" tabindex="-1"></a>iter <span class="ot">&lt;-</span> <span class="dv">1000</span>  <span class="co"># Number of iterations to keep after burnin.</span></span>
+<span id="cb278-4"><a href="latent-dirichlet-allocation-lda.html#cb278-4" tabindex="-1"></a>thin <span class="ot">&lt;-</span> <span class="dv">200</span>  <span class="co"># Keep every 200th iteration.</span></span>
+<span id="cb278-5"><a href="latent-dirichlet-allocation-lda.html#cb278-5" tabindex="-1"></a>seed <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="dv">42</span>, <span class="dv">5</span>, <span class="dv">24</span>, <span class="dv">158</span>, <span class="dv">2500</span>)  <span class="co"># Seeds for multiple runs. </span></span>
+<span id="cb278-6"><a href="latent-dirichlet-allocation-lda.html#cb278-6" tabindex="-1"></a>nstart <span class="ot">&lt;-</span> <span class="dv">5</span>  <span class="co"># Number of independent chains to run.</span></span>
+<span id="cb278-7"><a href="latent-dirichlet-allocation-lda.html#cb278-7" tabindex="-1"></a>best <span class="ot">&lt;-</span> <span class="cn">TRUE</span>  <span class="co"># Keep the best model from the multiple runs. </span></span>
+<span id="cb278-8"><a href="latent-dirichlet-allocation-lda.html#cb278-8" tabindex="-1"></a>k_lda <span class="ot">&lt;-</span> <span class="dv">10</span>  <span class="co"># Number of topics to find. </span></span></code></pre></div>
+<p>With the parameters defined, we fit the LDA model to the document-term matrix.
+The <code>LDA()</code> function from the <code>topicmodels</code> package performs this fitting process using the specified method and control parameters.</p>
+<div class="sourceCode" id="cb279"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb279-1"><a href="latent-dirichlet-allocation-lda.html#cb279-1" tabindex="-1"></a><span class="co"># Fit the LDA model using Gibbs sampling</span></span>
+<span id="cb279-2"><a href="latent-dirichlet-allocation-lda.html#cb279-2" tabindex="-1"></a>inaugural_lda10 <span class="ot">&lt;-</span> <span class="fu">LDA</span>(inaugural_dtm, <span class="at">k =</span> k_lda, <span class="at">method =</span> <span class="st">&quot;Gibbs&quot;</span>, <span class="at">control =</span> <span class="fu">list</span>(<span class="at">burnin =</span> burnin,</span>
+<span id="cb279-3"><a href="latent-dirichlet-allocation-lda.html#cb279-3" tabindex="-1"></a>    <span class="at">iter =</span> iter, <span class="at">thin =</span> thin, <span class="at">seed =</span> seed, <span class="at">nstart =</span> nstart, <span class="at">best =</span> best))</span>
+<span id="cb279-4"><a href="latent-dirichlet-allocation-lda.html#cb279-4" tabindex="-1"></a></span>
+<span id="cb279-5"><a href="latent-dirichlet-allocation-lda.html#cb279-5" tabindex="-1"></a><span class="co"># Display the top words for each topic</span></span>
+<span id="cb279-6"><a href="latent-dirichlet-allocation-lda.html#cb279-6" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Top terms per topic:&quot;</span>)</span></code></pre></div>
+<pre><code>## [1] &quot;Top terms per topic:&quot;</code></pre>
+<div class="sourceCode" id="cb281"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb281-1"><a href="latent-dirichlet-allocation-lda.html#cb281-1" tabindex="-1"></a><span class="fu">terms</span>(inaugural_lda10, <span class="dv">10</span>)  <span class="co"># Show top 10 terms for each of the 10 topics. These terms are the words with the highest probability within each topic.</span></span></code></pre></div>
+<pre><code>##       Topic 1    Topic 2    Topic 3    Topic 4   Topic 5        Topic 6       
+##  [1,] &quot;world&quot;    &quot;will&quot;     &quot;life&quot;     &quot;will&quot;    &quot;shall&quot;        &quot;union&quot;       
+##  [2,] &quot;peace&quot;    &quot;must&quot;     &quot;spirit&quot;   &quot;us&quot;      &quot;states&quot;       &quot;constitution&quot;
+##  [3,] &quot;nations&quot;  &quot;make&quot;     &quot;things&quot;   &quot;america&quot; &quot;now&quot;          &quot;can&quot;         
+##  [4,] &quot;free&quot;     &quot;business&quot; &quot;nation&quot;   &quot;can&quot;     &quot;will&quot;         &quot;one&quot;         
+##  [5,] &quot;must&quot;     &quot;american&quot; &quot;men&quot;      &quot;people&quot;  &quot;constitution&quot; &quot;states&quot;      
+##  [6,] &quot;freedom&quot;  &quot;made&quot;     &quot;task&quot;     &quot;nation&quot;  &quot;congress&quot;     &quot;state&quot;       
+##  [7,] &quot;can&quot;      &quot;trade&quot;    &quot;purpose&quot;  &quot;one&quot;     &quot;upon&quot;         &quot;free&quot;        
+##  [8,] &quot;new&quot;      &quot;secure&quot;   &quot;problems&quot; &quot;new&quot;     &quot;great&quot;        &quot;among&quot;       
+##  [9,] &quot;men&quot;      &quot;law&quot;      &quot;without&quot;  &quot;must&quot;    &quot;years&quot;        &quot;within&quot;      
+## [10,] &quot;progress&quot; &quot;can&quot;      &quot;action&quot;   &quot;world&quot;   &quot;laws&quot;         &quot;blessings&quot;   
+##       Topic 7      Topic 8    Topic 9     Topic 10    
+##  [1,] &quot;freedom&quot;    &quot;war&quot;      &quot;great&quot;     &quot;government&quot;
+##  [2,] &quot;let&quot;        &quot;just&quot;     &quot;may&quot;       &quot;people&quot;    
+##  [3,] &quot;time&quot;       &quot;nations&quot;  &quot;power&quot;     &quot;will&quot;      
+##  [4,] &quot;citizens&quot;   &quot;united&quot;   &quot;well&quot;      &quot;upon&quot;      
+##  [5,] &quot;man&quot;        &quot;every&quot;    &quot;whole&quot;     &quot;country&quot;   
+##  [6,] &quot;earth&quot;      &quot;powers&quot;   &quot;states&quot;    &quot;public&quot;    
+##  [7,] &quot;generation&quot; &quot;duties&quot;   &quot;might&quot;     &quot;every&quot;     
+##  [8,] &quot;human&quot;      &quot;commerce&quot; &quot;executive&quot; &quot;rights&quot;    
+##  [9,] &quot;liberty&quot;    &quot;citizens&quot; &quot;time&quot;      &quot;national&quot;  
+## [10,] &quot;courage&quot;    &quot;states&quot;   &quot;state&quot;     &quot;interests&quot;</code></pre>
+<p>The <code>terms()</code> function allows us to inspect the words with the highest probability of belonging to each topic.
+These top words provide initial clues for interpreting the meaning of each discovered topic.
+By examining the words associated with each topic, we can begin to understand the themes present in the corpus.</p>
+<p>To further explore the topic-word distributions, known as <span class="math inline">\(\beta\)</span>, and prepare them for visualization, we use the <code>tidy()</code> function from the <code>tidytext</code> package.
+<code>tidytext</code> facilitates working with text data and model outputs in a “tidy” format, which is compatible with <code>dplyr</code> and <code>ggplot2</code> for efficient data manipulation and visualization.</p>
+<div class="sourceCode" id="cb283"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb283-1"><a href="latent-dirichlet-allocation-lda.html#cb283-1" tabindex="-1"></a><span class="fu">library</span>(tidytext)  <span class="co"># Ensure tidytext is loaded</span></span>
+<span id="cb283-2"><a href="latent-dirichlet-allocation-lda.html#cb283-2" tabindex="-1"></a><span class="fu">library</span>(dplyr)  <span class="co"># Ensure dplyr is loaded</span></span>
+<span id="cb283-3"><a href="latent-dirichlet-allocation-lda.html#cb283-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)  <span class="co"># Ensure ggplot2 is loaded</span></span>
+<span id="cb283-4"><a href="latent-dirichlet-allocation-lda.html#cb283-4" tabindex="-1"></a></span>
+<span id="cb283-5"><a href="latent-dirichlet-allocation-lda.html#cb283-5" tabindex="-1"></a><span class="co"># Tidy the LDA model output to get the topic-word probabilities (beta) The</span></span>
+<span id="cb283-6"><a href="latent-dirichlet-allocation-lda.html#cb283-6" tabindex="-1"></a><span class="co"># &#39;beta&#39; matrix represents the probability of a word belonging to a topic.</span></span>
+<span id="cb283-7"><a href="latent-dirichlet-allocation-lda.html#cb283-7" tabindex="-1"></a>inaugural_lda10_topics <span class="ot">&lt;-</span> <span class="fu">tidy</span>(inaugural_lda10, <span class="at">matrix =</span> <span class="st">&quot;beta&quot;</span>)</span>
+<span id="cb283-8"><a href="latent-dirichlet-allocation-lda.html#cb283-8" tabindex="-1"></a></span>
+<span id="cb283-9"><a href="latent-dirichlet-allocation-lda.html#cb283-9" tabindex="-1"></a><span class="co"># Display the structure of the tidied beta output</span></span>
+<span id="cb283-10"><a href="latent-dirichlet-allocation-lda.html#cb283-10" tabindex="-1"></a><span class="fu">print</span>(inaugural_lda10_topics)</span></code></pre></div>
+<pre><code>## # A tibble: 92,090 × 3
+##    topic term                  beta
+##    &lt;int&gt; &lt;chr&gt;                &lt;dbl&gt;
+##  1     1 fellow-citizens 0.0000142 
+##  2     2 fellow-citizens 0.000167  
+##  3     3 fellow-citizens 0.0000233 
+##  4     4 fellow-citizens 0.00000746
+##  5     5 fellow-citizens 0.00124   
+##  6     6 fellow-citizens 0.0000164 
+##  7     7 fellow-citizens 0.0000181 
+##  8     8 fellow-citizens 0.0000150 
+##  9     9 fellow-citizens 0.00426   
+## 10    10 fellow-citizens 0.00000728
+## # ℹ 92,080 more rows</code></pre>
+<p>The resulting <code>inaugural_lda10_topics</code> data frame contains columns for the <code>topic</code>, the <code>term</code> (word), and <code>beta</code> (the probability of that word occurring in that topic).
+To visualize the top words for each topic, we filter this data frame to retain only the top N words per topic based on their beta values, typically the top 10, before creating a bar chart.</p>
+<p>We select the top terms for each topic based on their beta values, grouping the data by topic and then using <code>slice_max</code> to select the top 10 terms within each group.
+Finally, we arrange the results for better readability.</p>
+<div class="sourceCode" id="cb285"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb285-1"><a href="latent-dirichlet-allocation-lda.html#cb285-1" tabindex="-1"></a><span class="co"># Select the top 10 terms for each topic based on beta values</span></span>
+<span id="cb285-2"><a href="latent-dirichlet-allocation-lda.html#cb285-2" tabindex="-1"></a>inaugural_lda10_topterms <span class="ot">&lt;-</span> inaugural_lda10_topics <span class="sc">%&gt;%</span></span>
+<span id="cb285-3"><a href="latent-dirichlet-allocation-lda.html#cb285-3" tabindex="-1"></a>  <span class="fu">group_by</span>(topic) <span class="sc">%&gt;%</span>          <span class="co"># Group the data by topic</span></span>
+<span id="cb285-4"><a href="latent-dirichlet-allocation-lda.html#cb285-4" tabindex="-1"></a>  <span class="fu">slice_max</span>(beta, <span class="at">n =</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb285-5"><a href="latent-dirichlet-allocation-lda.html#cb285-5" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span>                </span>
+<span id="cb285-6"><a href="latent-dirichlet-allocation-lda.html#cb285-6" tabindex="-1"></a>  <span class="fu">arrange</span>(topic, <span class="sc">-</span>beta)        </span></code></pre></div>
+<p>Using the filtered data, we create a faceted bar chart to visualize the top terms for each topic and their corresponding beta probabilities.
+Reordering the terms within each facet based on their beta values makes the plot easier to interpret.
+The explanation of the plot has been slightly expanded.</p>
+<div class="sourceCode" id="cb286"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb286-1"><a href="latent-dirichlet-allocation-lda.html#cb286-1" tabindex="-1"></a>inaugural_lda10_topterms <span class="sc">%&gt;%</span></span>
+<span id="cb286-2"><a href="latent-dirichlet-allocation-lda.html#cb286-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">term =</span> <span class="fu">reorder_within</span>(term, beta, topic)) <span class="sc">%&gt;%</span> </span>
+<span id="cb286-3"><a href="latent-dirichlet-allocation-lda.html#cb286-3" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(beta, term, <span class="at">fill =</span> <span class="fu">factor</span>(topic))) <span class="sc">+</span>      <span class="co"># Plot beta on the x-axis, term on the y-axis.</span></span>
+<span id="cb286-4"><a href="latent-dirichlet-allocation-lda.html#cb286-4" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span>                      <span class="co"># Add bars, hide legend</span></span>
+<span id="cb286-5"><a href="latent-dirichlet-allocation-lda.html#cb286-5" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> topic, <span class="at">scales =</span> <span class="st">&quot;free_y&quot;</span>) <span class="sc">+</span>             <span class="co"># Create a separate plot (facet) for each topic. </span></span>
+<span id="cb286-6"><a href="latent-dirichlet-allocation-lda.html#cb286-6" tabindex="-1"></a>  <span class="fu">scale_y_reordered</span>() <span class="sc">+</span>      </span>
+<span id="cb286-7"><a href="latent-dirichlet-allocation-lda.html#cb286-7" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Top 10 Words per Topic (LDA Beta)&quot;</span>,     </span>
+<span id="cb286-8"><a href="latent-dirichlet-allocation-lda.html#cb286-8" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;Beta (Probability in Topic)&quot;</span>,</span>
+<span id="cb286-9"><a href="latent-dirichlet-allocation-lda.html#cb286-9" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;Term&quot;</span>) <span class="sc">+</span></span>
+<span id="cb286-10"><a href="latent-dirichlet-allocation-lda.html#cb286-10" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="co"># Use a minimal theme for a clean appearance.</span></span></code></pre></div>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/lda-tidy-graph1-1.png" width="672" /></p>
+<p>This plot provides a visual overview of the keywords that define each topic.
+By examining these words, we can assign a meaningful label or interpretation to each discovered topic.
+This step is crucial for understanding the thematic structure of the corpus.</p>
+<p>Another important output of LDA is the document-topic distribution, known as <span class="math inline">\(\gamma\)</span>, which represents the proportion of each topic present in each document. This information allows us to identify which topics are most prominent in specific documents. We again use the <code>tidy()</code> function to extract this data in a convenient format.</p>
+<div class="sourceCode" id="cb287"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb287-1"><a href="latent-dirichlet-allocation-lda.html#cb287-1" tabindex="-1"></a><span class="co"># Tidy the LDA model output to get the document-topic probabilities (gamma) The</span></span>
+<span id="cb287-2"><a href="latent-dirichlet-allocation-lda.html#cb287-2" tabindex="-1"></a><span class="co"># &#39;gamma&#39; matrix represents the proportion of each topic in each document.</span></span>
+<span id="cb287-3"><a href="latent-dirichlet-allocation-lda.html#cb287-3" tabindex="-1"></a>inaugural_lda10_documents <span class="ot">&lt;-</span> <span class="fu">tidy</span>(inaugural_lda10, <span class="at">matrix =</span> <span class="st">&quot;gamma&quot;</span>)</span>
+<span id="cb287-4"><a href="latent-dirichlet-allocation-lda.html#cb287-4" tabindex="-1"></a></span>
+<span id="cb287-5"><a href="latent-dirichlet-allocation-lda.html#cb287-5" tabindex="-1"></a><span class="co"># Display the structure of the tidied gamma output</span></span>
+<span id="cb287-6"><a href="latent-dirichlet-allocation-lda.html#cb287-6" tabindex="-1"></a><span class="fu">print</span>(inaugural_lda10_documents)</span></code></pre></div>
+<pre><code>## # A tibble: 600 × 3
+##    document        topic  gamma
+##    &lt;chr&gt;           &lt;int&gt;  &lt;dbl&gt;
+##  1 1789-Washington     1 0.0351
+##  2 1793-Washington     1 0.0536
+##  3 1797-Adams          1 0.0686
+##  4 1801-Jefferson      1 0.0594
+##  5 1805-Jefferson      1 0.0335
+##  6 1809-Madison        1 0.0326
+##  7 1813-Madison        1 0.0417
+##  8 1817-Monroe         1 0.0159
+##  9 1821-Monroe         1 0.0130
+## 10 1825-Adams          1 0.0490
+## # ℹ 590 more rows</code></pre>
+<p>The <code>inaugural_lda10_documents</code> data frame contains columns for the <code>document</code>, the <code>topic</code>, and <code>gamma</code> (the proportion of that topic in that document).
+We can visualize the topic distribution across documents, for example, by looking at the top topics in a selection of documents or by visualizing the distribution of a specific topic across all documents.
+Here, we will visualize the topic distribution for a few selected documents to illustrate how topics are mixed within documents.</p>
+<p>We select a subset of documents to visualize their topic distributions.
+This allows us to examine the topic proportions in individual documents and see how different topics contribute to the content of each document.</p>
+<div class="sourceCode" id="cb289"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb289-1"><a href="latent-dirichlet-allocation-lda.html#cb289-1" tabindex="-1"></a><span class="co"># Select a few documents to visualise (e.g., the first few)</span></span>
+<span id="cb289-2"><a href="latent-dirichlet-allocation-lda.html#cb289-2" tabindex="-1"></a>selected_docs <span class="ot">&lt;-</span> <span class="fu">unique</span>(inaugural_lda10_documents<span class="sc">$</span>document)[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>] <span class="co"># Select the names of the first 5 unique documents.</span></span>
+<span id="cb289-3"><a href="latent-dirichlet-allocation-lda.html#cb289-3" tabindex="-1"></a></span>
+<span id="cb289-4"><a href="latent-dirichlet-allocation-lda.html#cb289-4" tabindex="-1"></a><span class="co"># Filter the gamma data for selected documents and arrange</span></span>
+<span id="cb289-5"><a href="latent-dirichlet-allocation-lda.html#cb289-5" tabindex="-1"></a>inaugural_lda10_selected_docs <span class="ot">&lt;-</span> inaugural_lda10_documents <span class="sc">%&gt;%</span></span>
+<span id="cb289-6"><a href="latent-dirichlet-allocation-lda.html#cb289-6" tabindex="-1"></a>  <span class="fu">filter</span>(document <span class="sc">%in%</span> selected_docs) <span class="sc">%&gt;%</span> <span class="co"># Keep only the rows where the document name is in our selected_docs list.</span></span>
+<span id="cb289-7"><a href="latent-dirichlet-allocation-lda.html#cb289-7" tabindex="-1"></a>  <span class="fu">arrange</span>(document, <span class="sc">-</span>gamma) <span class="co"># Arrange the data first by document name, then by gamma in descending order to easily see the most prominent topics per document.</span></span>
+<span id="cb289-8"><a href="latent-dirichlet-allocation-lda.html#cb289-8" tabindex="-1"></a></span>
+<span id="cb289-9"><a href="latent-dirichlet-allocation-lda.html#cb289-9" tabindex="-1"></a><span class="co"># Show the structure of the selected documents&#39; gamma data</span></span>
+<span id="cb289-10"><a href="latent-dirichlet-allocation-lda.html#cb289-10" tabindex="-1"></a><span class="fu">print</span>(inaugural_lda10_selected_docs)</span></code></pre></div>
+<pre><code>## # A tibble: 50 × 3
+##    document        topic  gamma
+##    &lt;chr&gt;           &lt;int&gt;  &lt;dbl&gt;
+##  1 1789-Washington    10 0.267 
+##  2 1789-Washington     8 0.176 
+##  3 1789-Washington     9 0.140 
+##  4 1789-Washington     6 0.132 
+##  5 1789-Washington     5 0.0674
+##  6 1789-Washington     2 0.0548
+##  7 1789-Washington     4 0.0463
+##  8 1789-Washington     3 0.0407
+##  9 1789-Washington     7 0.0407
+## 10 1789-Washington     1 0.0351
+## # ℹ 40 more rows</code></pre>
+<p>With the data filtered for the selected documents, we can create a faceted bar plot. This plot shows the proportion of each topic within each of the selected documents, providing a visual representation of the document-topic mixtures.</p>
+<div class="sourceCode" id="cb291"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb291-1"><a href="latent-dirichlet-allocation-lda.html#cb291-1" tabindex="-1"></a>inaugural_lda10_selected_docs <span class="sc">%&gt;%</span></span>
+<span id="cb291-2"><a href="latent-dirichlet-allocation-lda.html#cb291-2" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">topic =</span> <span class="fu">factor</span>(topic)) <span class="sc">%&gt;%</span></span>
+<span id="cb291-3"><a href="latent-dirichlet-allocation-lda.html#cb291-3" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(gamma, topic, <span class="at">fill =</span> topic)) <span class="sc">+</span> <span class="fu">geom_col</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span> <span class="fu">facet_wrap</span>(<span class="sc">~</span>document,</span>
+<span id="cb291-4"><a href="latent-dirichlet-allocation-lda.html#cb291-4" tabindex="-1"></a>    <span class="at">scales =</span> <span class="st">&quot;free_x&quot;</span>) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Topic Distribution per Document (LDA Gamma)&quot;</span>,</span>
+<span id="cb291-5"><a href="latent-dirichlet-allocation-lda.html#cb291-5" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">&quot;Gamma (Proportion in Document)&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Topic&quot;</span>) <span class="sc">+</span> <span class="fu">theme_minimal</span>()</span></code></pre></div>
+<p><img src="Introduction-to-Quantitative-Text-Analysis_files/figure-html/lda-tidy-graph2-1.png" width="672" /></p>
+<p>It might be a good idea at this point to refer back to the “Validate, Validate,”Validate” by <span class="citation">Grimmer &amp; Stewart (<a href="#ref-Grimmer2013a">2013</a>)</span>, which we mentioned earlier. This is especially relevant here, as unsupervised methods literally “find” patterns, with the risk that — given we tend to be very good at recognizing patterns – we find non-sense patterns. Thus, we must ensure that the patterns or topics we find are meaningful and useful. The validation needed for this often involves a combination of quantitative metrics and qualitative interpretation.</p>
+<p>On the quantitative side, we can use <strong>topic coherence</strong>, which assesses the semantic similarity between the high-scoring words in a topic. Topics with high coherence tend to be more human-interpretable. While the <code>topicmodels</code> package doesn’t directly provide a built-in topic coherence measure, it can be computed using other packages like <code>ldatuning</code> or manual calculation based on word co-occurrence statistics in the corpus (we will return to this when discussing STM, where the package makes this significantly easier).</p>
+<p>Another quantitative approach involves examining <strong>perplexity</strong>, a measure of how well the model predicts a held-out set of documents.
+Lower perplexity generally indicates a better model fit. As the <code>topicmodels</code> package provides the log-likelihood of the model, we can derive the perplexity from it.</p>
+<div class="sourceCode" id="cb292"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb292-1"><a href="latent-dirichlet-allocation-lda.html#cb292-1" tabindex="-1"></a><span class="co"># Get the log-likelihood of the fitted model</span></span>
+<span id="cb292-2"><a href="latent-dirichlet-allocation-lda.html#cb292-2" tabindex="-1"></a>log_likelihood <span class="ot">&lt;-</span> <span class="fu">logLik</span>(inaugural_lda10)</span>
+<span id="cb292-3"><a href="latent-dirichlet-allocation-lda.html#cb292-3" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="fu">sum</span>(inaugural_dtm)  <span class="co"># Calculate the total words in the document-term matrix.</span></span>
+<span id="cb292-4"><a href="latent-dirichlet-allocation-lda.html#cb292-4" tabindex="-1"></a>perplexity <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="sc">-</span>log_likelihood<span class="sc">/</span>N)  <span class="co"># Calculate perplexity using the formula.</span></span>
+<span id="cb292-5"><a href="latent-dirichlet-allocation-lda.html#cb292-5" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">&quot;Perplexity of the LDA model:&quot;</span>, perplexity))</span></code></pre></div>
+<pre><code>## [1] &quot;Perplexity of the LDA model: 1262.87536366491&quot;</code></pre>
+<p>Most importantly, beyond quantitative metrics, <strong>qualitative evaluation</strong> is essential. For LDA, this involves carefully inspecting the top terms for each topic (as shown in the beta visualization) and assessing whether they form a coherent theme. We also examine the document-topic distributions (gamma visualization) to see if documents with high proportions of a given topic are indeed about the interpreted theme. Comparing topic assignments to known characteristics of documents or human judgments (if available) can also provide valuable validation. Experimenting with different numbers of topics (<span class="math inline">\(k\)</span>) and comparing the resulting topics qualitatively and quantitatively is a standard practice in LDA model validation.</p>
+<p>Finally, the choice of the number of topics (<span class="math inline">\(k\)</span>) is the most problematic aspect of validation as, while quantitative measures like coherence or perplexity can guide this choice, ultimately, the interpretability and utility of the topics for the research question are paramount. To compare models with different numbers of topics, one would typically train multiple LDA models (each with a different <span class="math inline">\(k\)</span>) and then compare their log-likelihood/perplexity or topic coherence scores, visualizing these scores against <span class="math inline">\(k\)</span>.</p>
+</div>
+<h3>References<a href="references.html#references" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="2">
+<div id="ref-Grimmer2013a" class="csl-entry">
+Grimmer, J., &amp; Stewart, B. M. (2013). Text as data: The promise and pitfals of automatic content analysis methods for political texts. <em>Political Analysis</em>, <em>21</em>(3), 267–297. <a href="https://doi.org/10.1093/pan/mps028">https://doi.org/10.1093/pan/mps028</a>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="unsupervised-methods.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="seeded-latent-dirichlet-allocation-slda.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="assets/gitbook-2.6.7/js/app.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="assets/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="assets/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+  "sharing": {
+    "github": false,
+    "facebook": true,
+    "twitter": true,
+    "linkedin": false,
+    "weibo": false,
+    "instapaper": false,
+    "vk": false,
+    "whatsapp": false,
+    "all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+  },
+  "fontsettings": {
+    "theme": "white",
+    "family": "sans",
+    "size": 2
+  },
+  "edit": {
+    "link": null,
+    "text": null
+  },
+  "history": {
+    "link": null,
+    "text": null
+  },
+  "view": {
+    "link": null,
+    "text": null
+  },
+  "download": ["Introduction to Quantitative Text Analysis.pdf", "Introduction to Quantitative Text Analysis.epub"],
+  "search": {
+    "engine": "fuse",
+    "options": null
+  },
+  "toc": {
+    "collapse": "subsection"
+  },
+  "toolbar": {
+    "position": "static"
+  }
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
