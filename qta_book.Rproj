@@ -21,7 +21,7 @@ BuildType: Website
 MarkdownReferences: Section
 
 PythonType: virtualenv
-PythonVersion: 3.12.3
-PythonPath: ~/python-r-env/bin/python3.12
+PythonVersion: 3.13.5
+PythonPath: r-python/Scripts/python.exe
 
 SpellingDictionary: en_GB
